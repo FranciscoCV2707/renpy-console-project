@@ -52,9 +52,9 @@ def test_parse_trace_line_number():
 def test_load_snoot_smoke():
     scen = load_scenario(ROOT / "tests" / "scenarios" / "snoot-smoke.yaml")
     assert scen.id == "snoot-smoke"
-    assert scen.reference == "tests/reference/traces/snoot/ruta-a.trace"
-    assert isinstance(scen.inputs, list) and len(scen.inputs) == 3
-    assert scen.compare.events == ["LABEL", "SAY", "SHOW", "HIDE", "SCENE", "PLAY", "STOP", "MENU", "CHOICE"]
+    assert scen.reference == "tests/reference/traces/ps1/snoot-smoke.trace"
+    assert isinstance(scen.inputs, list) and len(scen.inputs) == 4
+    assert scen.compare.events == ["SAY", "SHOW", "HIDE", "SCENE", "PLAY", "STOP", "MENU", "CHOICE"]
     assert scen.limits.max_seconds == 300
 
 

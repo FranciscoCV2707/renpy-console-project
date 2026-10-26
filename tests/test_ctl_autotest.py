@@ -102,7 +102,7 @@ def test_snoot_smoke_compiles():
     scen = load_scenario(ROOT / "tests" / "scenarios" / "snoot-smoke.yaml")
     steps = scenario_steps(scen)
     assert isinstance(steps, list)
-    assert len(steps) == 46
+    assert len(steps) == 32
     assert steps[-1][1] == "quit"
 
 

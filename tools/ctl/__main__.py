@@ -1,8 +1,10 @@
-"""CLI del Console Test Lab (T-202)."""
+"""CLI del Console Test Lab."""
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
+from pathlib import Path
 
 import yaml
 
@@ -14,7 +16,7 @@ def main(argv=None) -> int:
     p_build = sub.add_parser("build", help="Compila el target (adapter pendiente)")
     p_build.add_argument("--target", required=True)
 
-    p_run = sub.add_parser("run", help="Ejecuta un escenario (adapter pendiente)")
+    p_run = sub.add_parser("run", help="Ejecuta un escenario (adapter PS1)")
     p_run.add_argument("--target", required=True)
     p_run.add_argument("--scenario", default=None)
     p_run.add_argument("--suite", default=None)
@@ -35,8 +37,28 @@ def main(argv=None) -> int:
         return 2
 
     if args.command == "run":
-        print(f"adapter pendiente: run for target {args.target}", file=sys.stderr)
-        return 2
+        if args.suite is not None:
+            print("run --suite is still pending (no implementado)", file=sys.stderr)
+            return 2
+        if not args.scenario:
+            print("error: --scenario is required", file=sys.stderr)
+            return 2
+        from .ps1 import run_scenario
+        from .report import write_report
+        from .scenario import load_scenario
+        from .trace import compare_scenario
+
+        try:
+            scen = load_scenario(args.scenario)
+            trace = run_scenario(scen, Path("build") / "ctl" / args.target)
+            result = compare_scenario(scen, trace)
+            write_report(args.target, result, scen)
+        except (ValueError, OSError, yaml.YAMLError, subprocess.CalledProcessError) as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        print(result.message)
+        print(f"verdict: {result.verdict}")
+        return 0 if result.equal else 1
 
     if args.command == "compare":
         from .scenario import load_scenario

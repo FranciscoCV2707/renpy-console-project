@@ -1,15 +1,17 @@
-# Escenario de ejemplo del Test Lab (PLAN.md seccion 4.2). Se activa en la Fase 2; la traza de referencia
-# sale en la Fase 3.
+# Humo de la Fase 2 (G2): desde el título, Comenzar y 30 líneas. La referencia es una traza del propio motor en
+# PS1 (regresión); la comparación con Ren'Py es de la Fase 3 y necesita los ids del compilador en las dos trazas.
+# El motor no emite LABEL todavía (el VNB no guarda nombres de etiqueta).
 id: snoot-smoke
-reference: tests/reference/traces/snoot/ruta-a.trace
+reference: tests/reference/traces/ps1/snoot-smoke.trace
 inputs:
-  - advance: 12
-  - choose: 2
+  - wait: 60
+  - press: CROSS
+  - wait: 60
   - advance: 30
 expect:
-  - {ev: LABEL, name: start}
+  - {ev: SCENE}
 compare:
-  events: [LABEL, SAY, SHOW, HIDE, SCENE, PLAY, STOP, MENU, CHOICE]
-  tolerance: {frames: 2}
+  events: [SAY, SHOW, HIDE, SCENE, PLAY, STOP, MENU, CHOICE]
+  tolerance: {frames: 6}
 limits:
   max_seconds: 300

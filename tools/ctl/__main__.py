@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 
 def main(argv=None) -> int:
@@ -30,37 +29,57 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "build":
-        print(f"adapter pendiente: build for target {args.target}")
-        return 0
+        print(f"adapter pendiente: build for target {args.target}", file=sys.stderr)
+        return 2
 
     if args.command == "run":
-        print(f"adapter pendiente: run for target {args.target}")
-        return 0
+        print(f"adapter pendiente: run for target {args.target}", file=sys.stderr)
+        return 2
 
     if args.command == "compare":
-        from .scenario import load_scenario
-        from .trace import compare_scenario
+        from .scenario import load_scenario, ScenarioError
+        from .trace import compare_scenario, TraceParseError
         from .report import write_report
 
-        scen = load_scenario(args.scenario)
-        result = compare_scenario(scen, args.trace)
-        write_report(args.target, verdict=result.verdict, scenario=scen,
-                     first_divergent=result)
+        try:
+            scen = load_scenario(args.scenario)
+        except Exception as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        try:
+            result = compare_scenario(scen, args.trace)
+        except Exception as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        try:
+            write_report(args.target, result, scen)
+        except Exception as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
         print(result.message)
         if result.actual is not None:
             print(f"actual:    {result.actual.ev} {result.actual.fields}")
         if result.reference is not None:
             print(f"reference: {result.reference.ev} {result.reference.fields}")
-        return 0
+        return 0 if result.equal else 1
 
     if args.command == "report":
+        from .scenario import load_scenario, ScenarioError
         from .report import write_report
+
         scen = None
         if args.scenario:
-            from .scenario import load_scenario
-            scen = load_scenario(args.scenario)
-        write_report(args.target, scenario=scen)
-        print(f"report written to build/ctl/{args.target}/report.md")
+            try:
+                scen = load_scenario(args.scenario)
+            except Exception as e:
+                print(f"error: {e}", file=sys.stderr)
+                return 2
+        try:
+            p = write_report(args.target, scenario=scen)
+        except Exception as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        print(f"report written to {p}")
         return 0
 
     return 0

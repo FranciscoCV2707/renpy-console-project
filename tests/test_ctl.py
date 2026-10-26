@@ -7,9 +7,9 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from tools.ctl.trace import parse_line, parse_trace, TraceParseError
+from tools.ctl.trace import parse_line, parse_trace, TraceParseError, compare_scenario
 from tools.ctl.scenario import load_scenario, ScenarioError
-from tools.ctl import compare_scenario
+from tools.ctl.__main__ import main
 
 
 def test_parse_line_ok():
@@ -102,3 +102,73 @@ def test_compare_different(tmp_path):
     assert result.equal is False
     assert result.verdict == "FAIL"
     assert result.actual is not None
+
+
+def test_compare_different_length(tmp_path):
+    t1 = tmp_path / "a.trace"
+    t2 = tmp_path / "b.trace"
+    t1.write_text("T|1|0|SAY|who=1\nT|2|1|CHOICE|i=2\n", encoding="utf-8")
+    t2.write_text("T|1|0|SAY|who=1\n", encoding="utf-8")
+    scen_file = tmp_path / "s.yaml"
+    scen_file.write_text(
+        f"id: t\nreference: {t1}\ninputs: []\nexpect: []\n"
+        f"compare:\n  events: [SAY, CHOICE]\nlimits:\n  max_seconds: 10\n",
+        encoding="utf-8",
+    )
+    scen = load_scenario(scen_file)
+    result = compare_scenario(scen, t2)
+    assert result.equal is False
+    assert result.verdict == "FAIL"
+
+
+def test_tolerance_frames(tmp_path):
+    t1 = tmp_path / "a.trace"
+    t2 = tmp_path / "b.trace"
+    t1.write_text("T|1|0|SAY|who=1\n", encoding="utf-8")
+    t2.write_text("T|1|5|SAY|who=1\n", encoding="utf-8")
+    scen_file = tmp_path / "s.yaml"
+    scen_file.write_text(
+        f"id: t\nreference: {t1}\ninputs: []\nexpect: []\n"
+        f"compare:\n  events: [SAY]\n  tolerance: {{frames: 10}}\nlimits:\n  max_seconds: 10\n",
+        encoding="utf-8",
+    )
+    scen = load_scenario(scen_file)
+    result = compare_scenario(scen, t2)
+    assert result.equal is True
+    assert result.verdict == "PASS"
+
+
+def test_main_fail_exit_code(tmp_path, capsys):
+    t1 = tmp_path / "a.trace"
+    t2 = tmp_path / "b.trace"
+    t1.write_text("T|1|0|SAY|who=1\n", encoding="utf-8")
+    t2.write_text("T|1|0|SHOW|tag=2\n", encoding="utf-8")
+    scen_file = tmp_path / "s.yaml"
+    scen_file.write_text(
+        f"id: t\nreference: {t1}\ninputs: []\nexpect: []\n"
+        f"compare:\n  events: [SAY, SHOW]\nlimits:\n  max_seconds: 10\n",
+        encoding="utf-8",
+    )
+    rc = main(["compare", "--target", "ps1", "--scenario", str(scen_file), "--trace", str(t2)])
+    assert rc == 1
+
+
+def test_main_missing_file_exit_code(tmp_path, capsys):
+    scen_file = tmp_path / "s.yaml"
+    scen_file.write_text(
+        "id: t\nreference: /no/such.trace\ninputs: []\nexpect: []\n"
+        "compare:\n  events: [SAY]\nlimits:\n  max_seconds: 10\n",
+        encoding="utf-8",
+    )
+    rc = main(["compare", "--target", "ps1", "--scenario", str(scen_file), "--trace", str(tmp_path / "no.trace")])
+    assert rc == 2
+
+
+def test_main_build_exit_code():
+    rc = main(["build", "--target", "ps1"])
+    assert rc == 2
+
+
+def test_main_run_exit_code():
+    rc = main(["run", "--target", "ps1"])
+    assert rc == 2

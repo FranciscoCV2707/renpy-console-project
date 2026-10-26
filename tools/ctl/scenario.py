@@ -19,22 +19,10 @@ class CompareSpec:
     events: list[str]
     tolerance: dict = field(default_factory=dict)
 
-    def __getitem__(self, key):
-        return getattr(self, key)
-
-    def get(self, key, default=None):
-        return getattr(self, key, default)
-
 
 @dataclass
 class LimitsSpec:
     max_seconds: object = 0
-
-    def __getitem__(self, key):
-        return getattr(self, key)
-
-    def get(self, key, default=None):
-        return getattr(self, key, default)
 
 
 @dataclass
@@ -107,38 +95,9 @@ class Scenario:
             source=Path(source) if source is not None else None,
         )
 
-    @classmethod
-    def load(cls, path):
-        return load_scenario(path)
-
 
 def load_scenario(path):
     p = Path(path)
     text = p.read_text(encoding="utf-8")
     data = yaml.safe_load(text)
     return Scenario.from_dict(data, source=p)
-
-
-def load_scenario_text(text, source=None):
-    data = yaml.safe_load(text)
-    return Scenario.from_dict(data, source=source)
-
-
-def parse_scenario(text, source=None):
-    return load_scenario_text(text, source=source)
-
-
-def validate_scenario(data) -> bool:
-    Scenario.from_dict(data)
-    return True
-
-
-read_scenario = load_scenario
-parse = parse_scenario
-
-
-# (Optional imported at top)
-
-ScenarioValidationError = ScenarioError
-InvalidScenarioError = ScenarioError
-ScenarioParseError = ScenarioError

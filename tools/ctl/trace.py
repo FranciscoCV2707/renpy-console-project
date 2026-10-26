@@ -1,9 +1,9 @@
 """Parser y comparacion de lineas TRACE (contrato C3)."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Optional
 
 
 class TraceParseError(ValueError):
@@ -12,34 +12,27 @@ class TraceParseError(ValueError):
         self.line_no = line_no
 
 
-@dataclass(init=False)
+@dataclass
 class TraceEvent:
     seq: int
     frame: int
     ev: str
-    fields: dict
+    fields: dict = None
 
-    def __init__(self, seq, frame, ev, fields=None, campos=None):
-        self.seq = seq
-        self.frame = frame
-        self.ev = ev
-        if fields is None and campos is not None:
-            fields = campos
-        self.fields = fields if fields is not None else {}
+    def __post_init__(self):
+        if self.fields is None:
+            self.fields = {}
 
-    @property
-    def campos(self):
-        return self.fields
 
-    def __eq__(self, other):
-        if not isinstance(other, TraceEvent):
-            return NotImplemented
-        return (
-            self.seq == other.seq
-            and self.frame == other.frame
-            and self.ev == other.ev
-            and self.fields == other.fields
-        )
+@dataclass
+class CompareResult:
+    equal: bool
+    index: Optional[int]
+    actual: Optional[TraceEvent]
+    reference: Optional[TraceEvent]
+    message: str
+    verdict: str
+    scenario: Optional[str] = None
 
 
 def parse_line(line: str, line_no: int = 1) -> Optional[TraceEvent]:
@@ -90,18 +83,14 @@ def parse_file(path) -> list[TraceEvent]:
     return parse_trace(text)
 
 
-def parse_trace_file(path):
-    return parse_file(path)
-
-
-def filter_events(events: Iterable[TraceEvent], allowed) -> list[TraceEvent]:
+def _filter_events(events, allowed):
     if not allowed:
         return list(events)
     allowed_set = set(allowed)
     return [e for e in events if e.ev in allowed_set]
 
 
-def events_equal(a: TraceEvent, b: TraceEvent, tolerance_frames: int = 0) -> bool:
+def _events_equal(a, b, tolerance_frames=0):
     if a.ev != b.ev:
         return False
     if a.fields != b.fields:
@@ -111,23 +100,12 @@ def events_equal(a: TraceEvent, b: TraceEvent, tolerance_frames: int = 0) -> boo
     return True
 
 
-@dataclass
-class CompareResult:
-    equal: bool
-    index: Optional[int]
-    actual: Optional[TraceEvent]
-    reference: Optional[TraceEvent]
-    message: str
-    verdict: str
-    scenario: Optional[str] = None
-
-
-def compare_events(actual, reference, allowed_events=None, tolerance_frames: int = 0) -> CompareResult:
-    fa = filter_events(actual, allowed_events)
-    fr = filter_events(reference, allowed_events)
+def compare_events(actual, reference, allowed_events=None, tolerance_frames=0) -> CompareResult:
+    fa = _filter_events(actual, allowed_events)
+    fr = _filter_events(reference, allowed_events)
     n = min(len(fa), len(fr))
     for i in range(n):
-        if not events_equal(fa[i], fr[i], tolerance_frames):
+        if not _events_equal(fa[i], fr[i], tolerance_frames):
             return CompareResult(
                 equal=False,
                 index=i,
@@ -158,82 +136,28 @@ def compare_events(actual, reference, allowed_events=None, tolerance_frames: int
     )
 
 
-def resolve_scenario_path(p, base=None) -> Path:
-    pp = Path(p)
-    if pp.is_absolute():
-        return pp
-    if base is not None:
-        base_path = Path(base)
-        cand_base = base_path.parent if base_path.is_file() else base_path
-        cand = cand_base / pp
-        if cand.exists():
-            return cand
-    cand = Path.cwd() / pp
-    if cand.exists():
-        return cand
-    return pp
-
-
-def compare_scenario(scenario, trace_path, root=None) -> CompareResult:
-    from .scenario import Scenario  # noqa: F401
-
-    ref_path = resolve_scenario_path(scenario.reference, getattr(scenario, "source", None))
+def compare_scenario(scenario, trace_path) -> CompareResult:
+    ref_path = Path(scenario.reference)
+    if not ref_path.is_absolute():
+        base = scenario.source
+        if base is not None:
+            base_path = Path(base)
+            cand_base = base_path.parent if base_path.is_file() else base_path
+            cand = cand_base / ref_path
+            if cand.exists():
+                ref_path = cand
+            else:
+                cand2 = Path.cwd() / ref_path
+                if cand2.exists():
+                    ref_path = cand2
+        else:
+            cand = Path.cwd() / ref_path
+            if cand.exists():
+                ref_path = cand
     ref_events = parse_file(ref_path)
     actual_events = parse_file(trace_path)
-    allowed = getattr(scenario.compare, "events", None) if hasattr(scenario, "compare") else None
-    if allowed is None and isinstance(scenario.compare, dict):
-        allowed = scenario.compare.get("events")
-    tol = getattr(scenario.compare, "tolerance", {}) if hasattr(scenario, "compare") else {}
-    if isinstance(tol, dict):
-        tol_frames = tol.get("frames", 0)
-    else:
-        tol_frames = getattr(tol, "frames", 0) or 0
+    allowed = scenario.compare.events
+    tol_frames = scenario.compare.tolerance.get("frames", 0)
     result = compare_events(actual_events, ref_events, allowed, tol_frames)
-    result.scenario = getattr(scenario, "id", None)
+    result.scenario = scenario.id
     return result
-
-
-TraceError = TraceParseError
-
-
-def compare(*args, **kwargs):
-    """Comparacion flexible: escenario+traza o dos trazas (rutas o listas de eventos)."""
-    scenario = kwargs.pop("scenario", None)
-    trace = kwargs.pop("trace", None)
-    if scenario is not None and trace is not None:
-        scen = scenario
-        if isinstance(scen, (str, Path)):
-            from .scenario import load_scenario
-
-            scen = load_scenario(scen)
-        return compare_scenario(scen, trace)
-    if len(args) == 1 and isinstance(args[0], (str, Path)) and str(args[0]).endswith((".yaml", ".yml")):
-        # compare(scenario_path, trace_path) handled below? fallback
-        pass
-    if len(args) >= 2:
-        a, b = args[0], args[1]
-        # scenario + trace
-        if hasattr(a, "compare") or (isinstance(a, (str, Path)) and str(a).endswith((".yaml", ".yml"))):
-            scen = a
-            if isinstance(scen, (str, Path)):
-                from .scenario import load_scenario
-
-                scen = load_scenario(scen)
-            return compare_scenario(scen, b)
-        # two traces
-        ae = a if not isinstance(a, (str, Path)) else parse_file(a)
-        re = b if not isinstance(b, (str, Path)) else parse_file(b)
-        allowed = kwargs.get("allowed_events", kwargs.get("events"))
-        tol = kwargs.get("tolerance_frames", kwargs.get("tolerance", 0))
-        if isinstance(tol, dict):
-            tol = tol.get("frames", 0)
-        return compare_events(ae, re, allowed, tol)
-    if len(args) == 1:
-        return args[0]
-    return None
-
-
-def compare_traces(actual, reference, allowed_events=None, tolerance_frames=0):
-    ae = actual if not isinstance(actual, (str, Path)) else parse_file(actual)
-    re = reference if not isinstance(reference, (str, Path)) else parse_file(reference)
-    return compare_events(ae, re, allowed_events, tolerance_frames)

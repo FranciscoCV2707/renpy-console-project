@@ -65,7 +65,7 @@ def run_scenario(scenario, out_dir) -> Path:
     bin_bytes = autotest_mod.autotest_bin(steps)
 
     engine = snoot.engine_dir("cur")
-    et.ELF = engine / "build" / "snoot.elf"
+    et.ELF = engine / "build" / "snoot.elf"  # noqa
 
     cue = snoot.build_disc(REPO, bin_bytes, out / "disc")
 

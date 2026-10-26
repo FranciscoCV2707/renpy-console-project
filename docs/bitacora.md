@@ -68,3 +68,13 @@
 - T-201: TRACE en `vm.c` con `VN_TRACE`. Probado en PCSX-Redux: 24 eventos en 3000 cuadros de Snoot; el build normal
   sigue idéntico byte a byte. La TTY solo sale con `-logfile`.
 - Oleada 2 lanzada: T-203, T-204, T-302, T-504.
+- Oleada 2: el chequeo encontró problemas en las cuatro ramas y tres se corrigieron solas en la ronda. Aun así:
+  T-203 rehecho (usaba `-stdout`, imports condicionales y reexports), T-302 rehecho (alias, `__all__`), T-504 sin
+  las pruebas pedidas. Tres agentes tocaron `dispatch.py` (prohibido) para esquivar un error mío del chequeo (buscaba
+  `.venv` dentro del worktree): ahora el chequeo revisa el alcance de cada tarea y detecta alias y `__all__`.
+- G2 cumplida: `ctl run --target ps1` → PASS en 47 s contra una traza del propio motor (`tests/reference/traces/ps1`).
+- T-302: 11 rutas grabadas en Ren'Py. `trace_hook.rpy` fallaba con personajes escritos como texto (chapter_x6);
+  las rutas 1-3 se quedaban en el teléfono de `textscroll` (minijuego de deslizar): `snoot_capture.rpy` lo devuelve
+  solo, únicamente en la copia de captura.
+- `Path.write_text` en Windows escribe CRLF: lo usé para editar y convertí archivos LF; corregido. Las trazas se
+  guardan con LF.

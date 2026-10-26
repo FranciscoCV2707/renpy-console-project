@@ -234,7 +234,7 @@ cargar, teclado, chat, créditos) **idéntico píxel a píxel** a la referencia 
 3. Escenarios (C4) que se compilan a `AUTOTEST.BIN`.
 4. `tools/doctor.py`: une los `check_env.py` de los repos y el `--smoke` de los CLIs de agentes.
 
-**[GATE G2]** `python -m tools.ctl run --target ps1 --scenario snoot-smoke` da veredicto automático en < 5 min.
+**[GATE G2]** `[cumplida 2026-10-26: PASS en 47 s]` `python -m tools.ctl run --target ps1 --scenario snoot-smoke` da veredicto automático en < 5 min.
 
 ### Fase 3 — Referencia Ren'Py
 1. `kit_capture.rpy` emite TRACE (C3) además de capturas.

@@ -1,0 +1,3 @@
+[ps1]
+emulator = "E:/snoot/pcsx-redux-nightly-26946.20261008.32-x64/pcsx-redux.exe"
+args = ["-stdout", "-run", "-loadexe", "{exe}"]

@@ -1,0 +1,1 @@
+"""Console Test Lab (ctl) — esqueleto (T-202)."""

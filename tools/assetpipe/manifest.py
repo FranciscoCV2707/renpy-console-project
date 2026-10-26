@@ -5,8 +5,11 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Iterable
+
+from PIL import Image
 
 from .profiles import PROFILES
 
@@ -130,6 +133,35 @@ def build_manifest(profile: str, game_dir, resources: Iterable) -> dict:
     }
 
 
+def convert_resources(profile: dict, game_dir: Path, out_dir: Path, resources: Iterable) -> dict:
+    """Reduce los recursos segun el perfil; devuelve el manifiesto con ``source`` por recurso y ``skipped``."""
+    entries, skipped = [], []
+    for rel in map(Path, resources):
+        kind = classify_kind(rel)
+        if kind in profile["skip_kinds"]:
+            skipped.append({"source": rel.as_posix()})
+            continue
+        src = game_dir / rel
+        out_rel = rel.with_suffix({"image": ".png", "audio": ".wav"}.get(kind, rel.suffix))
+        dst = out_dir / out_rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        if kind == "image":
+            # thumbnail no agranda; sin info (metadatos) el PNG sale igual byte a byte
+            with Image.open(src) as img:
+                img.thumbnail(profile["image_size"], Image.LANCZOS)
+                img.info.clear()
+                img.save(dst, format="PNG")
+        elif kind == "audio":
+            subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(src), "-map_metadata", "-1",
+                            "-bitexact", "-ar", str(profile["audio_rate"]), "-ac", str(profile["audio_channels"]),
+                            "-sample_fmt", "s16", str(dst)], check=True)
+        else:
+            shutil.copyfile(src, dst)
+        entries.append({"path": out_rel.as_posix(), "source": rel.as_posix(), "kind": kind,
+                        "bytes": dst.stat().st_size, "sha256": sha256_file(dst)})
+    return {"profile": profile["name"], "count": len(entries), "resources": entries, "skipped": skipped}
+
+
 def _is_out_inside_game(game_dir: Path, out_dir: Path) -> bool:
     try:
         out_dir.resolve().relative_to(game_dir.resolve())
@@ -152,8 +184,11 @@ def run(profile: str, game, out) -> dict:
         raise ValueError("--out no puede estar dentro de --game")
     resources = inventory(game_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    copy_resources(game_dir, out_dir, resources)
-    manifest = build_manifest(profile, game_dir, resources)
+    if profile == "pc":
+        copy_resources(game_dir, out_dir, resources)
+        manifest = build_manifest(profile, game_dir, resources)
+    else:
+        manifest = convert_resources(PROFILES[profile], game_dir, out_dir, resources)
     manifest_path = out_dir / "manifest.json"
     with manifest_path.open("w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=2, sort_keys=True, ensure_ascii=False)

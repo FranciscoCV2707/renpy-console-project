@@ -92,3 +92,42 @@ def test_cli_real_game_smoke(tmp_path):
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["profile"] == "pc"
     assert manifest["count"] > 0
+
+
+def _make_console_game(tmp_path: Path) -> Path:
+    from PIL import Image
+
+    game = tmp_path / "game"
+    (game / "images").mkdir(parents=True)
+    Image.new("RGB", (1920, 1080), (200, 30, 30)).save(game / "images" / "bg.jpg")
+    Image.new("RGBA", (100, 50), (0, 0, 0, 0)).save(game / "images" / "icon.png")
+    (game / "audio").mkdir()
+    subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=1",
+                    "-c:a", "libvorbis", str(game / "audio" / "beep.ogg")], check=True)
+    (game / "video").mkdir()
+    (game / "video" / "intro.webm").write_bytes(b"webm-bytes")
+    return game
+
+
+@pytest.mark.parametrize("profile, size, rate, channels", [("psp", (480, 270), 22050, 1), ("ps2", (640, 360), 44100, 2)])
+def test_console_profiles_reduce_resources(tmp_path, profile, size, rate, channels):
+    import wave
+
+    from PIL import Image
+
+    from tools.assetpipe.manifest import run
+
+    game = _make_console_game(tmp_path)
+    manifest = run(profile, game, tmp_path / "out")
+    by_source = {r["source"]: r for r in manifest["resources"]}
+    assert by_source["images/bg.jpg"]["path"] == "images/bg.png"
+    with Image.open(tmp_path / "out" / "images" / "bg.png") as img:
+        assert img.size == size
+    with Image.open(tmp_path / "out" / "images" / "icon.png") as img:
+        assert img.size == (100, 50)
+    with wave.open(str(tmp_path / "out" / "audio" / "beep.wav")) as w:
+        assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (rate, channels, 2)
+    assert manifest["skipped"] == [{"source": "video/intro.webm"}]
+    first = (tmp_path / "out" / "manifest.json").read_bytes()
+    run(profile, game, tmp_path / "out2")
+    assert (tmp_path / "out2" / "manifest.json").read_bytes() == first

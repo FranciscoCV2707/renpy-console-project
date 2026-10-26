@@ -24,7 +24,7 @@ Fase 1 — PS1 sobre el núcleo nuevo (`PLAN.md` sección 6). Fase 0 terminada.
 - [x] Skills propias, subagentes, plantillas, `agents.toml`, `dispatch.py`, `sync_skills.py` (9 pruebas pasan).
 - [ ] `[HUMANO]` Abrir Docker Desktop (Orca CLI ya está en el PATH; las terminales nuevas lo ven).
 - [ ] `[HUMANO]` Opcional: Superpowers para Claude (`/plugin install superpowers@claude-plugins-official`).
-- [ ] A4: prueba de humo de los 6 agentes (5 Beam a la vez para medir límites).
+- [ ] A4: prueba de humo. Pasaron Claude, Antigravity y Codex; faltan 5 Beam, Kilo y Vibe (lanzarlos desde tu terminal).
 - [ ] Primera oleada de 5 Beam: T-101, T-202, T-205, T-301, T-402 (PLAN.md sección 8).
 
 ## Avisos

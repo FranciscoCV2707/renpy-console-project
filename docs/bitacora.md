@@ -39,3 +39,8 @@
   por `service_tier = "default"` en `~/.codex/config.toml` (se quitó la línea) y Orca usaba Codex 0.128 y OpenCode
   1.14.33 viejos de `AppData\Roaming\npm` (Orca pone esa carpeta antes que `C:\nvm4w\nodejs`); se desinstalaron con
   permiso del usuario. Ahora Orca lanza Codex 0.164 y OpenCode 2.1.4. Repo agregado a Orca.
+- Prueba de humo A4 (10 tareas T-001..T-010): Claude (Opus 5.5), Antigravity (Gemini 3.8 Flash) y Codex 0.164
+  completas, con commit y reporte; 9 pruebas pasan en cada worktree. Codex necesitó `auto_commit` y `.tmp/` propio
+  (su sandbox de Windows no escribe en `.git`, `.agents` ni el temporal global); los reportes pasan a
+  `reports/<T>.md`. Los 5 Beam, Kilo y Vibe no se lanzaron: el clasificador de permisos de la sesión de Claude los
+  bloqueó por correr con aprobación automática. Faltan por correr desde una terminal del usuario.

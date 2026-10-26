@@ -2,13 +2,14 @@
 
 ## Imagen Docker
 
-- Imagen: `ps2dev/ps2dev:latest`
+- Imagen: `ps2dev/ps2dev@sha256:5476fdfbf34d35eb644fde0a6f6533fb554a4a8171ce53dad7cd1df6077dfb05`
+- Etiqueta de origen: `ps2dev/ps2dev:latest`
 - Digest: `sha256:5476fdfbf34d35eb644fde0a6f6533fb554a4a8171ce53dad7cd1df6077dfb05`
 - Tamaño: ~1.05 GB
 - Comprobar localmente:
 
 ```sh
-docker pull ps2dev/ps2dev:latest
+docker pull ps2dev/ps2dev@sha256:5476fdfbf34d35eb644fde0a6f6533fb554a4a8171ce53dad7cd1df6077dfb05
 docker inspect --format "{{index .RepoDigests 0}}" ps2dev/ps2dev:latest
 ```
 
@@ -28,14 +29,16 @@ Fuente: `platforms/ps2/hello/` (`main.c` + `Makefile`).
 
 ```sh
 docker run --rm -v "${PWD}:/src" -w /src/platforms/ps2/hello \
-  ps2dev/ps2dev:latest sh -c "apk add --no-cache make >/tmp/apk.log 2>&1 && make"
+  ps2dev/ps2dev@sha256:5476fdfbf34d35eb644fde0a6f6533fb554a4a8171ce53dad7cd1df6077dfb05 \
+  sh -c "apk add --no-cache make >/tmp/apk.log 2>&1 && make"
 ```
 
 En Windows (PowerShell):
 
 ```powershell
 docker run --rm -v "E:/Dev/renpy-console-project:/src" -w /src/platforms/ps2/hello `
-  ps2dev/ps2dev:latest sh -c "apk add --no-cache make >/tmp/apk.log 2>&1 && make"
+  ps2dev/ps2dev@sha256:5476fdfbf34d35eb644fde0a6f6533fb554a4a8171ce53dad7cd1df6077dfb05 `
+  sh -c "apk add --no-cache make >/tmp/apk.log 2>&1 && make"
 ```
 
 ## Salida esperada
@@ -50,6 +53,10 @@ mips64r5900el-ps2-elf-gcc -T.../linkfile -O2 -o hello.elf main.o \
   -L.../ee/lib ... -L.../ports/lib -L.../gsKit/lib \
   -lSDL2main -lSDL2 -lm -lpatches -lgskit -ldmakit -lps2_drivers
 ```
+
+## Lo que se verificó
+
+Solo se verificó que compila y enlaza en la imagen Docker indicada. No se ha ejecutado el `hello.elf` resultante en PCSX2 ni en hardware PS2.
 
 ## Problemas encontrados
 

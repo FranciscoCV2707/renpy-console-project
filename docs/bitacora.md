@@ -44,3 +44,11 @@
   (su sandbox de Windows no escribe en `.git`, `.agents` ni el temporal global); los reportes pasan a
   `reports/<T>.md`. Los 5 Beam, Kilo y Vibe no se lanzaron: el clasificador de permisos de la sesión de Claude los
   bloqueó por correr con aprobación automática. Faltan por correr desde una terminal del usuario.
+- GA cumplida: las 10 tareas de humo en verde (5 Beam en paralelo en ~1,5 min, Codex, Kilo, Vibe, Antigravity,
+  Claude), cada rama con solo sus 2 archivos y sin coautor. Kilo se salió del worktree la primera vez (commit en
+  `main`): se movió el commit a su rama, se quitó de `main` y ahora recibe `--dir`; `dispatch.py` marca FUGA si un
+  agente cambia el repo principal. Detección de límites de tasa solo con frases de error reales.
+- Regla de permiso en `.claude/settings.local.json` (personal, ignorada por git) para que Claude lance
+  `dispatch.py`. Instalados `clangd` 22.1.4 (MSYS2) y `pyright` 1.1.414 (npm) con los plugins `clangd-lsp` y
+  `pyright-lsp`; `compile_flags.txt` para que clangd encuentre los headers. No se instalaron Superpowers ni
+  mattpocock (chocan con los comandos propios del usuario).

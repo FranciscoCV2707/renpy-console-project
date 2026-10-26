@@ -1,0 +1,7 @@
+-std=c99
+-Wall
+-Wextra
+-Iengine/core
+-Iplatforms/pc
+-Iplatforms/ps1
+-IC:/msys64/usr/local/psn00bsdk/include/libpsn00b

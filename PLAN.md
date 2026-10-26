@@ -274,7 +274,7 @@ PS3 (PSL1GHT), PS4 (OpenOrbis), Xbox 360 (libxenon), PS5, Xbox One/Series: un do
 | A1 | `[HUMANO]` | Logins de los CLIs, Orca instalado `[hecho 2026-10-26]`; abrir Docker Desktop |
 | A2 | `[HUMANO]` | Beam responde `[hecho]` |
 | A3 | Claude | `AGENTS.md`, skills propias en `.agents/skills/` (+ copia en `.claude/skills/`), subagentes en `.claude/agents/`, plantillas en `.agents/templates/`, `tools/agents/agents.toml`, `dispatch.py`, `sync_skills.py`; skills `orca-cli` y `orchestration` de Orca `[hecho]` |
-| A4 | Claude | Prueba de humo: cada agente entrega `docs/smoke/<agente>.md` en su worktree; medir cuántos Beam en paralelo aguanta |
+| A4 | Claude | Prueba de humo `[hecha 2026-10-26]`: 10 agentes en verde, 5 Beam en paralelo sin límites de tasa |
 
 Skills por agente (probado el 2026-10-26): Codex, OpenCode/Beam, Kilo, Vibe y Antigravity leen `.agents/skills/` del
 proyecto y `~/.agents/skills/`; Claude lee `.claude/skills/` (las propias se editan en `.agents/skills/` y se copian

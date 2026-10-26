@@ -22,9 +22,9 @@ Fase 1 — PS1 sobre el núcleo nuevo (`PLAN.md` sección 6). Fase 0 terminada.
 ## Pista de agentes
 - [x] Logins, Orca y Beam (usuario). Skills de Orca `orca-cli` y `orchestration` instaladas para todos.
 - [x] Skills propias, subagentes, plantillas, `agents.toml`, `dispatch.py`, `sync_skills.py` (9 pruebas pasan).
-- [ ] `[HUMANO]` Abrir Docker Desktop (Orca CLI ya está en el PATH; las terminales nuevas lo ven).
-- [ ] `[HUMANO]` Opcional: Superpowers para Claude (`/plugin install superpowers@claude-plugins-official`).
-- [ ] A4: prueba de humo. Pasaron Claude, Antigravity y Codex; faltan 5 Beam, Kilo y Vibe (lanzarlos desde tu terminal).
+- [x] Docker Desktop 28.5.1 en marcha.
+- [x] Plugins de Claude: `clangd-lsp` y `pyright-lsp` (con clangd y pyright instalados). Superpowers descartado.
+- [x] A4 / GA: prueba de humo de los 10 agentes en verde (ramas `agent/*/T-001..T-010`).
 - [ ] Primera oleada de 5 Beam: T-101, T-202, T-205, T-301, T-402 (PLAN.md sección 8).
 
 ## Avisos

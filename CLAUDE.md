@@ -30,7 +30,10 @@ Claude es el arquitecto y orquestador: escribe contratos, divide tareas, revisa 
   `C:\Users\Pako\AppData\Local\Programs\orca\resources\bin\orca.exe` (en el PATH al activar "Orca CLI").
 - Agentes: `python tools/agents/dispatch.py list-agents|run|batch|status|remove`; skills propias en
   `.agents/skills/` (copiar a `.claude/skills/` con `python tools/agents/sync_skills.py`); subagentes de revisión
-  en `.claude/agents/` (`port-reviewer` antes de cada merge).
+  en `.claude/agents/` (`port-reviewer` antes de cada merge). Claude puede lanzar `dispatch.py` sin pedir permiso
+  (regla en `.claude/settings.local.json`).
+- Análisis de código: `clangd` (MSYS2 ucrt64) con `compile_flags.txt` y `pyright`, vía los plugins `clangd-lsp` y
+  `pyright-lsp`.
 
 ## Comandos (PowerShell, en `E:\Dev\renpy-console-project`)
 - Tests: `.\.venv\Scripts\python.exe -m pytest`

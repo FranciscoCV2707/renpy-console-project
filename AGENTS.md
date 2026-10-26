@@ -33,6 +33,9 @@ Lo leen solos Codex, OpenCode (Beam) y Kilo; a Claude, Vibe y Antigravity se lo 
 - Python 3.12 en `tools/`, con tests en `tests/`. Windows first: `encoding="utf-8"`, `pathlib.Path`,
   `subprocess.run([...], check=True)` sin `shell=True`. Scripts en Python, no `.sh` ni `.bat`.
 - Conversores deterministas: misma entrada → mismo hash.
+- Lo mínimo que pide la tarea: sin alias ("por si se busca con otro nombre"), sin funciones, parámetros ni datos que
+  nadie use, sin reexportar en `__init__.py`, sin `try/except` que se trague errores, sin código para APIs que no
+  verificaste que existen. Cada archivo termina con salto de línea. La revisión rechaza todo eso.
 - Documentación en español; código y nombres en inglés.
 
 ## Al terminar

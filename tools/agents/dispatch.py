@@ -32,7 +32,8 @@ AG = ROOT / ".agents"
 CMD_UNSAFE = set('&|<>^%"\r\n')
 # Frases de error reales; las sueltas ("429", "rate limit") salen en docs que los agentes leen
 RATE_LIMIT_HINTS = ("429 too many requests", "status code 429", "http 429", "error 429", "rate limit exceeded",
-                    "rate_limit_exceeded", "ratelimiterror", "rate limit reached")
+                    "rate_limit_exceeded", "ratelimiterror", "rate limit reached",
+                    "timed out waiting for response headers")
 
 
 class DispatchError(Exception):
@@ -99,6 +100,12 @@ def build_cmd(agent_cfg: dict, prompt: str, wt: Path) -> list[str]:
     return cmd
 
 
+def escaped_worktree(task: str, main_head: str, root: Path = ROOT) -> bool:
+    """El agente trabajó en el repo principal: commit en main con `Refs: <task>` o su reporte escrito ahí."""
+    bodies = git("log", "--format=%B", f"{main_head}..HEAD", cwd=root, check=False).stdout
+    return f"Refs: {task}" in bodies or (root / "reports" / f"{task}.md").exists()
+
+
 def agent_env(agent_cfg: dict, wt: Path) -> dict:
     """Entorno del agente: el del sistema más `env` de agents.toml, con {worktree} reemplazado."""
     env = os.environ.copy()
@@ -145,9 +152,9 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
     }
     print(f"[dispatch] -> {agent} {task}  ({wt})", flush=True)
 
-    # Para detectar un agente que se salió de su worktree y escribió en el repo principal
+    # Para detectar un agente que se salió de su worktree y escribió en el repo principal (Claude puede hacer sus
+    # propios commits en main mientras tanto, así que solo cuentan las huellas de esta tarea)
     main_head = git("rev-parse", "HEAD", check=False).stdout.strip()
-    main_dirty = git("status", "--porcelain", "--untracked-files=no", check=False).stdout
     timed_out = False
     with log_path.open("w", encoding="utf-8", errors="replace") as log:
         log.write(f"# {status['started']} agent={agent} task={task}\n# cwd={wt}\n\n")
@@ -182,8 +189,7 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
         commits = git("rev-list", "--count", f"{base_branch(cfg)}..{branch}", check=False).stdout.strip()
         dirty = bool(git("status", "--porcelain", cwd=wt, check=False).stdout.strip())
     log_text = log_path.read_text(encoding="utf-8", errors="replace").lower()
-    escaped = (git("rev-parse", "HEAD", check=False).stdout.strip() != main_head
-               or git("status", "--porcelain", "--untracked-files=no", check=False).stdout != main_dirty)
+    escaped = escaped_worktree(task, main_head)
 
     status.update({
         "escaped_worktree": escaped,

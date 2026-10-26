@@ -4,6 +4,26 @@
 
 #define MAX_FIELDS 8
 
+#ifdef VN_TRACE
+#include <stdio.h>
+#include "vn_platform.h"
+
+static unsigned long trace_seq;
+
+/* Una linea del protocolo TRACE (PLAN.md 4.1) por vn_ops->log; frame es el reloj del anfitrion (vm->now) */
+static void trace(const Vm *vm, const char *ev, const char *fields)
+{
+	char line[112];
+
+	snprintf(line, sizeof(line), "T|%lu|%lu|%s|%s", trace_seq++, (unsigned long)vm->now, ev, fields);
+	if (vn_ops && vn_ops->log)
+		vn_ops->log(line);
+}
+#define TRACE(vm, ev, ...) do { char f_[80]; snprintf(f_, sizeof(f_), __VA_ARGS__); trace(vm, ev, f_); } while (0)
+#else
+#define TRACE(vm, ev, ...) ((void)0)
+#endif
+
 static uint16_t rd16(const uint8_t *p)
 {
 	return (uint16_t)(p[0] | (p[1] << 8));
@@ -64,6 +84,7 @@ VmSprite *vm_sprite(Vm *vm, int tag)
 static VmEvent fail(Vm *vm, const char *msg)
 {
 	vm->error = msg;
+	TRACE(vm, "ERROR", "msg=%s", msg);
 	return VM_EV_ERROR;
 }
 
@@ -199,6 +220,7 @@ VmEvent vm_run(Vm *vm)
 		vm->in_menu = 0;
 		if (vm->choice < 0 || vm->choice >= vm->menu_n)
 			return fail(vm, "opcion de menu invalida");
+		TRACE(vm, "CHOICE", "i=%d", vm->choice);
 		vm->pc = vm->menu_target[vm->choice];
 	}
 
@@ -268,6 +290,7 @@ VmEvent vm_run(Vm *vm)
 			}
 			vm->pc += 4 + 12 * n;
 			vm->in_menu = 1;
+			TRACE(vm, "MENU", "n=%d", vm->menu_n);
 			return VM_EV_MENU;
 		}
 
@@ -292,6 +315,7 @@ VmEvent vm_run(Vm *vm)
 			}
 			vm->pc += 3 + 6 * n;
 			vm->in_menu = 1;
+			TRACE(vm, "MENU", "n=%d", vm->menu_n);
 			if (vm->host->notify) {
 				int32_t m[2 + VM_MENU_MAX];
 				m[0] = vm->menu_flags;
@@ -330,6 +354,7 @@ VmEvent vm_run(Vm *vm)
 			vm->ev_text = a[1];
 			vm->ev_gid = (int)(vm->ch.text_base + a[1]);
 			vm->ev_extend = (op == OP_SAYX);
+			TRACE(vm, "SAY", "who=%d;text=%d", vm->ev_speaker, vm->ev_gid);
 			if (vm->host->notify)
 				vm->host->notify(vm->host->user, op, a, info->nfields);
 			return VM_EV_SAY;
@@ -350,6 +375,7 @@ VmEvent vm_run(Vm *vm)
 				vm->host->notify(vm->host->user, op, a, info->nfields);
 			return VM_EV_SPECIAL;
 		case OP_END:
+			TRACE(vm, "END", "%s", "");
 			return VM_EV_END;
 		case OP_HALT:
 			return fail(vm, "HALT");
@@ -358,12 +384,14 @@ VmEvent vm_run(Vm *vm)
 			vm->bg = (uint16_t)a[0];
 			vm->bg_anim = (uint16_t)a[1];
 			clear_scene(vm);
+			TRACE(vm, "SCENE", "img=%d", (int)a[0]);
 			break;
 		case OP_BACKGROUND:
 			vm->bg = (uint16_t)a[0];
 			break;
 		case OP_SHOW:
 			scene_show(vm, a);
+			TRACE(vm, "SHOW", "tag=%d;img=%d", (int)a[0], (int)a[1]);
 			break;
 		case OP_PERSPECTIVE:
 			vm->persp_z11 = a[0] ? a[0] : 1000;
@@ -385,8 +413,15 @@ VmEvent vm_run(Vm *vm)
 			VmSprite *s = vm_sprite(vm, a[0]);
 			if (s)
 				s->used = 0;
+			TRACE(vm, "HIDE", "tag=%d", (int)a[0]);
 			break;
 		}
+		case OP_MUSIC_PLAY:
+			TRACE(vm, "PLAY", "track=%d", (int)a[0]);
+			break;
+		case OP_MUSIC_STOP:
+			TRACE(vm, "STOP", "%s", "");
+			break;
 
 		case OP_JUMP:
 			vm->pc = (uint32_t)a[0];
@@ -409,8 +444,10 @@ VmEvent vm_run(Vm *vm)
 			int target;
 			uint32_t pc;
 
-			if (vm->ncalls == 0)
+			if (vm->ncalls == 0) {
+				TRACE(vm, "END", "%s", "");
 				return VM_EV_END;
+			}
 			vm->ncalls--;
 			target = vm->calls[vm->ncalls].chapter;
 			pc = vm->calls[vm->ncalls].pc;

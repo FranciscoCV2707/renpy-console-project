@@ -271,7 +271,7 @@ PS3 (PSL1GHT), PS4 (OpenOrbis), Xbox 360 (libxenon), PS5, Xbox One/Series: un do
 
 | Paso | Quién | Qué |
 |---|---|---|
-| A1 | `[HUMANO]` | Logins de los CLIs, Orca instalado `[hecho 2026-10-26]`; abrir Docker Desktop; activar "Orca CLI" en Settings para tener `orca` en el PATH |
+| A1 | `[HUMANO]` | Logins de los CLIs, Orca instalado `[hecho 2026-10-26]`; abrir Docker Desktop |
 | A2 | `[HUMANO]` | Beam responde `[hecho]` |
 | A3 | Claude | `AGENTS.md`, skills propias en `.agents/skills/` (+ copia en `.claude/skills/`), subagentes en `.claude/agents/`, plantillas en `.agents/templates/`, `tools/agents/agents.toml`, `dispatch.py`, `sync_skills.py`; skills `orca-cli` y `orchestration` de Orca `[hecho]` |
 | A4 | Claude | Prueba de humo: cada agente entrega `docs/smoke/<agente>.md` en su worktree; medir cuántos Beam en paralelo aguanta |

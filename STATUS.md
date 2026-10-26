@@ -22,7 +22,7 @@ Fase 1 — PS1 sobre el núcleo nuevo (`PLAN.md` sección 6). Fase 0 terminada.
 ## Pista de agentes
 - [x] Logins, Orca y Beam (usuario). Skills de Orca `orca-cli` y `orchestration` instaladas para todos.
 - [x] Skills propias, subagentes, plantillas, `agents.toml`, `dispatch.py`, `sync_skills.py` (9 pruebas pasan).
-- [ ] `[HUMANO]` Activar "Orca CLI" en Settings de Orca; abrir Docker Desktop.
+- [ ] `[HUMANO]` Abrir Docker Desktop (Orca CLI ya está en el PATH; las terminales nuevas lo ven).
 - [ ] `[HUMANO]` Opcional: Superpowers para Claude (`/plugin install superpowers@claude-plugins-official`).
 - [ ] A4: prueba de humo de los 6 agentes (5 Beam a la vez para medir límites).
 - [ ] Primera oleada de 5 Beam: T-101, T-202, T-205, T-301, T-402 (PLAN.md sección 8).

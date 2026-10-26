@@ -16,7 +16,8 @@ max_parallel = 5          # enjambre de 5 (PLAN.md D10); bajar si aparecen error
 timeout_min = 40
 
 [agents.codex]
-cmd = ["codex", "exec", "--sandbox", "workspace-write", "-C", "{worktree}", "{prompt}"]
+# --add-dir {gitdir}: el commit de un worktree escribe en el .git del repo principal, fuera del sandbox
+cmd = ["codex", "exec", "--sandbox", "workspace-write", "-C", "{worktree}", "--add-dir", "{gitdir}", "{prompt}"]
 max_parallel = 1
 timeout_min = 60
 
@@ -38,7 +39,8 @@ timeout_min = 45
 
 [agents.claude]
 # Gasta la cuota de Claude: solo revisiones puntuales o desbloqueos
-cmd = ["claude", "-p", "{prompt}", "--permission-mode", "acceptEdits"]
+# auto: acceptEdits no deja correr git commit ni las pruebas en modo -p
+cmd = ["claude", "-p", "{prompt}", "--permission-mode", "auto"]
 max_parallel = 1
 timeout_min = 45
 

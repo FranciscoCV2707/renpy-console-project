@@ -26,8 +26,9 @@ def test_prompt_template_is_safe_for_npm_cmd_shims():
 
 def test_build_cmd_fills_placeholders(monkeypatch, tmp_path):
     monkeypatch.setattr(dispatch, "resolve_exe", lambda name: name + ".exe")
-    cmd = dispatch.build_cmd({"cmd": ["codex", "-C", "{worktree}", "{prompt}"]}, "hola", tmp_path)
-    assert cmd == ["codex.exe", "-C", str(tmp_path), "hola"]
+    cmd = dispatch.build_cmd({"cmd": ["codex", "-C", "{worktree}", "--add-dir", "{gitdir}", "{prompt}"]}, "hola",
+                             tmp_path)
+    assert cmd == ["codex.exe", "-C", str(tmp_path), "--add-dir", str(ROOT / ".git"), "hola"]
 
 
 def test_build_cmd_rejects_unsafe_prompt_for_cmd_shims(monkeypatch, tmp_path):

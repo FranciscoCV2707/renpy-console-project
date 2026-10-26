@@ -86,7 +86,9 @@ def resolve_exe(name: str) -> str:
 
 
 def build_cmd(agent_cfg: dict, prompt: str, wt: Path) -> list[str]:
-    cmd = [p.replace("{prompt}", prompt).replace("{worktree}", str(wt)) for p in agent_cfg["cmd"]]
+    # {gitdir}: el .git del repo principal, donde escribe el commit de un worktree
+    cmd = [p.replace("{prompt}", prompt).replace("{worktree}", str(wt)).replace("{gitdir}", str(ROOT / ".git"))
+           for p in agent_cfg["cmd"]]
     cmd[0] = resolve_exe(cmd[0])
     if os.name == "nt" and cmd[0].lower().endswith((".cmd", ".bat")):
         bad = CMD_UNSAFE.intersection(prompt)

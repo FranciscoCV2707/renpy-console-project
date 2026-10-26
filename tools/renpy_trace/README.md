@@ -20,10 +20,15 @@ Variables opcionales (compatibles con `kit_capture.rpy` del port-kit, si se usa 
 ## Eventos emitidos
 
 - `LABEL` — desde `config.label_callbacks` (`name`).
-- `SAY` — en cada interacción de diálogo (`who`, `loc=archivo:línea`). Se emite desde la interacción, después de
-  incrementar `frame`, a partir de los datos capturados en el callback de personaje.
-- `SHOW` / `HIDE` / `SCENE` — comparando los tags visibles de la capa `master` con la interacción anterior
-  (`SHOW` incluye `attrs` con `renpy.get_attributes(tag)` cuando existe).
+- `SAY` — en cada línea de diálogo (`who`, `loc=archivo:línea`). `who` sale de `renpy.store._last_say_who`
+  (el nombre de la variable, por ejemplo `"e"`) resuelto con `renpy.eval_who(...).name`; cadena vacía si es
+  `None` (narrador). Orden: con `interact=True` se captura en el callback de personaje y se emite desde la
+  interacción, después de incrementar `frame` y de los eventos `SHOW`/`HIDE`/`SCENE`/`PLAY`/`STOP` de esa misma
+  interacción. Con `interact=False` (p. ej. narración antes de un menú) no se abre interacción, así que se emite
+  en el momento, en el cuadro actual, sin incrementar `frame`.
+- `SHOW` / `HIDE` / `SCENE` — comparando los tags visibles de la capa `master` con la interacción anterior.
+  `SHOW` incluye `attrs` con `" ".join(renpy.get_attributes(tag))`; los atributos se leen solo al aparecer un
+  tag: si solo cambian los atributos de un tag ya visible no se emite nada.
 - `PLAY` / `STOP` — comparando lo que suena en el canal `music`.
 - `MENU` y `CHOICE` — al mostrar y elegir una opción. `CHOICE` emite el índice real entre las opciones elegibles
   (los items con valor `None` son títulos y no cuentan); si no se puede determinar, no se emite.

@@ -38,40 +38,17 @@ init -999 python:
         _rcp_file[0].flush()
 
     def _rcp_loc():
-        result = None
         try:
-            result = renpy.get_filename_line()
+            filename, line = renpy.get_filename_line()
         except Exception as e:
             _rcp_emit("ERROR", msg=str(e))
-            result = None
-        if result is None:
             return ""
-        if isinstance(result, (tuple, list)) and len(result) >= 2:
-            filename, line = result[0], result[1]
-        elif isinstance(result, str):
-            return result
-        else:
-            return str(result)
         path = str(filename).replace("\\", "/")
         return "%s:%s" % (path, line)
 
     def _rcp_showing_tags():
-        tags = None
         try:
-            tags = renpy.get_showing_tags("master")
-        except Exception as e:
-            _rcp_emit("ERROR", msg=str(e))
-            tags = None
-        if tags is None:
-            try:
-                tags = renpy.game.context().images.get_showing_tags("master")
-            except Exception as e:
-                _rcp_emit("ERROR", msg=str(e))
-                tags = None
-        if tags is None:
-            tags = []
-        try:
-            return list(tags)
+            return renpy.get_showing_tags("master")
         except Exception as e:
             _rcp_emit("ERROR", msg=str(e))
             return []
@@ -86,26 +63,9 @@ init -999 python:
         return music
 
     def _rcp_get_who():
-        holders = [getattr(renpy, "store", None), renpy]
-        for holder in holders:
-            if holder is None:
-                continue
-            if not hasattr(holder, "_last_say_who"):
-                continue
-            value = getattr(holder, "_last_say_who")
-            if value is None:
-                continue
-            if hasattr(value, "name"):
-                return value.name
-            if isinstance(value, str) and hasattr(renpy, "eval_who"):
-                try:
-                    obj = renpy.eval_who(value)
-                    if hasattr(obj, "name"):
-                        return obj.name
-                except Exception as e:
-                    _rcp_emit("ERROR", msg=str(e))
-            return value
-        return None
+        if renpy.store._last_say_who is None:
+            return ""
+        return renpy.eval_who(renpy.store._last_say_who).name
 
     def _rcp_on_label(name, abnormal=False):
         if not _rcp_enabled[0]:
@@ -134,13 +94,7 @@ init -999 python:
                 if not (prev and removed == prev):
                     _rcp_emit("HIDE", tag=tag)
             for tag in sorted(added):
-                fields = {"tag": tag}
-                if hasattr(renpy, "get_attributes"):
-                    try:
-                        fields["attrs"] = renpy.get_attributes(tag)
-                    except Exception as e:
-                        _rcp_emit("ERROR", msg=str(e))
-                _rcp_emit("SHOW", **fields)
+                _rcp_emit("SHOW", tag=tag, attrs=" ".join(renpy.get_attributes(tag)))
             _rcp_prev_tags[0] = curr_tags
 
             curr_music = _rcp_music()
@@ -165,75 +119,37 @@ init -999 python:
             return
         if event not in (None, "begin"):
             return
+        who = _rcp_get_who()
+        loc = _rcp_loc()
         if interact is False:
-            who = kwargs.get("who", kwargs.get("character", None))
-            if who is None:
-                who = _rcp_get_who()
-            if who is None:
-                who = ""
-            loc = kwargs.get("loc", None)
-            if loc is None:
-                loc = _rcp_loc()
             _rcp_emit("SAY", who=who, loc=loc)
             return
-        who = kwargs.get("who", kwargs.get("character", None))
-        if who is None:
-            who = _rcp_get_who()
-        if who is None:
-            who = ""
-        loc = kwargs.get("loc", None)
-        if loc is None:
-            loc = _rcp_loc()
         _rcp_pending_say[0] = (who, loc)
 
-    _rcp_original_display_menu = getattr(getattr(renpy, "exports", None), "display_menu", None)
-    if _rcp_original_display_menu is None:
-        _rcp_original_display_menu = getattr(renpy, "display_menu", None)
+    _rcp_original_display_menu = renpy.exports.display_menu
 
     def _rcp_display_menu(items, *args, **kwargs):
         if not _rcp_enabled[0]:
-            if _rcp_original_display_menu is not None:
-                return _rcp_original_display_menu(items, *args, **kwargs)
-            return None
+            return _rcp_original_display_menu(items, *args, **kwargs)
         _rcp_emit("MENU", loc=_rcp_loc())
-        result = None
-        if _rcp_original_display_menu is not None:
-            result = _rcp_original_display_menu(items, *args, **kwargs)
-
+        result = _rcp_original_display_menu(items, *args, **kwargs)
         options = []
-        for item in items or []:
-            if isinstance(item, (tuple, list)):
-                label = item[0] if len(item) > 0 else None
-                value = item[1] if len(item) > 1 else None
-            else:
-                label = item
-                value = item
+        for _, value in items:
             vv = getattr(value, "value", value)
-            if value is None or vv is None:
+            if vv is None:
                 continue
-            if hasattr(value, "sensitive") and not value.sensitive:
+            if not getattr(value, "sensitive", True):
                 continue
-            options.append((label, value))
-
-        idx = None
+            options.append(vv)
         if result is not None:
-            for pos, (label, value) in enumerate(options):
-                vv = getattr(value, "value", value)
-                if result == vv or result == value or result == label:
-                    idx = pos
+            for pos, vv in enumerate(options):
+                if result == vv:
+                    _rcp_emit("CHOICE", i=pos)
                     break
-        if idx is not None:
-            _rcp_emit("CHOICE", i=idx)
         return result
 
-    if _rcp_original_display_menu is not None:
-        if hasattr(renpy, "exports"):
-            renpy.exports.display_menu = _rcp_display_menu
-        if hasattr(renpy, "display_menu"):
-            renpy.display_menu = _rcp_display_menu
-    _rcp_store_mod = getattr(renpy, "store", None)
-    if _rcp_store_mod is not None and hasattr(_rcp_store_mod, "menu"):
-        _rcp_store_mod.menu = _rcp_display_menu
+    renpy.exports.display_menu = _rcp_display_menu
+    renpy.store.menu = _rcp_display_menu
 
     if _rcp_out_path:
         _rcp_enabled[0] = True
@@ -242,12 +158,6 @@ init -999 python:
             _rcp_os.makedirs(_dir, exist_ok=True)
         _rcp_file[0] = open(_rcp_out_path, "w", encoding="utf-8")
 
-    if not hasattr(config, "label_callbacks"):
-        config.label_callbacks = []
     config.label_callbacks.append(_rcp_on_label)
-    if not hasattr(config, "start_interact_callbacks"):
-        config.start_interact_callbacks = []
     config.start_interact_callbacks.append(_rcp_on_interact)
-    if not hasattr(config, "all_character_callbacks"):
-        config.all_character_callbacks = []
     config.all_character_callbacks.append(_rcp_on_say)

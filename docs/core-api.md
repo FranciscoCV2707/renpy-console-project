@@ -73,12 +73,8 @@ núcleo las necesite (no se adivina su semántica).
 ## Pruebas
 
 - Host: `tests/core/test_core_host.c` carga `FONT.BIN` y `C00.VNB`/`T00.TXT` reales, corre la VM hasta el primer
-  diálogo y lo dibuja con el backend PC. Compilar y correr (PowerShell):
-
-  ```powershell
-  C:\msys64\ucrt64\bin\gcc.exe -std=c99 -Wall -Wextra -pedantic -Iengine/core -Iplatforms/pc engine/core/*.c platforms/pc/backend.c tests/core/test_core_host.c -o build/test_core_host.exe
-  $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"; .\build\test_core_host.exe E:\Dev\wani-ps1\build\fase0
-  ```
+  diálogo y lo dibuja con el backend PC. `tests/test_core_host.py` lo compila (con `-Werror`) y lo corre:
+  `.\.venv\Scripts\python.exe -m pytest`.
 
 - PS1: `engine/core/*.c` y `platforms/ps1/*.c` compilan con `mipsel-none-elf-gcc` de PSn00bSDK (`save.c` necesita
   `game_config.h`, que genera el CMake de `vn-engine-ps1`). Todavía no se enlaza un ejecutable: falta `main.c`.

@@ -83,5 +83,5 @@ def run_scenario(scenario, out: Path) -> Path:
         proc.wait()
     trace = out / "trace.txt"
     trace.write_text(extract_trace(tty.read_text(encoding="utf-8", errors="replace") if tty.exists() else ""),
-                     encoding="utf-8")
+                     encoding="utf-8", newline="\n")
     return trace

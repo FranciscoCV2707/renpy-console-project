@@ -33,14 +33,22 @@ void       vn_shutdown(VnContext *ctx);
 void       vn_log(VnContext *ctx, const char *fmt, ...);
 ```
 
-## Hooks que el backend implementa (`VnPlatformOps`)
+## Hooks que el backend implementa (`VnPlatformOps`, en `engine/core/vn_platform.h`)
 
+El backend activo se fija con `vn_platform_set(ops)` al arrancar; el núcleo lo usa por `vn_ops`.
+
+- Archivos: `file_size(name)`, `file_read(name, buf, buf_bytes)`. `name` es el nombre corto (`C01.VNB`); el
+  backend PS1 lo busca en `\DATA\`, el de PC en la carpeta que recibe `vn_platform_pc_init`.
+- Fuente: `font_upload(atlas_4bpp)` (256x256 a 4 bits), `draw_glyph(...)`, `glyphs_end(layer)`.
 - Gráficos: `clear`, `draw_sprite`, `present`
 - Audio: `play_music`, `play_sfx`
 - Entrada: `poll_input`
 - Almacenamiento: `save`, `load`
 - Debug: `log`
 - Tiempo: `get_time_ms`, `sleep_ms`
+
+Hoy el núcleo solo llama a archivos y fuente. Las demás quedan en `NULL` en el backend PS1 hasta que un módulo del
+núcleo las necesite (no se adivina su semántica).
 
 ## Tareas de extracción (Fase 1)
 
@@ -55,8 +63,32 @@ void       vn_log(VnContext *ctx, const char *fmt, ...);
 | Módulo | Estado | Dependencia |
 |---|---|---|
 | `vm`, `scene`, `str`, `lz4`, `opcodes.h`, `vn_limits.h` | En `engine/core/` (copia exacta) | Ninguna; la VM ya habla con el exterior por `VmHost` |
-| `chapter`, `res` | Pendiente | API de `cd` / `video.h` (incluye `psxgpu.h`) |
-| `audio`, `cd`, `img`, `input`, `save`, `text`, `video`, `video_clip` | Pendiente | PSn00bSDK directo |
+| `chapter` | En `engine/core/`, sobre `vn_ops` | `file_size`, `file_read` |
+| `text` | En `engine/core/`, sobre `vn_ops` | `font_upload`, `draw_glyph`, `glyphs_end` |
+| `audio`, `cd`, `img`, `input`, `res`, `save`, `video`, `video_clip` | En `platforms/ps1/` (copia exacta) | PSn00bSDK directo |
+| `app/main.c` (2371 líneas: bucle, menús, guardado, galería) | Sin extraer | Todo lo anterior |
+
+`res` (gestor de VRAM) e `img` quedan como código de PS1: su lógica está atada a coordenadas de VRAM y CLUT.
+
+## Pruebas
+
+- Host: `tests/core/test_core_host.c` carga `FONT.BIN` y `C00.VNB`/`T00.TXT` reales, corre la VM hasta el primer
+  diálogo y lo dibuja con el backend PC. Compilar y correr (PowerShell):
+
+  ```powershell
+  C:\msys64\ucrt64\bin\gcc.exe -std=c99 -Wall -Wextra -pedantic -Iengine/core -Iplatforms/pc engine/core/*.c platforms/pc/backend.c tests/core/test_core_host.c -o build/test_core_host.exe
+  $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"; .\build\test_core_host.exe E:\Dev\wani-ps1\build\fase0
+  ```
+
+- PS1: `engine/core/*.c` y `platforms/ps1/*.c` compilan con `mipsel-none-elf-gcc` de PSn00bSDK (`save.c` necesita
+  `game_config.h`, que genera el CMake de `vn-engine-ps1`). Todavía no se enlaza un ejecutable: falta `main.c`.
+
+## Origen del código
+
+- `engine/ps1-base/` = `E:\Dev\vn-engine-ps1` (commit `947cb3b`), idéntico a su `core/`. Es la base.
+- `E:\Dev\snoot-ps1\engine\` es el motor de la v1.0 publicada de Snoot, del que nació `vn-engine-ps1` (commit
+  `ae2f4f0`). Es un subconjunto (sin capítulos en heap, sin giro, sin módulos especiales): sirve de referencia
+  validada en hardware, no de base.
 
 ## Notas
 

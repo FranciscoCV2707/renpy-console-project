@@ -7,39 +7,7 @@
 
 #include <stddef.h>
 
-/* Capacidades declaradas por cada plataforma (Contrato 3). */
-typedef struct VnPlatformCaps {
-    int screen_w;
-    int screen_h;
-    int max_sprites;
-    int vram_bytes;
-    int ram_bytes;
-    int audio_channels;
-    int has_video;   /* 1 si soporta video */
-    int has_touch;   /* 1 si tiene tactil */
-    int color_depth; /* 4, 8, 16, 32 */
-} VnPlatformCaps;
-
-/* Operaciones que el backend debe implementar. */
-typedef struct VnPlatformOps {
-    /* graficos */
-    void (*clear)(void);
-    void (*draw_sprite)(int id, int x, int y, int w, int h, const void *tex);
-    void (*present)(void);
-    /* audio */
-    void (*play_music)(int track_id, int loop);
-    void (*play_sfx)(int sfx_id);
-    /* entrada */
-    int  (*poll_input)(void);
-    /* almacenamiento */
-    int  (*save)(const void *data, size_t size, int slot);
-    int  (*load)(void *data, size_t size, int slot);
-    /* debug/log */
-    void (*log)(const char *msg);
-    /* tiempo */
-    unsigned int (*get_time_ms)(void);
-    void (*sleep_ms)(unsigned int ms);
-} VnPlatformOps;
+#include "vn_platform.h"   /* VnPlatformCaps, VnPlatformOps (Contrato 3) */
 
 /* Contexto opaco del nucleo. */
 typedef struct VnContext VnContext;

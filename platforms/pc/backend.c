@@ -1,10 +1,11 @@
 /* platforms/pc/backend.c
- * Implementacion minima del backend PC (stubs). Reemplazar con SDL2 cuando este disponible.
+ * Backend PC minimo: archivos desde una carpeta, graficos y audio sin salida. Reemplazar el dibujo con SDL2.
  */
-#include "platforms/pc/backend.h"
+#include "backend.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static VnPlatformCaps pc_caps = {
     .screen_w = 320,
@@ -17,6 +18,47 @@ static VnPlatformCaps pc_caps = {
     .has_touch = 0,
     .color_depth = 32
 };
+
+static char data_dir[512] = ".";
+static int glyph_count;
+
+static FILE *open_data(const char *name) {
+    char path[600];
+    snprintf(path, sizeof(path), "%s/%s", data_dir, name);
+    return fopen(path, "rb");
+}
+
+static int pc_file_size(const char *name) {
+    FILE *f = open_data(name);
+    long size;
+    if (!f) return -1;
+    fseek(f, 0, SEEK_END);
+    size = ftell(f);
+    fclose(f);
+    return (int)size;
+}
+
+static int pc_file_read(const char *name, void *buf, int buf_bytes) {
+    FILE *f = open_data(name);
+    long size;
+    if (!f) return -1;
+    fseek(f, 0, SEEK_END);
+    size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    if (size > buf_bytes || fread(buf, 1, (size_t)size, f) != (size_t)size) {
+        fclose(f);
+        return -1;
+    }
+    fclose(f);
+    return (int)size;
+}
+
+static void pc_font_upload(const uint8_t *atlas_4bpp) { (void)atlas_4bpp; /* TODO: textura SDL2 */ }
+static void pc_draw_glyph(int layer, int x, int y, int u, int v, int w, int h, int r, int g, int b) {
+    (void)layer; (void)x; (void)y; (void)u; (void)v; (void)w; (void)h; (void)r; (void)g; (void)b;
+    glyph_count++;
+}
+static void pc_glyphs_end(int layer) { (void)layer; }
 
 static void pc_clear(void) { /* TODO: SDL_RenderClear */ }
 static void pc_draw_sprite(int id, int x, int y, int w, int h, const void *tex) {
@@ -34,6 +76,11 @@ static unsigned int pc_get_time_ms(void) { return 0; }
 static void pc_sleep_ms(unsigned int ms) { (void)ms; }
 
 static VnPlatformOps pc_ops = {
+    .file_size = pc_file_size,
+    .file_read = pc_file_read,
+    .font_upload = pc_font_upload,
+    .draw_glyph = pc_draw_glyph,
+    .glyphs_end = pc_glyphs_end,
     .clear = pc_clear,
     .draw_sprite = pc_draw_sprite,
     .present = pc_present,
@@ -49,12 +96,14 @@ static VnPlatformOps pc_ops = {
 
 const VnPlatformOps *vn_platform_pc_ops(void) { return &pc_ops; }
 
-int vn_platform_pc_init(const VnPlatformCaps *caps) {
+int vn_platform_pc_init(const VnPlatformCaps *caps, const char *dir) {
     if (caps) pc_caps = *caps;
-    pc_log("PC backend init (stub)");
+    if (dir) snprintf(data_dir, sizeof(data_dir), "%s", dir);
+    glyph_count = 0;
     return 0;
 }
 
 void vn_platform_pc_shutdown(void) {
-    pc_log("PC backend shutdown");
 }
+
+int vn_platform_pc_glyph_count(void) { return glyph_count; }

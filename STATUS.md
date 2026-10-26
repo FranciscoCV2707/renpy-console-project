@@ -28,7 +28,13 @@ Fase 1 — Consolidar PS1 y crear referencia para PC (en progreso).
 - [x] Crear `docs/core-api.md` (borrador).
 - [x] Extraer a `engine/core/` los módulos sin hardware: `vm`, `scene`, `str`, `lz4`, `opcodes.h`, `vn_limits.h`.
   Copia exacta de `ps1-base`; compilan en host con `gcc -std=c99 -Wall -Wextra -pedantic` sin avisos.
-- [ ] Ampliar `VnPlatformOps` (lectura de archivos, carga/dibujo de imágenes, texto, música con fundidos)
-  para poder portar `chapter`, `res`, `img`, `text`, `audio`, `cd`, `input`, `save`, `video`. Requiere aprobación.
+- [x] `VnPlatformOps` ampliado con archivos y fuente (`engine/core/vn_platform.h`); `chapter` y `text` en el
+  núcleo sobre `vn_ops`.
+- [x] Backend PS1 (`platforms/ps1/backend_ps1.c`) con los módulos de hardware copiados; compila con PSn00bSDK.
+- [x] Backend PC sin ventana (archivos desde carpeta, cuenta glifos) y prueba `tests/core/test_core_host.c`:
+  pasa con los datos de Wani (`E:\Dev\wani-ps1\build\fase0`).
+- [ ] Extraer `app/main.c` (bucle, menús, guardado) y enlazar un ejecutable PS1 con este núcleo.
+- [ ] Ops de imágenes y audio cuando el núcleo las necesite (al extraer `main.c`).
+- [ ] Backend PC con SDL2 (falta descargar SDL2 dev).
 - [ ] Crear backend PC con SDL2 para pruebas rápidas.
 - [ ] No tocar repos hermanos.

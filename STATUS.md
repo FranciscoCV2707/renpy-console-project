@@ -19,7 +19,8 @@ Fase 2 — TRACE y Test Lab sobre PS1. Fase 1 terminada: G1 cumplida el 2026-10-
   `engine/app` y `engine/modules`, CMake PS1 (Snoot y Wani compilan).
 - [x] G1: `tests/emu/snoot_check.py` (los 7 escenarios) con capturas idénticas a la v1.0; el contador final de cuadros
   varía ±2, igual que con el motor de vn-engine-ps1 sin cambios (tiempos del CD en el emulador).
-- [ ] Fase 2: T-201 TRACE en el motor; T-202 Test Lab (Beam, segundo intento); T-203, T-204.
+- [x] T-202 Test Lab (`python -m tools.ctl`): esqueleto con compare y reporte.
+- [ ] Fase 2: T-201 TRACE en el motor; T-203 adapter PS1; T-204 escenarios a AUTOTEST.BIN.
 
 ## Pista de agentes
 - [x] Logins, Orca y Beam (usuario). Skills de Orca `orca-cli` y `orchestration` instaladas para todos.

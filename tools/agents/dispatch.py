@@ -16,6 +16,7 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import os
 import shutil
@@ -24,6 +25,7 @@ import sys
 import tomllib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+from fnmatch import fnmatch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,8 +36,7 @@ CMD_UNSAFE = set('&|<>^%"\r\n')
 RATE_LIMIT_HINTS = ("429 too many requests", "status code 429", "http 429", "error 429", "rate limit exceeded",
                     "rate_limit_exceeded", "ratelimiterror", "rate limit reached",
                     "timed out waiting for response headers")
-_VENV_PYTHON = ROOT / ".venv" / "Scripts" / "python.exe"
-PYTHON = _VENV_PYTHON if _VENV_PYTHON.exists() else Path(sys.executable)
+PYTHON = Path(sys.executable)
 TEXT_SUFFIXES = {".py", ".c", ".h", ".md", ".toml", ".yaml", ".yml", ".txt", ".rpy", ".json", ".cmake"}
 FIX_PROMPT = ("Eres el agente {agent} del proyecto renpy-console-project. Ya trabajaste la tarea {task} en este "
               "directorio, pero el despachador encontro problemas. Lee .agents/inbox/{task}-fix.md, corrige cada "
@@ -113,14 +114,44 @@ def escaped_worktree(task: str, main_head: str, root: Path = ROOT) -> bool:
     return f"Refs: {task}" in bodies or (root / "reports" / f"{task}.md").exists()
 
 
-def quality_problems(wt: Path, base: str) -> list[str]:
-    """Lo que la revisión rechazaría siempre: errores de ruff, código muerto (vulture), falta de salto de línea
-    final y pruebas rotas. Solo mira los archivos que la rama cambió respecto de `base`."""
-    changed = git("diff", "--name-only", "--diff-filter=AM", base, cwd=wt, check=False).stdout.split()
-    changed += git("ls-files", "--others", "--exclude-standard", cwd=wt, check=False).stdout.split()
-    changed = [c for c in dict.fromkeys(changed) if (wt / c).is_file()]
+def allowed_files(task_text: str) -> list[str]:
+    """Rutas y globs entre comillas invertidas de la sección `## Archivos permitidos` de una tarea."""
+    if "## Archivos permitidos" not in task_text:
+        return []
+    section = task_text.split("## Archivos permitidos", 1)[1].split("\n## ", 1)[0]
+    return [p for p in section.split("`")[1::2] if "/" in p or "." in p]
+
+
+def alias_problems(name: str, source: str) -> list[str]:
+    """Alias de funciones o clases del mismo módulo y `__all__` fuera de `__init__.py`: vulture no los ve (un nombre
+    en `__all__` cuenta como usado) y la regla de estilo los prohíbe."""
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return []  # ruff ya lo reporta (E9)
+    defs = {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
+    problems = []
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if isinstance(node.value, ast.Name) and node.value.id in defs:
+            problems.append(f"{name}:{node.lineno}: alias de {node.value.id}; deja un solo nombre")
+        if not name.endswith("__init__.py") and any(isinstance(t, ast.Name) and t.id == "__all__" for t in node.targets):
+            problems.append(f"{name}:{node.lineno}: __all__ fuera de __init__.py; borralo")
+    return problems
+
+
+def quality_problems(wt: Path, base: str, allowed: list[str] | None = None) -> list[str]:
+    """Lo que la revisión rechazaría siempre: archivos fuera de los permitidos, errores de ruff, código muerto
+    (vulture), falta de salto de línea final y pruebas rotas. Solo mira lo que la rama cambió respecto de `base`."""
+    touched = git("diff", "--name-only", base, cwd=wt, check=False).stdout.split()
+    touched += git("ls-files", "--others", "--exclude-standard", cwd=wt, check=False).stdout.split()
+    touched = list(dict.fromkeys(touched))
+    problems = [f"{c}: la tarea no permite cambiar este archivo; deja el de {base} tal cual" for c in touched
+                if allowed is not None and not any(fnmatch(c, pattern) for pattern in allowed)]
+    changed = [c for c in touched if (wt / c).is_file()]
     # En .py el salto de línea final lo revisa ruff (W292)
-    problems = [f"{c}: falta el salto de linea final" for c in changed
+    problems += [f"{c}: falta el salto de linea final" for c in changed
                 if Path(c).suffix in TEXT_SUFFIXES - {".py"} and (data := (wt / c).read_bytes())
                 and not data.endswith(b"\n")]
     py = [c for c in changed if c.endswith(".py")]
@@ -134,7 +165,9 @@ def quality_problems(wt: Path, base: str) -> list[str]:
                              text=True, capture_output=True, encoding="utf-8", errors="replace").stdout
         mine = {Path(c) for c in py if not c.startswith("tests/")}
         problems += [line for line in out.splitlines() if Path(line.split(":", 1)[0]) in mine]
-    tests = subprocess.run([str(PYTHON), "-m", "pytest", "-q", "-x"], cwd=wt, text=True, capture_output=True,
+        for c in py:
+            problems += alias_problems(c, (wt / c).read_text(encoding="utf-8"))
+    tests =subprocess.run([str(PYTHON), "-m", "pytest", "-q", "-x"], cwd=wt, text=True, capture_output=True,
                            encoding="utf-8", errors="replace")
     if tests.returncode not in (0, 5):  # 5: no hay pruebas
         problems.append("pytest falla:\n" + "\n".join(tests.stdout.splitlines()[-25:]))
@@ -163,6 +196,10 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
     task_file = AG / "tasks" / f"{task}.md"
     if not task_file.exists():
         raise DispatchError(f"No existe {task_file}")
+    # Sin sección de archivos permitidos no se revisa el alcance; el reporte siempre se permite
+    allowed = allowed_files(task_file.read_text(encoding="utf-8")) or None
+    if allowed:
+        allowed.append(f"reports/{task}.md")
 
     wt, branch = ensure_worktree(cfg, task, agent)
     inbox = wt / ".agents" / "inbox"
@@ -218,7 +255,7 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
                 auto_committed = True
             if timed_out:
                 break
-            problems = quality_problems(wt, base_branch(cfg))
+            problems = quality_problems(wt, base_branch(cfg), allowed)
             if not problems:
                 break
 
@@ -235,7 +272,8 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
 
     commits = git("rev-list", "--count", f"{base_branch(cfg)}..{branch}", check=False).stdout.strip()
     dirty = bool(git("status", "--porcelain", cwd=wt, check=False).stdout.strip())
-    log_text = log_path.read_text(encoding="utf-8", errors="replace").lower()
+    # Solo el final del log: los agentes leen este archivo y los documentos, que citan las mismas frases
+    log_text = "\n".join(log_path.read_text(encoding="utf-8", errors="replace").lower().splitlines()[-40:])
     escaped = escaped_worktree(task, main_head)
 
     status.update({

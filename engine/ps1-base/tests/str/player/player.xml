@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<iso_project>
+	<track type="data">
+		<identifiers system="PLAYSTATION" volume="PLAYER" volume_set="PLAYER" publisher="TEST" data_preparer="TEST" application="PLAYSTATION" copyright="README.TXT;1" />
+		<directory_tree>
+			<file name="SYSTEM.CNF" type="data" source="SYSTEM.CNF" />
+			<file name="PLAYER.EXE" type="data" source="PLAYER.EXE" />
+			<file name="VIDEO.STR" type="mixed" source="VIDEO.STR" />
+		</directory_tree>
+	</track>
+</iso_project>

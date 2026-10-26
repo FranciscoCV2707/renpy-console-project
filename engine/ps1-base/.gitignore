@@ -1,0 +1,7 @@
+build/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+# crash reporter de PCSX-Redux (se crea en la carpeta de trabajo)
+.sentry-native/

@@ -1,0 +1,36 @@
+# Ren'Py Console Project — .gitignore
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+dist/
+
+# C/C++
+*.o
+*.obj
+*.elf
+*.exe
+*.bin
+*.cue
+*.iso
+
+# IDE
+.vscode/
+.idea/
+*.suo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Large assets
+*.rpa
+*.rpyc
+*.rpy
+*.ogg
+*.webm
+*.png
+*.jpg

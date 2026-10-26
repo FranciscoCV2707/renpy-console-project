@@ -50,6 +50,14 @@ void       vn_log(VnContext *ctx, const char *fmt, ...);
 4. Compilar el núcleo para PC (SDL2) y probar.
 5. Documentar cada función pública en este archivo.
 
+## Estado de la extracción
+
+| Módulo | Estado | Dependencia |
+|---|---|---|
+| `vm`, `scene`, `str`, `lz4`, `opcodes.h`, `vn_limits.h` | En `engine/core/` (copia exacta) | Ninguna; la VM ya habla con el exterior por `VmHost` |
+| `chapter`, `res` | Pendiente | API de `cd` / `video.h` (incluye `psxgpu.h`) |
+| `audio`, `cd`, `img`, `input`, `save`, `text`, `video`, `video_clip` | Pendiente | PSn00bSDK directo |
+
 ## Notas
 
 - El núcleo original usa C99 y es compatible con PSn00bSDK.

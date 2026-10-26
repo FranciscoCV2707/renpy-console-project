@@ -25,7 +25,10 @@ Fase 1 — Consolidar PS1 y crear referencia para PC (en progreso).
 - [x] Lista de descargas y matriz de plataformas documentadas.
 
 ## Siguiente
-- [ ] Crear `docs/core-api.md` (documentar Contrato 2 en detalle, basado en `engine/ps1-base/core/`). ✅ (borrador)
-- [ ] Extraer `engine/ps1-base/core/` a `engine/core/` y adaptar a `VnPlatformOps`.
+- [x] Crear `docs/core-api.md` (borrador).
+- [x] Extraer a `engine/core/` los módulos sin hardware: `vm`, `scene`, `str`, `lz4`, `opcodes.h`, `vn_limits.h`.
+  Copia exacta de `ps1-base`; compilan en host con `gcc -std=c99 -Wall -Wextra -pedantic` sin avisos.
+- [ ] Ampliar `VnPlatformOps` (lectura de archivos, carga/dibujo de imágenes, texto, música con fundidos)
+  para poder portar `chapter`, `res`, `img`, `text`, `audio`, `cd`, `input`, `save`, `video`. Requiere aprobación.
 - [ ] Crear backend PC con SDL2 para pruebas rápidas.
 - [ ] No tocar repos hermanos.

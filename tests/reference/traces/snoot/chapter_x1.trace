@@ -1,0 +1,203 @@
+T|1|0|LABEL|name=_style_reset
+T|2|0|LABEL|name=_errorhandling
+T|3|0|LABEL|name=_start
+T|4|0|LABEL|name=_start_store
+T|5|0|LABEL|name=_gl_test
+T|6|1|SHOW|tag=black;attrs=
+T|7|1|SHOW|tag=config.gl_test_image;attrs=
+T|8|1|LABEL|name=_load_reload_game
+T|9|1|LABEL|name=_call__load_reload_game_1
+T|10|1|LABEL|name=_splashscreen
+T|11|1|LABEL|name=_kit_capture_start
+T|12|1|LABEL|name=chapter_x1
+T|13|2|HIDE|tag=config.gl_test_image
+T|14|3|PLAY|music=audio/ost/prized bowling shoes.ogg
+T|15|3|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:10
+T|16|5|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:12
+T|17|7|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:15
+T|18|8|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:17
+T|19|10|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:20
+T|20|12|SCENE
+T|21|12|SHOW|tag=parkinglot;attrs=
+T|22|13|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:28
+T|23|16|SHOW|tag=anon;attrs=neutral
+T|24|17|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:40
+T|25|19|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:42
+T|26|20|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:46
+T|27|23|SHOW|tag=moe;attrs=alt flip
+T|28|24|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:58
+T|29|27|SHOW|tag=fangdad;attrs=neutral
+T|30|28|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:70
+T|31|30|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:74
+T|32|33|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:77
+T|33|34|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:79
+T|34|36|SHOW|tag=naser;attrs=considering
+T|35|37|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:91
+T|36|39|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:93
+T|37|40|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:96
+T|38|42|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:98
+T|39|44|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:101
+T|40|45|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:103
+T|41|47|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:106
+T|42|48|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:108
+T|43|51|HIDE|tag=moe
+T|44|53|HIDE|tag=fangdad
+T|45|54|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:125
+T|46|56|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:128
+T|47|59|HIDE|tag=naser
+T|48|60|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:139
+T|49|64|HIDE|tag=anon
+T|50|65|SCENE
+T|51|65|SHOW|tag=bowlingalley;attrs=
+T|52|66|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:153
+T|53|68|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:155
+T|54|70|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:158
+T|55|71|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:160
+T|56|72|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:162
+T|57|74|SHOW|tag=anon;attrs=neutral
+T|58|74|SHOW|tag=fangdad;attrs=neutral
+T|59|75|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:174
+T|60|77|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:176
+T|61|79|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:179
+T|62|80|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:182
+T|63|82|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:185
+T|64|84|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:187
+T|65|85|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:189
+T|66|86|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:191
+T|67|87|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:193
+T|68|88|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:195
+T|69|90|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:198
+T|70|91|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:200
+T|71|92|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:202
+T|72|93|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:204
+T|73|94|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:206
+T|74|95|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:208
+T|75|96|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:210
+T|76|98|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:213
+T|77|99|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:215
+T|78|100|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:217
+T|79|102|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:220
+T|80|103|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:222
+T|81|104|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:224
+T|82|105|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:226
+T|83|106|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:228
+T|84|108|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:231
+T|85|110|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:234
+T|86|112|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:237
+T|87|113|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:239
+T|88|114|SHOW|tag=naser;attrs=neutral
+T|89|114|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:247
+T|90|116|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:249
+T|91|117|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:252
+T|92|119|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:254
+T|93|120|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:257
+T|94|122|SHOW|tag=moe;attrs=alt
+T|95|122|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:265
+T|96|124|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:267
+T|97|125|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:269
+T|98|126|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:272
+T|99|128|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:274
+T|100|129|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:277
+T|101|132|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:280
+T|102|134|HIDE|tag=anon
+T|103|135|SCENE
+T|104|135|SHOW|tag=black;attrs=
+T|105|136|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:294
+T|106|139|SCENE
+T|107|139|SHOW|tag=bowlingalley;attrs=
+T|108|139|SHOW|tag=fangdad;attrs=neutral
+T|109|139|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:304
+T|110|141|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:306
+T|111|145|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:321
+T|112|147|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:323
+T|113|148|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:326
+T|114|150|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:328
+T|115|152|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:331
+T|116|153|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:334
+T|117|156|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:337
+T|118|158|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:340
+T|119|159|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:342
+T|120|161|HIDE|tag=fangdad
+T|121|162|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:352
+T|122|164|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:354
+T|123|166|SHOW|tag=anon;attrs=neutral
+T|124|167|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:366
+T|125|169|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:368
+T|126|171|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:371
+T|127|172|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:373
+T|128|173|SHOW|tag=dimmer_light;attrs=
+T|129|173|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:378
+T|130|175|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:380
+T|131|176|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:386
+T|132|178|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:389
+T|133|182|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:407
+T|134|184|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:410
+T|135|185|SHOW|tag=white;attrs=
+T|136|185|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:421
+T|137|186|PLAY|music=audio/ost/fuck you I like to shitpost.ogg
+T|138|187|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:423
+T|139|188|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:425
+T|140|189|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:432
+T|141|191|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:434
+T|142|192|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:436
+T|143|193|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:438
+T|144|194|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:440
+T|145|195|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:444
+T|146|198|HIDE|tag=dimmer_light
+T|147|199|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:456
+T|148|201|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:458
+T|149|202|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:460
+T|150|203|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:462
+T|151|205|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:465
+T|152|206|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:467
+T|153|207|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:469
+T|154|208|SAY|who=Attendant;loc=game/script/x1-chicxulub-gutterlane.rpy:471
+T|155|210|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:474
+T|156|211|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:479
+T|157|213|SHOW|tag=fangdad;attrs=happy
+T|158|214|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:488
+T|159|216|SHOW|tag=naser;attrs=happy
+T|160|216|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:496
+T|161|218|SHOW|tag=moe;attrs=alt flip
+T|162|219|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:505
+T|163|221|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:508
+T|164|223|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:510
+T|165|224|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:512
+T|166|225|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:515
+T|167|228|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:519
+T|168|230|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:521
+T|169|231|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:523
+T|170|232|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:525
+T|171|234|SAY|who=Attendant;loc=game/script/x1-chicxulub-gutterlane.rpy:528
+T|172|235|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:530
+T|173|236|SAY|who=Attendant;loc=game/script/x1-chicxulub-gutterlane.rpy:532
+T|174|238|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:535
+T|175|240|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:538
+T|176|241|SAY|who=Moe;loc=game/script/x1-chicxulub-gutterlane.rpy:540
+T|177|242|SAY|who=Naser;loc=game/script/x1-chicxulub-gutterlane.rpy:543
+T|178|244|HIDE|tag=moe
+T|179|244|HIDE|tag=naser
+T|180|245|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:557
+T|181|247|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:559
+T|182|249|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:562
+T|183|250|SAY|who=;loc=game/script/x1-chicxulub-gutterlane.rpy:564
+T|184|251|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:566
+T|185|253|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:569
+T|186|254|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:571
+T|187|256|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:574
+T|188|257|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:576
+T|189|258|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:578
+T|190|260|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:581
+T|191|261|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:583
+T|192|263|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:586
+T|193|265|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:589
+T|194|266|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:591
+T|195|267|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:593
+T|196|269|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:597
+T|197|271|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:599
+T|198|272|SAY|who=Anon;loc=game/script/x1-chicxulub-gutterlane.rpy:601
+T|199|273|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:603
+T|200|274|SAY|who=Fang’s dad;loc=game/script/x1-chicxulub-gutterlane.rpy:605
+T|201|276|SCENE
+T|202|276|SHOW|tag=black;attrs=
+T|203|276|LABEL|name=_kit_capture_end

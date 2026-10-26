@@ -5,8 +5,11 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Iterable
+
+from PIL import Image
 
 from .profiles import PROFILES
 
@@ -150,10 +153,90 @@ def run(profile: str, game, out) -> dict:
         raise ValueError(f"no existe el directorio de juego: {game_dir}")
     if _is_out_inside_game(game_dir, out_dir):
         raise ValueError("--out no puede estar dentro de --game")
+    if profile == "pc":
+        resources = inventory(game_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        copy_resources(game_dir, out_dir, resources)
+        manifest = build_manifest(profile, game_dir, resources)
+        manifest_path = out_dir / "manifest.json"
+        with manifest_path.open("w", encoding="utf-8", newline="\n") as f:
+            json.dump(manifest, f, indent=2, sort_keys=True, ensure_ascii=False)
+            f.write("\n")
+        return manifest
+
+    prof = PROFILES[profile]
     resources = inventory(game_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    copy_resources(game_dir, out_dir, resources)
-    manifest = build_manifest(profile, game_dir, resources)
+
+    entries: list[dict] = []
+    skipped: list[dict] = []
+    for rel in resources:
+        rel = Path(rel)
+        kind = classify_kind(rel)
+        if kind in prof["skip_kinds"]:
+            if prof["include_skipped"]:
+                skipped.append({"source": rel.as_posix()})
+            continue
+
+        out_rel = rel
+        src = game_dir / rel
+        if kind == "image" and prof.get("image_size") is not None:
+            out_rel = rel.with_suffix(".png")
+        elif kind == "audio" and prof.get("audio_rate") is not None:
+            out_rel = rel.with_suffix(".wav")
+
+        dst = out_dir / out_rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+
+        if kind == "image" and prof.get("image_size") is not None:
+            with Image.open(src) as img:
+                img = img.copy()
+                img.thumbnail(prof["image_size"], Image.LANCZOS)
+                img.save(dst, format="PNG")
+        elif kind == "audio" and prof.get("audio_rate") is not None:
+            subprocess.run(
+                [
+                    "ffmpeg",
+                    "-hide_banner",
+                    "-loglevel",
+                    "error",
+                    "-y",
+                    "-i",
+                    str(src),
+                    "-map_metadata",
+                    "-1",
+                    "-bitexact",
+                    "-ar",
+                    str(prof["audio_rate"]),
+                    "-ac",
+                    str(prof["audio_channels"]),
+                    "-sample_fmt",
+                    "s16",
+                    str(dst),
+                ],
+                check=True,
+            )
+        else:
+            shutil.copyfile(src, dst)
+
+        entry = {
+            "path": out_rel.as_posix(),
+            "kind": kind,
+            "bytes": dst.stat().st_size,
+            "sha256": sha256_file(dst),
+        }
+        if prof["include_source"]:
+            entry["source"] = rel.as_posix()
+        entries.append(entry)
+
+    manifest = {
+        "profile": profile,
+        "count": len(entries),
+        "resources": entries,
+    }
+    if prof["include_skipped"]:
+        manifest["skipped"] = skipped
+
     manifest_path = out_dir / "manifest.json"
     with manifest_path.open("w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=2, sort_keys=True, ensure_ascii=False)

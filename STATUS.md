@@ -24,7 +24,8 @@ Fase 1 — PS1 sobre el núcleo nuevo (`PLAN.md` sección 6). Fase 0 terminada.
 - [x] Skills propias, subagentes, plantillas, `agents.toml`, `dispatch.py`, `sync_skills.py` (9 pruebas pasan).
 - [ ] `[HUMANO]` Activar "Orca CLI" en Settings de Orca; abrir Docker Desktop.
 - [ ] `[HUMANO]` Opcional: Superpowers para Claude (`/plugin install superpowers@claude-plugins-official`).
-- [ ] A4: prueba de humo de los 6 agentes (gasta un poco de cuota de cada uno).
+- [ ] A4: prueba de humo de los 6 agentes (5 Beam a la vez para medir límites).
+- [ ] Primera oleada de 5 Beam: T-101, T-202, T-205, T-301, T-402 (PLAN.md sección 8).
 
 ## Avisos
 - `psxavenc.exe` termina con 0xC0000139 al convertir audio: rompe 1 prueba de wani-ps1

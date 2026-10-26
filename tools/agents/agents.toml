@@ -12,7 +12,7 @@ prompt_template = "Eres el agente {agent} del proyecto renpy-console-project. Pr
 
 [agents.beam]
 cmd = ["opencode", "run", "-m", "opencode-go/beam-free", "--auto", "{prompt}"]
-max_parallel = 3          # medir en la prueba de humo; subir a 5 si no hay errores 429
+max_parallel = 5          # enjambre de 5 (PLAN.md D10); bajar si aparecen errores 429 o timeouts
 timeout_min = 40
 
 [agents.codex]

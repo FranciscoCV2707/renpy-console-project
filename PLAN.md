@@ -74,7 +74,7 @@ menús, 3 ranuras, galería; es la referencia de UI para todos los ports).
 | D7 | **Modo prueba + protocolo TRACE único** en todas las plataformas | v2.0 + motor actual | El motor ya se autojuega (`AUTOTEST.BIN`); falta que emita trazas comparables |
 | D8 | **Test Lab CLI primero** (`tools/ctl`); MCP propio después, opcional | v2.0 sobre v0.1 | Todos los agentes usan una CLI; el MCP no bloquea nada |
 | D9 | **Comunicación de agentes por archivos** (`.agents/tasks`, `.agents/reports`) | v2.0 | Ahorra cuota de Claude: lee reportes cortos |
-| D10 | **Agentes en paralelo solo cuando haya trabajo paralelo** (Fase 4 en adelante) | Ajuste a v2.0 | Las Fases 1–3 son casi seriales; 10 agentes antes de eso son coste sin avance |
+| D10 | **Enjambre de 5 Beam desde ya** en las tareas que no dependen de la pista principal; los demás agentes entran por tarea | Usuario (2026-10-26) | Beam en OpenCode Go no gasta cuota: 5 en paralelo adelantan el Test Lab, las trazas y los recursos mientras Claude lleva la Fase 1 |
 | D11 | **Motor MIT; ports AGPL-3.0 + CC-BY-SA 4.0** | Ajuste a v2.0 | El motor no lleva código del juego; el disco/ROM de cada port sí (ver sección 10) |
 | D12 | **Coordenadas por perfil**: el compilador VNB genera posiciones por plataforma | Ajuste a v2.0 (pedía 1920x1080 virtual) | Así ya funciona con los perfiles `snoot` y `wani` del compilador |
 | D13 | **Snoot primero, Wani detrás**; el núcleo no tiene nada fijo de un juego | v0.1 + regla de `vn-engine-ps1` | Snoot está completo en PS1; Wani valida que el núcleo es genérico |
@@ -292,9 +292,9 @@ Orca; Superpowers es opcional y solo para Claude.
 | **Claude Code** (jefe) | Contratos, división de tareas, revisión, integración, Fases 1–3 | Trabajo masivo o repetitivo |
 | **Codex** | C difícil: núcleo, backend SDL, PS2, bugs de memoria | Conversión masiva de recursos |
 | **Kilo + MiMo** | PSP, Vita, empaquetado | Cambios de contratos |
-| **Antigravity** | Adapters del Test Lab, reportes HTML, comparador visual (siempre interactivo: `agy -p` falla sin TTY en Windows) | Tareas sin terminal |
+| **Antigravity** | Adapters del Test Lab, reportes HTML, comparador visual (`agy -p` ya funciona sin terminal en 1.4.7) | Código crítico del núcleo |
 | **Mistral Vibe** | Revisión de solo lectura, documentación, auditoría de licencias | Código crítico del núcleo |
-| **Beam ×3–5** (OpenCode) | Conversores de recursos, pruebas, escenarios, inventarios | Arquitectura, contratos, merges |
+| **Beam ×5** (OpenCode Go, sin costo) | Volumen: herramientas Python, Test Lab, conversores, pruebas, escenarios, inventarios, análisis de código (contexto de 1M) | Contratos, merges |
 
 - Una tarea = un worktree = una rama `agent/<agente>/<T-xxx>`. Merge a `integration` solo con build OK + `ctl` en
   verde + revisión; `integration` → `main` con todos los escenarios en verde.
@@ -308,17 +308,18 @@ Orca; Superpowers es opcional y solo para Claude.
 
 | ID | Fase | Agente | Tarea | Depende |
 |---|---|---|---|---|
-| T-101 | 1 | claude | Mapear `main.c` y `modules/`: qué es lógica y qué es PS1 → `docs/core-api.md` | — |
+| T-101 | 1 | beam | Mapear `main.c` y `modules/`: qué es lógica y qué es PS1 → `docs/analysis/main-c.md` (Claude lo revisa) | — |
 | T-102 | 1 | claude | Ampliar `VnPlatformOps` (imágenes, audio, entrada, guardado, tiempo) | T-101 |
 | T-103 | 1 | claude/codex | Mover `main.c` y `modules/` a `engine/core` sobre `vn_ops` | T-102 |
 | T-104 | 1 | claude | CMake PS1 en este repo + disco con datos de `snoot-ps1` | T-103 |
 | T-105 | 1 | claude | `tests/emu/snoot.py check` contra el build nuevo (G1) | T-104 |
 | T-201 | 2 | claude | TRACE en el motor | G1 |
-| T-202 | 2 | antigravity | Esqueleto `tools/ctl` (CLI, config, reporte MD) | — |
+| T-202 | 2 | beam | Esqueleto `tools/ctl` (CLI, config, reporte MD) | — |
 | T-203 | 2 | beam | Adapter PS1/PCSX-Redux sobre `emutest.py` + parser TRACE | T-201, T-202 |
 | T-204 | 2 | beam | Escenarios YAML → `AUTOTEST.BIN` | T-202 |
 | T-205 | 2 | beam | `tools/doctor.py` | — |
-| T-301 | 3 | beam | TRACE en `kit_capture.rpy` | T-201 |
+| T-206 | 5 | beam | Investigar y fijar imágenes Docker de PSP y PS2 → `docs/platforms/psp.md`, `ps2.md` | — |
+| T-301 | 3 | beam | TRACE en `kit_capture.rpy` (propuesta para renpy-port-kit; formato de la sección 4.1) | — |
 | T-302 | 3 | beam | Trazas de referencia de todas las rutas de Snoot | T-301 |
 | T-303 | 3 | beam | `ctl compare` (primer evento divergente) | T-203, T-302 |
 | T-401 | 4 | codex | `platforms/sdl` para PC | G3 |
@@ -329,8 +330,14 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-504 | 5 | beam | Perfiles de recursos PSP y PS2 | T-402 |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 
-T-101..T-105 se pueden hacer sin la pista de agentes; T-202, T-205 y T-402 no dependen de nada y son buenas
-primeras tareas para los agentes en cuanto pase la compuerta GA.
+**Primera oleada de Beam (5 en paralelo, tras la prueba de humo):** T-101, T-202, T-205, T-301, T-402; T-206 entra
+en cuanto se libere uno. Claude sigue con T-102..T-105 en cuanto llegue T-101. Si aparecen errores 429 o
+timeouts, se baja `max_parallel` en `agents.toml`.
+
+Dos formas de lanzarlos (mismas tareas, mismos worktrees):
+- Sin ventanas: `python tools/agents/dispatch.py batch --agent beam --tasks T-101 T-202 T-205 T-301 T-402 --parallel 5`.
+- Para verlos trabajar: una pestaña de Orca por tarea (`orca agent launch --agent opencode --model opencode-go/beam-free`
+  en el worktree de cada una).
 
 ---
 

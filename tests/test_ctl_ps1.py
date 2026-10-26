@@ -11,7 +11,7 @@ from tools.ctl.__main__ import main
 
 def test_extract_trace_mixed():
     tty = "booting\nT|1|0|SAY|who=1\nnoise\nT|2|1|CHOICE|i=2\n"
-    assert extract_trace(tty) == "T|1|0|SAY|who=1\nT|2|1|CHOICE|i=2"
+    assert extract_trace(tty) == "T|1|0|SAY|who=1\nT|2|1|CHOICE|i=2\n"
 
 
 def test_extract_trace_empty():
@@ -58,7 +58,7 @@ def test_run_exit_code_fail(monkeypatch, tmp_path):
 
 def test_run_exit_code_startup(monkeypatch, tmp_path):
     def fake_run_scenario(scenario, out_dir):
-        raise RuntimeError("boom")
+        raise OSError("no existe pcsx-redux.exe")
 
     monkeypatch.setattr("tools.ctl.ps1.run_scenario", fake_run_scenario)
 

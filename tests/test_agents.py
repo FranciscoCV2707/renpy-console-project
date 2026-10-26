@@ -123,3 +123,11 @@ def test_allowed_files_reads_the_task_section():
     assert dispatch.allowed_files(task) == ["tools/ctl/ps1.py", "tools/ctl/__main__.py",
                                             "tests/reference/traces/snoot/*.trace"]
     assert dispatch.allowed_files("# sin seccion\n") == []
+
+
+def test_alias_problems_flag_aliases_and_all_outside_init():
+    source = ('__all__ = ["scan"]\n\n\ndef scan():\n    return 1\n\n\nfind = scan\nlimit = 3\n')
+    problems = dispatch.alias_problems("tools/x/lib.py", source)
+    assert problems == ["tools/x/lib.py:1: __all__ fuera de __init__.py; borralo",
+                        "tools/x/lib.py:8: alias de scan; deja un solo nombre"]
+    assert dispatch.alias_problems("tools/x/__init__.py", '__all__ = ["scan"]\n') == []

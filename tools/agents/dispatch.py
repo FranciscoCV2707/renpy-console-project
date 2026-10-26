@@ -16,6 +16,7 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import os
 import shutil
@@ -121,6 +122,25 @@ def allowed_files(task_text: str) -> list[str]:
     return [p for p in section.split("`")[1::2] if "/" in p or "." in p]
 
 
+def alias_problems(name: str, source: str) -> list[str]:
+    """Alias de funciones o clases del mismo módulo y `__all__` fuera de `__init__.py`: vulture no los ve (un nombre
+    en `__all__` cuenta como usado) y la regla de estilo los prohíbe."""
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return []  # ruff ya lo reporta (E9)
+    defs = {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
+    problems = []
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if isinstance(node.value, ast.Name) and node.value.id in defs:
+            problems.append(f"{name}:{node.lineno}: alias de {node.value.id}; deja un solo nombre")
+        if not name.endswith("__init__.py") and any(isinstance(t, ast.Name) and t.id == "__all__" for t in node.targets):
+            problems.append(f"{name}:{node.lineno}: __all__ fuera de __init__.py; borralo")
+    return problems
+
+
 def quality_problems(wt: Path, base: str, allowed: list[str] | None = None) -> list[str]:
     """Lo que la revisión rechazaría siempre: archivos fuera de los permitidos, errores de ruff, código muerto
     (vulture), falta de salto de línea final y pruebas rotas. Solo mira lo que la rama cambió respecto de `base`."""
@@ -145,7 +165,9 @@ def quality_problems(wt: Path, base: str, allowed: list[str] | None = None) -> l
                              text=True, capture_output=True, encoding="utf-8", errors="replace").stdout
         mine = {Path(c) for c in py if not c.startswith("tests/")}
         problems += [line for line in out.splitlines() if Path(line.split(":", 1)[0]) in mine]
-    tests = subprocess.run([str(PYTHON), "-m", "pytest", "-q", "-x"], cwd=wt, text=True, capture_output=True,
+        for c in py:
+            problems += alias_problems(c, (wt / c).read_text(encoding="utf-8"))
+    tests =subprocess.run([str(PYTHON), "-m", "pytest", "-q", "-x"], cwd=wt, text=True, capture_output=True,
                            encoding="utf-8", errors="replace")
     if tests.returncode not in (0, 5):  # 5: no hay pruebas
         problems.append("pytest falla:\n" + "\n".join(tests.stdout.splitlines()[-25:]))

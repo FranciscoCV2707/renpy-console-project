@@ -38,8 +38,9 @@ Lo leen solos Codex, OpenCode (Beam) y Kilo; a Claude, Vibe y Antigravity se lo 
 ## Al terminar
 1. Corre los pasos de verificación de tu tarea.
 2. `git add` solo de archivos permitidos y commit en conventional commits en inglés, sin línea de coautor ni
-   mención a la IA; la tarea va en el cuerpo: `Refs: T-xxx`.
-3. Escribe `.agents/reports/<T-xxx>.md` con `.agents/templates/REPORT.md` (máximo 60 líneas) e inclúyelo en el
+   mención a la IA; la tarea va en el cuerpo: `Refs: T-xxx`. Si tu sandbox no te deja hacer commit, deja los
+   cambios: el despachador lo hace.
+3. Escribe `reports/<T-xxx>.md` con `.agents/templates/REPORT.md` (máximo 60 líneas) e inclúyelo en el
    commit.
 4. Si te bloqueas: documenta el bloqueo en el reporte, haz commit de lo útil y termina.
 5. Fuera de una tarea de agente (sesión directa con el usuario): actualiza `docs/bitacora.md` y `STATUS.md`, di

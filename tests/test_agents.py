@@ -38,6 +38,12 @@ def test_build_cmd_rejects_unsafe_prompt_for_cmd_shims(monkeypatch, tmp_path):
         dispatch.build_cmd({"cmd": ["opencode", "{prompt}"]}, "a & b", tmp_path)
 
 
+def test_agent_env_points_temp_at_the_worktree(tmp_path):
+    env = dispatch.agent_env({"env": {"TMP": "{worktree}/.tmp"}}, tmp_path)
+    assert env["TMP"] == f"{tmp_path}/.tmp"
+    assert "PATH" in env or "Path" in env
+
+
 def test_unknown_or_disabled_agent_fails():
     cfg = {"agents": {"off": {"cmd": ["x", "{prompt}"], "enabled": False}}}
     with pytest.raises(dispatch.DispatchError):

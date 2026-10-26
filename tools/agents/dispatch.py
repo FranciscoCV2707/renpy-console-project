@@ -97,6 +97,13 @@ def build_cmd(agent_cfg: dict, prompt: str, wt: Path) -> list[str]:
     return cmd
 
 
+def agent_env(agent_cfg: dict, wt: Path) -> dict:
+    """Entorno del agente: el del sistema más `env` de agents.toml, con {worktree} reemplazado."""
+    env = os.environ.copy()
+    env.update({k: str(v).replace("{worktree}", str(wt)) for k, v in agent_cfg.get("env", {}).items()})
+    return env
+
+
 def agent_cfg_or_fail(cfg: dict, agent: str) -> dict:
     agents = cfg.get("agents", {})
     if agent not in agents:
@@ -117,7 +124,9 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
     inbox = wt / ".agents" / "inbox"
     inbox.mkdir(parents=True, exist_ok=True)
     shutil.copy2(task_file, inbox / f"{task}.md")
-    (wt / ".agents" / "reports").mkdir(parents=True, exist_ok=True)
+    # El reporte va fuera de .agents/: el sandbox de Codex no deja escribir ahí
+    (wt / "reports").mkdir(parents=True, exist_ok=True)
+    (wt / ".tmp").mkdir(exist_ok=True)
 
     prompt = cfg["settings"]["prompt_template"].format(task=task, agent=agent)
     cmd = build_cmd(acfg, prompt, wt)
@@ -126,8 +135,7 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
         (AG / d).mkdir(parents=True, exist_ok=True)
     log_path = AG / "logs" / f"{task}-{agent}.log"
     timeout_min = int(acfg.get("timeout_min", cfg["settings"].get("default_timeout_min", 45)))
-    env = os.environ.copy()
-    env.update({k: str(v) for k, v in acfg.get("env", {}).items()})
+    env = agent_env(acfg, wt)
 
     status: dict = {
         "task": task, "agent": agent, "branch": branch, "worktree": str(wt),
@@ -153,13 +161,21 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
     if inbox.exists() and not any(inbox.iterdir()):
         inbox.rmdir()
 
-    report_src = wt / ".agents" / "reports" / f"{task}.md"
+    report_src = wt / "reports" / f"{task}.md"
     report_found = report_src.exists()
     if report_found:
         shutil.copy2(report_src, AG / "reports" / f"{task}-{agent}.md")
 
     commits = git("rev-list", "--count", f"{base_branch(cfg)}..{branch}", check=False).stdout.strip()
     dirty = bool(git("status", "--porcelain", cwd=wt, check=False).stdout.strip())
+    auto_committed = False
+    if acfg.get("auto_commit") and dirty and commits == "0":
+        # Agentes cuyo sandbox no deja escribir en .git (Codex en Windows): el commit lo hace el despachador
+        git("add", "-A", cwd=wt)
+        git("commit", "-m", f"chore(agents): {task} work by {agent}\n\nRefs: {task}", cwd=wt)
+        auto_committed = True
+        commits = git("rev-list", "--count", f"{base_branch(cfg)}..{branch}", check=False).stdout.strip()
+        dirty = bool(git("status", "--porcelain", cwd=wt, check=False).stdout.strip())
     log_text = log_path.read_text(encoding="utf-8", errors="replace").lower()
 
     status.update({
@@ -169,6 +185,7 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
         "report_found": report_found,
         "commits_ahead": int(commits) if commits.isdigit() else None,
         "uncommitted_changes": dirty,
+        "auto_committed": auto_committed,
         "possible_rate_limit": any(h in log_text for h in RATE_LIMIT_HINTS),
         "log": str(log_path),
     })

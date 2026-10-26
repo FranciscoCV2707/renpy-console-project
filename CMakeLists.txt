@@ -29,3 +29,9 @@ file(GLOB _sources CONFIGURE_DEPENDS
 psn00bsdk_add_executable(${GAME} GPREL ${_sources})
 target_include_directories(${GAME} PRIVATE
 	engine/core engine/platform engine/app engine/modules platforms/ps1 ${CMAKE_CURRENT_BINARY_DIR}/generated)
+
+# Build de prueba con la traza TRACE (PLAN.md 4.1): VN_TRACE=1 en el entorno al configurar (lo pone tools/ctl).
+# Se lee en cada configuracion, asi build/ vuelve al build normal en cuanto falta la variable.
+if("$ENV{VN_TRACE}")
+	target_compile_definitions(${GAME} PRIVATE VN_TRACE)
+endif()

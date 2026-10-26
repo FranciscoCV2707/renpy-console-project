@@ -229,7 +229,8 @@ cargar, teclado, chat, créditos) **idéntico píxel a píxel** a la referencia 
 ### Fase 2 — TRACE y Test Lab v1 sobre PS1
 1. TRACE en el motor (C3) y `pal_trace` → `vn_ops->log`.
 2. `tools/ctl`: `build`, `run`, `compare`, `report`; primer adapter PS1/PCSX-Redux envolviendo `emutest.py`
-   (sin interfaz, `-stdout` para la TTY).
+   (sin interfaz; la TTY sale con `-logfile <archivo>`: `-stdout` no sirve porque `pcsx-redux.exe` es un
+   lanzador que no pasa la salida de `pcsx-redux.main`).
 3. Escenarios (C4) que se compilan a `AUTOTEST.BIN`.
 4. `tools/doctor.py`: une los `check_env.py` de los repos y el `--smoke` de los CLIs de agentes.
 

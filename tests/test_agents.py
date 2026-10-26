@@ -109,7 +109,17 @@ def test_quality_problems_catch_dead_code_and_missing_newline(tmp_path):
     (tmp_path / "tools" / "lib.py").write_text("import os\n\n\ndef scan():\n    return 1\n\n\nfind = scan\n",
                                                encoding="utf-8")
     (tmp_path / "notes.md").write_text("sin salto", encoding="utf-8")
-    problems = "\n".join(dispatch.quality_problems(tmp_path, "main"))
+    problems = "\n".join(dispatch.quality_problems(tmp_path, "main", ["tools/*"]))
     assert "F401" in problems
     assert "unused variable 'find'" in problems
     assert "notes.md: falta el salto de linea final" in problems
+    assert "notes.md: la tarea no permite" in problems
+    assert "tools/lib.py: la tarea no permite" not in problems
+
+
+def test_allowed_files_reads_the_task_section():
+    task = ("## Archivos permitidos\n- `tools/ctl/ps1.py` (nuevo), `tools/ctl/__main__.py` (solo la rama `run`)\n"
+            "- `tests/reference/traces/snoot/*.trace`\n\n## Archivos prohibidos\n- `engine/core/vm.c`\n")
+    assert dispatch.allowed_files(task) == ["tools/ctl/ps1.py", "tools/ctl/__main__.py",
+                                            "tests/reference/traces/snoot/*.trace"]
+    assert dispatch.allowed_files("# sin seccion\n") == []

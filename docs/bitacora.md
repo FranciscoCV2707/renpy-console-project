@@ -61,3 +61,10 @@
   vn-engine-ps1 sin cambios también (teclado 3683 contra 3684): es variación de tiempos del CD, no regresión.
 - Oleada 1: T-101, T-205, T-206, T-301 (Kilo, tercer intento), T-402 fusionadas; T-202 en segundo intento. Regla
   nueva en AGENTS.md contra alias y código muerto (todas las ramas de Beam volvieron por eso).
+- Chequeo de calidad en `dispatch.py` (ruff, vulture, salto de línea final, pytest) con una ronda de corrección
+  del mismo agente antes de la revisión; con el primer intento de Beam en T-402 detecta los alias, las funciones
+  muertas y el import sin usar que hubo que pedir a mano. Limpieza de lo que dejó la oleada 1 (`tools/ctl/config.py`
+  sin uso, `except Exception`).
+- T-201: TRACE en `vm.c` con `VN_TRACE`. Probado en PCSX-Redux: 24 eventos en 3000 cuadros de Snoot; el build normal
+  sigue idéntico byte a byte. La TTY solo sale con `-logfile`.
+- Oleada 2 lanzada: T-203, T-204, T-302, T-504.

@@ -74,8 +74,17 @@ núcleo, CMake PS1 en este repo y regresión contra v1.0.
   diálogo y lo dibuja con el backend PC. `tests/test_core_host.py` lo compila (con `-Werror`) y lo corre:
   `.\.venv\Scripts\python.exe -m pytest`.
 
-- PS1: `engine/core/*.c` y `platforms/ps1/*.c` compilan con `mipsel-none-elf-gcc` de PSn00bSDK (`save.c` necesita
-  `game_config.h`, que genera el CMake de `vn-engine-ps1`). Todavía no se enlaza un ejecutable: falta `main.c`.
+- PS1: `cmake --preset default` y `cmake --build build` arman Snoot; `tests/emu/snoot_check.py` lo compara con la
+  v1.0 en PCSX-Redux (G1).
+
+## Traza TRACE (C3, `PLAN.md` 4.1)
+
+- Con `VN_TRACE` definido, `vm.c` escribe una línea por evento por `vn_ops->log`: `SAY who;text` (id global del
+  texto), `MENU n`, `CHOICE i`, `SCENE img`, `SHOW tag;img`, `HIDE tag`, `PLAY track`, `STOP`, `END`, `ERROR msg`.
+  `frame` es `vm->now` (el reloj en cuadros que pone el anfitrión).
+- PS1: `VN_TRACE=1` en el entorno al configurar CMake; sin la variable el ejecutable es idéntico byte a byte al
+  normal. La TTY se lee con `pcsx-redux.exe -logfile <archivo>` (con `-stdout` no sale nada).
+- Faltan `LABEL` (el VNB no guarda nombres de etiqueta: hace falta una tabla del compilador) y `FBHASH`.
 
 ## Origen del código
 

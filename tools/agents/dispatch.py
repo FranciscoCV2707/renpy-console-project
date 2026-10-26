@@ -24,6 +24,7 @@ import sys
 import tomllib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+from fnmatch import fnmatch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -112,14 +113,25 @@ def escaped_worktree(task: str, main_head: str, root: Path = ROOT) -> bool:
     return f"Refs: {task}" in bodies or (root / "reports" / f"{task}.md").exists()
 
 
-def quality_problems(wt: Path, base: str) -> list[str]:
-    """Lo que la revisión rechazaría siempre: errores de ruff, código muerto (vulture), falta de salto de línea
-    final y pruebas rotas. Solo mira los archivos que la rama cambió respecto de `base`."""
-    changed = git("diff", "--name-only", "--diff-filter=AM", base, cwd=wt, check=False).stdout.split()
-    changed += git("ls-files", "--others", "--exclude-standard", cwd=wt, check=False).stdout.split()
-    changed = [c for c in dict.fromkeys(changed) if (wt / c).is_file()]
+def allowed_files(task_text: str) -> list[str]:
+    """Rutas y globs entre comillas invertidas de la sección `## Archivos permitidos` de una tarea."""
+    if "## Archivos permitidos" not in task_text:
+        return []
+    section = task_text.split("## Archivos permitidos", 1)[1].split("\n## ", 1)[0]
+    return [p for p in section.split("`")[1::2] if "/" in p or "." in p]
+
+
+def quality_problems(wt: Path, base: str, allowed: list[str] | None = None) -> list[str]:
+    """Lo que la revisión rechazaría siempre: archivos fuera de los permitidos, errores de ruff, código muerto
+    (vulture), falta de salto de línea final y pruebas rotas. Solo mira lo que la rama cambió respecto de `base`."""
+    touched = git("diff", "--name-only", base, cwd=wt, check=False).stdout.split()
+    touched += git("ls-files", "--others", "--exclude-standard", cwd=wt, check=False).stdout.split()
+    touched = list(dict.fromkeys(touched))
+    problems = [f"{c}: la tarea no permite cambiar este archivo; deja el de {base} tal cual" for c in touched
+                if allowed is not None and not any(fnmatch(c, pattern) for pattern in allowed)]
+    changed = [c for c in touched if (wt / c).is_file()]
     # En .py el salto de línea final lo revisa ruff (W292)
-    problems = [f"{c}: falta el salto de linea final" for c in changed
+    problems += [f"{c}: falta el salto de linea final" for c in changed
                 if Path(c).suffix in TEXT_SUFFIXES - {".py"} and (data := (wt / c).read_bytes())
                 and not data.endswith(b"\n")]
     py = [c for c in changed if c.endswith(".py")]
@@ -162,6 +174,10 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
     task_file = AG / "tasks" / f"{task}.md"
     if not task_file.exists():
         raise DispatchError(f"No existe {task_file}")
+    # Sin sección de archivos permitidos no se revisa el alcance; el reporte siempre se permite
+    allowed = allowed_files(task_file.read_text(encoding="utf-8")) or None
+    if allowed:
+        allowed.append(f"reports/{task}.md")
 
     wt, branch = ensure_worktree(cfg, task, agent)
     inbox = wt / ".agents" / "inbox"
@@ -217,7 +233,7 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
                 auto_committed = True
             if timed_out:
                 break
-            problems = quality_problems(wt, base_branch(cfg))
+            problems = quality_problems(wt, base_branch(cfg), allowed)
             if not problems:
                 break
 
@@ -234,7 +250,8 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
 
     commits = git("rev-list", "--count", f"{base_branch(cfg)}..{branch}", check=False).stdout.strip()
     dirty = bool(git("status", "--porcelain", cwd=wt, check=False).stdout.strip())
-    log_text = log_path.read_text(encoding="utf-8", errors="replace").lower()
+    # Solo el final del log: los agentes leen este archivo y los documentos, que citan las mismas frases
+    log_text = "\n".join(log_path.read_text(encoding="utf-8", errors="replace").lower().splitlines()[-40:])
     escaped = escaped_worktree(task, main_head)
 
     status.update({

@@ -31,6 +31,7 @@ class FakeRenpy:
         self._tags = set()
         self._music = None
         self._display_menu_result = None
+        self._attrs = {}
 
         def _display_menu(items, *args, **kwargs):
             if self._display_menu_result is not None:
@@ -51,6 +52,9 @@ class FakeRenpy:
 
     def get_showing_tags(self, layer="master"):
         return set(self._tags)
+
+    def get_attributes(self, tag, layer=None, if_hidden=None):
+        return self._attrs.get(tag, ())
 
 
 class FakeConfig:
@@ -96,9 +100,8 @@ def test_sequence_produces_expected_lines(tmp_path, monkeypatch):
     renpy._tags = {"bg", "sayori"}
     renpy._music = "song.ogg"
     renpy._loc = ("game/script.rpy", 20)
+    config.all_character_callbacks[0]("begin", interact=True)
     config.start_interact_callbacks[0]()
-
-    config.all_character_callbacks[0]("begin", interact=True, who="Eileen", loc="game/script.rpy:20")
 
     renpy._tags = {"room"}
     renpy._music = None
@@ -109,12 +112,12 @@ def test_sequence_produces_expected_lines(tmp_path, monkeypatch):
     lines = out.read_text(encoding="utf-8").splitlines()
     expected = [
         "T|1|0|LABEL|name=start",
-        "T|2|1|SHOW|tag=bg",
-        "T|3|1|SHOW|tag=sayori",
+        "T|2|1|SHOW|tag=bg;attrs=()",
+        "T|3|1|SHOW|tag=sayori;attrs=()",
         "T|4|1|PLAY|music=song.ogg",
         "T|5|1|SAY|who=Eileen;loc=game/script.rpy:20",
         "T|6|2|SCENE",
-        "T|7|2|SHOW|tag=room",
+        "T|7|2|SHOW|tag=room;attrs=()",
         "T|8|2|STOP|music=song.ogg",
         "T|9|2|MENU|loc=game/script.rpy:20",
         "T|10|2|CHOICE|i=0",
@@ -129,8 +132,9 @@ def test_escape(tmp_path, monkeypatch):
     config.all_character_callbacks[0](
         "begin", interact=True, who="a|b", loc="x;y=z\nline"
     )
+    config.start_interact_callbacks[0]()
     lines = out.read_text(encoding="utf-8").splitlines()
-    assert lines == ["T|1|0|SAY|who=a\\|b;loc=x\\;y\\=z\\nline"]
+    assert lines == ["T|1|1|SAY|who=a\\|b;loc=x\\;y\\=z\\nline"]
 
 
 def test_escape_function():
@@ -138,3 +142,23 @@ def test_escape_function():
     ns = {}
     exec(compile(code, str(HOOK), "exec"), {"renpy": FakeRenpy(), "config": FakeConfig()}, ns)
     assert ns["_rcp_escape"]("a|b;c=d\ne") == "a\\|b\\;c\\=d\\ne"
+
+
+def test_choice_title_index(tmp_path, monkeypatch):
+    out = tmp_path / "trace.txt"
+    ns, renpy, config = _run(monkeypatch, tmp_path, str(out))
+    renpy._loc = ("game/script.rpy", 5)
+    renpy._display_menu_result = 0
+    renpy.exports.display_menu([("Title", None), ("Yes", 0), ("No", 1)])
+    lines = out.read_text(encoding="utf-8").splitlines()
+    assert lines == ["T|1|0|MENU|loc=game/script.rpy:5", "T|2|0|CHOICE|i=0"]
+
+
+def test_unknown_choice_not_emitted(tmp_path, monkeypatch):
+    out = tmp_path / "trace.txt"
+    ns, renpy, config = _run(monkeypatch, tmp_path, str(out))
+    renpy._display_menu_result = object()
+    renpy._loc = ("game/script.rpy", 5)
+    renpy.exports.display_menu([("Yes", 0), ("No", 1)])
+    lines = out.read_text(encoding="utf-8").splitlines()
+    assert lines == ["T|1|0|MENU|loc=game/script.rpy:5"]

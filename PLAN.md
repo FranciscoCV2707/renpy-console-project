@@ -271,10 +271,15 @@ PS3 (PSL1GHT), PS4 (OpenOrbis), Xbox 360 (libxenon), PS5, Xbox One/Series: un do
 
 | Paso | Quién | Qué |
 |---|---|---|
-| A1 | `[HUMANO]` | Logins de los CLIs (`codex login`, `opencode auth login`, `kilo`, `vibe --setup`, `agy`); abrir Docker Desktop; instalar Orca (verificar) |
-| A2 | `[HUMANO]` | Probar Beam: `opencode run -m opencode-go/beam-free "Responde solo: OK"` (verificar); si no responde, otro modelo de OpenCode Go |
-| A3 | Claude | `AGENTS.md` (hecho), `.agents/` con plantillas `TASK.md`/`REPORT.md`, `tools/agents/agents.toml` y `dispatch.py` desde `docs/plan-maestro-agentes.md` Parte D, adaptados a este repo |
+| A1 | `[HUMANO]` | Logins de los CLIs, Orca instalado `[hecho 2026-10-26]`; abrir Docker Desktop; activar "Orca CLI" en Settings para tener `orca` en el PATH |
+| A2 | `[HUMANO]` | Beam responde `[hecho]` |
+| A3 | Claude | `AGENTS.md`, skills propias en `.agents/skills/` (+ copia en `.claude/skills/`), subagentes en `.claude/agents/`, plantillas en `.agents/templates/`, `tools/agents/agents.toml`, `dispatch.py`, `sync_skills.py`; skills `orca-cli` y `orchestration` de Orca `[hecho]` |
 | A4 | Claude | Prueba de humo: cada agente entrega `docs/smoke/<agente>.md` en su worktree; medir cuántos Beam en paralelo aguanta |
+
+Skills por agente (probado el 2026-10-26): Codex, OpenCode/Beam, Kilo, Vibe y Antigravity leen `.agents/skills/` del
+proyecto y `~/.agents/skills/`; Claude lee `.claude/skills/` (las propias se editan en `.agents/skills/` y se copian
+con `python tools/agents/sync_skills.py`). Los trabajadores llevan solo las 5 skills propias, `AGENTS.md` y las de
+Orca; Superpowers es opcional y solo para Claude.
 
 **[GATE GA]** ≥ 5 agentes entregan reporte y commit en su rama sin escribir fuera de su worktree.
 

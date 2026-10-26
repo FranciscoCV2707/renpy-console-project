@@ -34,3 +34,8 @@ Thumbs.db
 *.webm
 *.png
 *.jpg
+
+# Agentes: copias de trabajo y salidas de dispatch.py
+.agents/inbox/
+.agents/logs/
+.agents/status/

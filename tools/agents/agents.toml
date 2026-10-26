@@ -1,0 +1,48 @@
+# Agentes para dispatch.py. Solo Claude edita este archivo.
+# Flags verificados con --help el 2026-10-26: opencode 2.1.4, codex 0.163.0, kilo 7.8.17, vibe 3.0.2, agy 1.4.7,
+# claude 2.1.310.
+
+[settings]
+# La rama integration se crea en la Fase 4 (PLAN.md seccion 7); hasta entonces se parte de main
+base_branch = "main"
+worktree_root = "../renpy-console-wt"
+default_timeout_min = 45
+# opencode, codex y kilo son .CMD de npm en Windows: el prompt no puede llevar & | < > ^ % " ni saltos de linea
+prompt_template = "Eres el agente {agent} del proyecto renpy-console-project. Primero lee AGENTS.md. Luego lee tu tarea en .agents/inbox/{task}.md y ejecutala. Trabaja solo dentro de este directorio. Al terminar corre las verificaciones que pide la tarea, haz commit en tu rama actual y escribe tu reporte en .agents/reports/{task}.md usando la plantilla .agents/templates/REPORT.md. No hagas push, merge ni rebase. Si te bloqueas, describe el bloqueo en el reporte y termina."
+
+[agents.beam]
+cmd = ["opencode", "run", "-m", "opencode-go/beam-free", "--auto", "{prompt}"]
+max_parallel = 3          # medir en la prueba de humo; subir a 5 si no hay errores 429
+timeout_min = 40
+
+[agents.codex]
+cmd = ["codex", "exec", "--sandbox", "workspace-write", "-C", "{worktree}", "{prompt}"]
+max_parallel = 1
+timeout_min = 60
+
+[agents.kilo]
+cmd = ["kilo", "run", "--auto", "-m", "xiaomi-token-plan-sgp/mimo-v2.6-pro", "{prompt}"]
+max_parallel = 1
+timeout_min = 60
+
+[agents.vibe]
+cmd = ["vibe", "--prompt", "{prompt}", "--max-turns", "40", "--output", "json", "--trust", "--auto-approve"]
+max_parallel = 1
+timeout_min = 45
+
+[agents.agy]
+# agy -p ya responde sin terminal en 1.4.7 (probado). Para tareas largas o de interfaz, mejor una terminal de Orca.
+cmd = ["agy", "-p", "{prompt}", "--mode", "auto", "--print-timeout", "2400s"]
+max_parallel = 1
+timeout_min = 45
+
+[agents.claude]
+# Gasta la cuota de Claude: solo revisiones puntuales o desbloqueos
+cmd = ["claude", "-p", "{prompt}", "--permission-mode", "acceptEdits"]
+max_parallel = 1
+timeout_min = 45
+
+# Sustituto si Beam deja de estar disponible (ver `opencode models`):
+# [agents.gomodel]
+# cmd = ["opencode", "run", "-m", "opencode-go/<modelo>", "--auto", "{prompt}"]
+# max_parallel = 2

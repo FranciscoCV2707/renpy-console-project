@@ -26,7 +26,11 @@ Claude es el arquitecto y orquestador: escribe contratos, divide tareas, revisa 
 - PSn00bSDK vía MSYS2 en `C:\msys64\usr\local\psn00bsdk`; gcc y SDL2 2.32 de host en `C:\msys64\ucrt64`.
 - Docker Desktop + WSL2 para las toolchains de otras consolas (Docker Desktop hay que abrirlo).
 - Emuladores, BIOS y SDKs de Ren'Py en `E:\snoot`. Repos hermanos en `E:\Dev`.
-- CLIs de agentes instalados: codex, opencode, kilo, vibe, agy. Falta Orca.
+- CLIs de agentes con login: codex, opencode (Beam), kilo (MiMo), vibe, agy. Orca instalado; su CLI está en
+  `C:\Users\Pako\AppData\Local\Programs\orca\resources\bin\orca.exe` (en el PATH al activar "Orca CLI").
+- Agentes: `python tools/agents/dispatch.py list-agents|run|batch|status|remove`; skills propias en
+  `.agents/skills/` (copiar a `.claude/skills/` con `python tools/agents/sync_skills.py`); subagentes de revisión
+  en `.claude/agents/` (`port-reviewer` antes de cada merge).
 
 ## Comandos (PowerShell, en `E:\Dev\renpy-console-project`)
 - Tests: `.\.venv\Scripts\python.exe -m pytest`

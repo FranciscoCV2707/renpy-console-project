@@ -19,9 +19,12 @@ Fase 1 — PS1 sobre el núcleo nuevo (`PLAN.md` sección 6). Fase 0 terminada.
 - [ ] T-102..T-104: ampliar `VnPlatformOps`, mover `main.c` al núcleo, CMake PS1 en este repo.
 - [ ] T-105 / G1: `tests/emu/snoot.py check` idéntico a v1.0.
 
-## Siguiente (pista de agentes, `[HUMANO]`)
-- [ ] Logins de codex, opencode, kilo, vibe y agy; abrir Docker Desktop; instalar Orca.
-- [ ] Probar Beam desde México (`PLAN.md` paso A2).
+## Pista de agentes
+- [x] Logins, Orca y Beam (usuario). Skills de Orca `orca-cli` y `orchestration` instaladas para todos.
+- [x] Skills propias, subagentes, plantillas, `agents.toml`, `dispatch.py`, `sync_skills.py` (9 pruebas pasan).
+- [ ] `[HUMANO]` Activar "Orca CLI" en Settings de Orca; abrir Docker Desktop.
+- [ ] `[HUMANO]` Opcional: Superpowers para Claude (`/plugin install superpowers@claude-plugins-official`).
+- [ ] A4: prueba de humo de los 6 agentes (gasta un poco de cuota de cada uno).
 
 ## Avisos
 - `psxavenc.exe` termina con 0xC0000139 al convertir audio: rompe 1 prueba de wani-ps1

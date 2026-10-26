@@ -28,3 +28,9 @@
   snoot-ps1 4385f4c (`emutest.py`, `audit/capture.py`), wani-ps1 81c56d8 (`playtest.py`), renpy-port-kit d395512
   (`paths.py`). Kit 404 pasan; snoot-ps1 59 pasan; wani-ps1 146 pasan y 1 falla por `psxavenc.exe` 0xC0000139
   (falla igual antes del cambio).
+- Pista de agentes A3: skills de Orca (`orca-cli` ya estaba, `orchestration` instalada con el CLI de Orca) en
+  `~/.agents`, `~/.claude` y `~/.gemini`. Probado con una skill falsa: OpenCode/Beam, Kilo y Antigravity leen
+  `.agents/skills` (OpenCode y Kilo también `.claude/skills`); Codex y Vibe leen `.agents/skills` (código fuente).
+  `agy -p` 1.4.7 responde sin terminal. 5 skills propias en `.agents/skills/` adaptadas a VNB y a las rutas reales,
+  3 subagentes en `.claude/agents/`, plantillas, `agents.toml` con flags verificados con `--help`, `dispatch.py` y
+  `sync_skills.py` con 8 pruebas. `npx skills` no se pudo correr (código externo bloqueado por permisos).

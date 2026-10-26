@@ -65,7 +65,9 @@ init -999 python:
     def _rcp_get_who():
         if renpy.store._last_say_who is None:
             return ""
-        return renpy.eval_who(renpy.store._last_say_who).name
+        # Un personaje escrito como texto ("Trevor & Tana" "...") llega como str, sin .name
+        who = renpy.eval_who(renpy.store._last_say_who)
+        return who if isinstance(who, str) else who.name
 
     def _rcp_on_label(name, abnormal=False):
         if not _rcp_enabled[0]:

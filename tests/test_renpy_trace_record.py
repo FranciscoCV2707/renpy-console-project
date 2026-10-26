@@ -1,86 +1,58 @@
-"""Pruebas de tools.renpy_trace.record (T-302), sin ejecutar el juego."""
+"""tools.renpy_trace.record sin correr el juego."""
 import json
-import sys
+import os
 from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
+record = pytest.importorskip("tools.renpy_trace.record", reason="falta renpy-port-kit en E:\\Dev")
 
-from tools.renpy_trace import record
+ROUTES = {"chapter_x1": {"entry": "chapter_x1", "decisions": []}}
 
 
-def _fake_game(published):
-    published.mkdir(parents=True, exist_ok=True)
-    (published / "game").mkdir(exist_ok=True)
-    (published / "game" / "script.rpy").write_text("label start: pass", encoding="utf-8")
+def fake_game(tmp_path):
+    published = tmp_path / "published"
+    (published / "game").mkdir(parents=True)
+    (published / "game" / "script.rpy").write_text("label start:\n    return\n", encoding="utf-8")
     (published / "snoot.exe").write_bytes(b"")
-    return published
+    folder = tmp_path / "kit"
+    folder.mkdir()
+    (folder / "game.toml").write_text(f"[paths]\ngame = '{published / 'game'}'\n[capture]\nallowed = true\n"
+                                      "reason = 'prueba'\n", encoding="utf-8")
+    return published, folder
 
 
-def test_prepare_copy_adds_trace_hook(tmp_path):
-    published = _fake_game(tmp_path / "published")
-    copy = tmp_path / "copy"
-    result = record.prepare_copy(published / "game", copy)
-    assert Path(result) == copy
-    assert (copy / "game" / "trace_hook.rpy").exists()
-    assert (copy / "game" / "zz_kit_capture.rpy").exists()
+def test_prepare_copy_adds_both_hooks(tmp_path):
+    published, _ = fake_game(tmp_path)
+    copy = record.prepare_copy(published / "game", tmp_path / "copy")
+    assert (copy / "game" / "trace_hook.rpy").is_file()
+    assert (copy / "game" / "zz_kit_capture.rpy").is_file()
+    assert (copy / "game" / "zz_rcp_snoot_capture.rpy").is_file()
 
 
-def test_unknown_route_cli_fails(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(record, "load_routes", lambda *a, **k: {"chapter_x1": {"entry": "chapter_x1", "decisions": []}})
-    rc = record.main(["--route", "nope"])
-    assert rc == 2
-    err = capsys.readouterr().err
-    assert "ruta desconocida" in err
-    assert "nope" in err
+def test_unknown_route_fails_before_running_anything(tmp_path):
+    with pytest.raises(ValueError, match="ruta desconocida: nope"):
+        record.record(["nope"], ROUTES, tmp_path, tmp_path / "build", tmp_path / "traces")
 
 
-def test_unknown_route_raises():
-    with pytest.raises(record.UnknownRouteError):
-        record.record("nope", routes={"chapter_x1": {"entry": "chapter_x1", "decisions": []}})
+def test_record_writes_the_trace_of_each_route(tmp_path, monkeypatch):
+    _, folder = fake_game(tmp_path)
+
+    routes = {**ROUTES, "ruta 1": {"entry": "start", "decisions": []}}
+
+    def run_route(command, copy, name, route, out_root, settings):
+        assert settings["wait"] == 0.2
+        # como Ren'Py en Windows: CRLF
+        Path(os.environ["RCP_TRACE_OUT"]).write_bytes(b"T|1|0|LABEL|name=start\r\n")
+        return {"status": "ok" if name == "chapter_x1" else "se detuvo a los 3600 s"}
+
+    monkeypatch.setattr(record.capture, "run_route", run_route)
+    failed = record.record(["chapter_x1", "ruta 1"], routes, folder, tmp_path / "build", tmp_path / "traces")
+    assert failed == ["ruta 1"]
+    assert (tmp_path / "traces" / "chapter_x1.trace").read_bytes() == b"T|1|0|LABEL|name=start\n"
+    assert not (tmp_path / "traces" / "ruta 1.trace").exists()
 
 
-def test_list_routes(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(record, "load_routes", lambda *a, **k: {"chapter_x1": {"entry": "chapter_x1", "decisions": []}})
-    rc = record.main(["--list"])
-    assert rc == 0
-    assert "chapter_x1" in capsys.readouterr().out
-
-
-def test_record_one_route_with_fakes(tmp_path, monkeypatch):
-    # Evita tocar el juego real: sustituye las funciones externas.
-    published = _fake_game(tmp_path / "published")
-    kit_folder = tmp_path / "kit" / "juegos" / "snoot"
-    kit_folder.mkdir(parents=True)
-    (kit_folder / "game.toml").write_text(
-        '[paths]\ngame = "%s"\n[capture]\nallowed = true\nreason = "t"\nlauncher = "game"\n'
-        % str(published / "game").replace("\\", "\\\\"),
-        encoding="utf-8",
-    )
-    (kit_folder / "reporte").mkdir()
-    (kit_folder / "reporte" / "rutas.json").write_text(
-        json.dumps({"chapter_x1": {"entry": "chapter_x1", "decisions": []}}), encoding="utf-8"
-    )
-
-    def fake_run_route(command, copy, name, route, out_root, *a, **k):
-        out_root = Path(out_root)
-        trace_path = Path(__import__("os").environ["RCP_TRACE_OUT"])
-        trace_path.write_text("T|1|0|LABEL|name=start\n", encoding="utf-8")
-        return {"route": name, "status": "ok"}
-
-    monkeypatch.setattr(record, "run_route", fake_run_route)
-    results = record.record(
-        "chapter_x1",
-        port_kit=tmp_path / "kit",
-        snoot_folder=kit_folder,
-        build_dir=tmp_path / "build",
-        trace_dir=tmp_path / "traces",
-        timeout=10,
-    )
-    assert len(results) == 1
-    assert results[0]["status"] == "ok"
-    trace = Path(results[0]["trace"])
-    assert trace.exists()
-    assert "LABEL" in trace.read_text(encoding="utf-8")
+def test_routes_file_is_name_to_route():
+    routes = record.load_routes()
+    assert "chapter_x1" in routes and json.dumps(routes["chapter_x1"])

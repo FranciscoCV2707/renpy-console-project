@@ -1,0 +1,53 @@
+{
+	"version": 3,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 21,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name":          "base",
+			"hidden":        true,
+			"generator":     "Ninja",
+			"toolchainFile": "$env{PSN00BSDK_LIBS}/cmake/sdk.cmake",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"PSN00BSDK_TC":     "",
+				"PSN00BSDK_TARGET": "mipsel-none-elf"
+			},
+			"warnings": {
+				"dev": false
+			}
+		},
+		{
+			"name":          "default",
+			"inherits":      "base",
+			"displayName":   "Snoot Game (build/)",
+			"description":   "Snoot en build/: lo que usan las herramientas de snoot-ps1 y las pruebas en emulador.",
+			"binaryDir":     "${sourceDir}/build",
+			"cacheVariables": { "GAME": "snoot" }
+		},
+		{
+			"name":          "snoot",
+			"inherits":      "base",
+			"displayName":   "Snoot Game",
+			"binaryDir":     "${sourceDir}/build/snoot",
+			"cacheVariables": { "GAME": "snoot" }
+		},
+		{
+			"name":          "generic",
+			"inherits":      "base",
+			"displayName":   "Juego sin reglas propias (games/default)",
+			"binaryDir":     "${sourceDir}/build/default",
+			"cacheVariables": { "GAME": "default" }
+		},
+		{
+			"name": "wani",
+			"inherits": "base",
+			"displayName": "I Wani Hug that Gator!",
+			"binaryDir": "${sourceDir}/build/wani",
+			"cacheVariables": { "GAME": "wani" }
+		}
+	]
+}

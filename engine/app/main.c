@@ -1,0 +1,2373 @@
+/*
+ * Snoot Game PS1 - motor del juego: VM, escenas, dialogo, decisiones, modo saltar, titulo, pausa, guardado, opciones,
+ * galeria y capitulos extra.
+ *
+ * Controles: X avanza y confirma, O vuelve, R1 salta lineas ya leidas, Start abre la pausa, d-pad elige en menus,
+ * Cuadrado oculta la caja, Select muestra la depuracion. En el titulo, L1 + R1 + Select abre el menu de capitulos de
+ * desarrollo (ahi tambien se salta lo no leido).
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <psxapi.h>
+#include <psxpad.h>
+#include "audio.h"
+#include "backend_ps1.h"
+#include "cd.h"
+#include "chapter.h"
+#include "app.h"
+#include "game.h"
+#include "game_config.h"
+#include "ui_text.h"
+#include "img.h"
+#include "input.h"
+#include "opcodes.h"
+#include "res.h"
+#include "save.h"
+#include "scene.h"
+#include "special.h"
+#include "text.h"
+#include "video.h"
+#include "vm.h"
+
+#define BOX_Y 168
+#define MAX_SPEAKERS 48
+#define MAX_POSITIONS 48
+#define SEEN_BYTES VN_SEEN_BYTES
+#define MENU_TOP 14
+#define MENU_BOTTOM 226
+#define MAX_GALLERY 256
+#define SKIP_PER_FRAME 8                 /* lineas ya leidas que pasan por cuadro al saltar */
+#define MAX_DEV 48
+#define MAX_CHAPTERS 48
+#define MAX_EXTRAS 10
+#define MAX_ENDINGS 8
+#define SLOTS 3
+
+typedef struct {
+	char name[64];
+	uint8_t r, g, b;
+} Speaker;
+
+typedef enum {
+	ST_RUN, ST_SAY, ST_MENU, ST_PAUSE, ST_END, ST_ERROR, ST_DEV, ST_TRANS,
+	ST_TITLE, ST_PMENU, ST_SLOTS, ST_OPTIONS, ST_GALLERY, ST_EXTRAS, ST_CONFIRM, ST_NOTICE,
+	ST_SPECIAL          /* pantalla especial numero n de game_specials: ST_SPECIAL + n (siempre al final) */
+} State;
+
+#define IS_SPECIAL(s) ((s) >= ST_SPECIAL)
+#define SPECIAL_HAS(flag) (IS_SPECIAL(state) && (special->flags & (flag)))
+
+static uint8_t file_buf[16 * 1024] __attribute__((aligned(4)));
+static Speaker speakers[MAX_SPEAKERS];
+static int speaker_count;
+static int16_t pos_x[MAX_POSITIONS], pos_y[MAX_POSITIONS];
+static int pos_count;
+static int start_chapter;
+static uint32_t start_offset;
+
+static Vm vm;
+static State state;
+static TextRun run;
+static int scene_dirty, show_box = 1, debug;
+/* Caja de texto como config.window = "auto" de Ren'Py: aparece con cada linea, se queda (vacia) en las pausas y se
+ * oculta antes de `scene` y de las decisiones; `window show/hide` la fijan. Entra y sale con un fundido de 0.2 s. */
+#define BOX_FADE 12
+#define TEXTBOX_INSTANT 4
+static int win_auto = 1, win_on, box_level;
+static int snap_box;                        /* la copia de la transicion lleva la caja completa */
+static int pause_left, say_seen_before;
+static int bg_start;                        /* cuadro en que aparecio el fondo (inicio de su Pan) */
+static uint8_t seen[SEEN_BYTES];
+static uint32_t endings_mask, bonus_mask;
+static uint16_t gallery_image[MAX_GALLERY];      /* imagen -> indice de galeria, en pares */
+static uint8_t gallery_index[MAX_GALLERY];
+static int gallery_pairs, gallery_count;
+static uint8_t gallery_seen[(MAX_GALLERY + 7) / 8];
+
+/* Videos de la galeria (VID1 de GAME.BIN, solo los juegos que los tienen): entrada de galeria, archivo V<nn>.STR y la
+ * imagen que lo desbloquea (0xFFFF = nunca). Se reproducen con special_fmv; X en la galeria. */
+#define MAX_VIDEOS 16
+#define SPECIAL_VIDEO 250                       /* id de la pantalla de video en games/<juego>/specials.c */
+static int video_count;
+static uint8_t video_slot[MAX_VIDEOS], video_file[MAX_VIDEOS];
+static uint16_t video_unlock[MAX_VIDEOS];
+static State special_return = ST_RUN;           /* adonde vuelve el juego al terminar una pantalla especial */
+
+/* Menu de capitulos (desarrollo): entradas de STORY y la variable de ruta que cada una necesita (255 = ninguna) */
+static int dev_count, dev_chapter;
+static uint32_t dev_offset[MAX_DEV];
+static uint8_t dev_var[MAX_DEV], dev_value[MAX_DEV];
+static char dev_name[MAX_DEV][32];
+
+/* Modo saltar (R1): pasa lo ya leido sin cargar nada del CD; se detiene en texto nuevo, finales y cambios de capitulo */
+static int skip_mode, eat_cross;
+static int dev_session;                          /* partida empezada desde el menu de desarrollo: salta lo no leido */
+
+/* Datos de la interfaz (seccion UI01 de GAME.BIN) */
+static int logo_image, lock_image;
+static uint16_t ending_image[MAX_ENDINGS];       /* imagen que marca cada final al verse (0 = ninguna) */
+static int ending_count;                          /* UI01 trae 4 */
+static char chapter_name[MAX_CHAPTERS][42];
+static int extra_count;
+static uint16_t extra_chapter[MAX_EXTRAS];
+static uint32_t extra_offset[MAX_EXTRAS];
+static char extra_name[MAX_EXTRAS][42];
+static const Special *special;                  /* la pantalla especial abierta */
+
+/* Partida y progreso */
+static int music_level = 10, sfx_level = 10;
+static uint32_t play_frames;                     /* tiempo de la partida actual */
+static int playing_extra;                        /* la partida es un capitulo extra: al terminar vuelve al titulo */
+static int autosave_pending;
+
+static int menu_cursor, menu_top, menu_order[VM_MENU_MAX];
+static uint32_t rng_state = 12345;
+
+static void fatal(const char *msg)
+{
+	int i;
+
+	printf("ERROR: %s\n", msg);
+	for (i = 0; i < 2; i++) {               /* sin fuente: un bloque rojo indica el error */
+		video_rect(LAYER_TEXT, 140, 100, 40, 40, 220, 0, 0, 0);
+		video_flip();
+	}
+	for (;;)
+		VSync(0);
+}
+
+static uint16_t rd16(const uint8_t *p)
+{
+	return (uint16_t)(p[0] | (p[1] << 8));
+}
+
+static uint32_t rd32(const uint8_t *p)
+{
+	return p[0] | (p[1] << 8) | (p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+
+static int random_below(int n)
+{
+	rng_state = rng_state * 1103515245u + 12345u;
+	return (int)((rng_state >> 16) % (uint32_t)n);
+}
+
+/* ---------------------------------------------------------------- progreso */
+static int seen_get(int gid)
+{
+	return gid < SEEN_BYTES * 8 && (seen[gid >> 3] & (1 << (gid & 7)));
+}
+
+static void seen_set(int gid)
+{
+	if (gid < SEEN_BYTES * 8)
+		seen[gid >> 3] |= (uint8_t)(1 << (gid & 7));
+}
+
+/* ---------------------------------------------------------------- datos */
+static void load_game_tables(void)
+{
+	const uint8_t *p = file_buf;
+	int size = cd_read_file("\\DATA\\GAME.BIN", file_buf, sizeof(file_buf)), i, n;
+
+	if (size < 12 || memcmp(p, "GAM1", 4) != 0)
+		fatal("GAME.BIN");
+	start_chapter = rd16(p + 4);
+	start_offset = rd32(p + 6);
+	speaker_count = rd16(p + 10);
+	p += 12;
+	if (speaker_count > MAX_SPEAKERS)
+		fatal("demasiados hablantes");
+	for (i = 0; i < speaker_count; i++) {
+		int n;
+
+		if (p + 4 > file_buf + size)
+			fatal("tabla de hablantes truncada");
+		n = p[3];
+		if (n >= (int)sizeof(speakers[i].name) || p + 4 + n > file_buf + size)
+			fatal("nombre de hablante invalido");
+
+		speakers[i].r = p[0];
+		speakers[i].g = p[1];
+		speakers[i].b = p[2];
+		memcpy(speakers[i].name, p + 4, n);
+		speakers[i].name[n] = 0;
+		p += 4 + n;
+	}
+	pos_count = rd16(p);
+	p += 2;
+	if (pos_count > MAX_POSITIONS)
+		fatal("demasiadas posiciones");
+	for (i = 0; i < pos_count; i++) {
+		pos_x[i] = (int16_t)rd16(p);
+		pos_y[i] = (int16_t)rd16(p + 2);
+		p += 4;
+	}
+	gallery_count = rd16(p);
+	gallery_pairs = rd16(p + 2);
+	p += 4;
+	if (gallery_count > MAX_GALLERY || gallery_pairs > MAX_GALLERY)
+		fatal("galeria demasiado grande");
+	for (i = 0; i < gallery_pairs; i++) {
+		gallery_image[i] = rd16(p);
+		gallery_index[i] = p[2];
+		p += 3;
+	}
+	if (p + 4 > file_buf + size)
+		return;
+	dev_chapter = rd16(p);
+	n = rd16(p + 2);
+	p += 4;
+	for (i = 0; i < n; i++) {
+		if (i < MAX_DEV) {
+			int len = p[6] < 31 ? p[6] : 31;
+
+			dev_offset[i] = rd32(p);
+			dev_var[i] = p[4];
+			dev_value[i] = p[5];
+			memcpy(dev_name[i], p + 7, len);
+			dev_name[i][len] = 0;
+			dev_count = i + 1;
+		}
+		p += 7 + p[6];
+	}
+	/* VID1: videos de la galeria (Snoot no la tiene: sigue UI01) */
+	if (p + 5 <= file_buf + size && memcmp(p, "VID1", 4) == 0) {
+		n = p[4];
+		p += 5;
+		for (i = 0; i < n; i++, p += 4) {
+			if (i < MAX_VIDEOS) {
+				video_slot[i] = p[0];
+				video_file[i] = p[1];
+				video_unlock[i] = rd16(p + 2);
+				video_count = i + 1;
+			}
+		}
+	}
+	/* UI01: logo, candado, imagenes de los finales, nombres de capitulo y capitulos extra */
+	if (p + 4 > file_buf + size || memcmp(p, "UI01", 4) != 0)
+		return;
+	logo_image = rd16(p + 4);
+	lock_image = rd16(p + 6);
+	ending_count = 4;
+	for (i = 0; i < ending_count; i++)
+		ending_image[i] = rd16(p + 8 + 2 * i);
+	n = rd16(p + 16);
+	p += 18;
+	for (i = 0; i < n; i++) {
+		if (i < MAX_CHAPTERS) {
+			memcpy(chapter_name[i], p + 1, p[0] < 41 ? p[0] : 41);
+			chapter_name[i][p[0] < 41 ? p[0] : 41] = 0;
+		}
+		p += 1 + p[0];
+	}
+	n = *p++;
+	for (i = 0; i < n; i++) {
+		if (i < MAX_EXTRAS) {
+			extra_chapter[i] = rd16(p);
+			extra_offset[i] = rd32(p + 2);
+			memcpy(extra_name[i], p + 7, p[6] < 41 ? p[6] : 41);
+			extra_name[i][p[6] < 41 ? p[6] : 41] = 0;
+			extra_count = i + 1;
+		}
+		p += 7 + p[6];
+	}
+	strips_setup(rd16(p), p[2]);
+	n = rd16(p + 3);
+	p += 5;
+	credits_clear();
+	for (i = 0; i < n; i++) {
+		credits_add(p[0], (const char *)p + 2, p[1]);
+		p += 2 + p[1];
+	}
+}
+
+static void gallery_mark(int image)
+{
+	int i;
+
+	for (i = 0; i < gallery_pairs; i++)
+		if (gallery_image[i] == image)
+			gallery_seen[gallery_index[i] >> 3] |= (uint8_t)(1 << (gallery_index[i] & 7));
+	for (i = 0; i < video_count; i++)
+		if (video_unlock[i] == image)
+			gallery_seen[video_slot[i] >> 3] |= (uint8_t)(1 << (video_slot[i] & 7));
+	/* un final cuenta al ver su imagen (Snoot: las cartas e1of4 ... e4of4, como ending_image() del original) */
+	for (i = 0; i < ending_count; i++)
+		if (ending_image[i] && ending_image[i] == image && !(endings_mask & (1u << i))) {
+			endings_mask |= 1u << i;
+			autosave_pending = 1;
+		}
+}
+
+static int chapter_loader(void *user, int chapter, VmChapter *out)
+{
+	(void)user;
+	return chapter_open(chapter, out);
+}
+
+static const char *text_string(int local)
+{
+	return chapter_text(local);
+}
+
+/* ---------------------------------------------------------------- camara (CAMERA) */
+/* Zoom y desplazamiento de toda la escena: pantalla = zoom x punto - (tx, ty), con (tx, ty) en pixeles de
+ * 1920x1080 (la vista de 320x180 es 1/6 de eso). cam_z va en 1/256; cam_x y cam_y en pixeles de la vista. El
+ * cambio se anima de los valores de inicio a los de destino en cam_len cuadros. */
+static int ease256(int curve, int u);
+static int cam_z = 256, cam_x, cam_y;
+static int cam_z0, cam_x0, cam_y0, cam_z1 = 256, cam_x1, cam_y1, cam_t0, cam_len, cam_curve;
+
+static int camera_on(void)
+{
+	return cam_z != 256 || cam_x || cam_y;
+}
+
+static void camera_update(void)
+{
+	int e, t = (int)(video_frames() - cam_t0);
+
+	if (cam_len <= 0 || t >= cam_len) {
+		cam_z = cam_z1;
+		cam_x = cam_x1;
+		cam_y = cam_y1;
+		return;
+	}
+	e = ease256(cam_curve, t * 256 / cam_len);
+	cam_z = cam_z0 + (cam_z1 - cam_z0) * e / 256;
+	cam_x = cam_x0 + (cam_x1 - cam_x0) * e / 256;
+	cam_y = cam_y0 + (cam_y1 - cam_y0) * e / 256;
+}
+
+static int cam_sx(int x)
+{
+	return x * cam_z / 256 - cam_x;
+}
+
+static int cam_sy(int y)
+{
+	return VIEW_Y + (y - VIEW_Y) * cam_z / 256 - cam_y;
+}
+
+/* La camara no va en el guardado: al cargar o volver al titulo arranca sin zoom ni desplazamiento */
+static void camera_reset(void)
+{
+	cam_z = cam_z1 = 256;
+	cam_x = cam_x1 = cam_y = cam_y1 = cam_len = 0;
+}
+
+static void notify(void *user, int opcode, const int32_t *args, int nargs)
+{
+	(void)user;
+	(void)nargs;
+	switch (opcode) {
+	case OP_PHONE: {
+		int i;
+
+		phone_clear();
+		for (i = 0; i < vm.phone_n; i++)
+			phone_add(vm.phone_side[i], text_string(vm.phone_text[i]), vm.phone_img[i]);
+		break;
+	}
+	case OP_CAMERA:
+		camera_update();
+		cam_z0 = cam_z;
+		cam_x0 = cam_x;
+		cam_y0 = cam_y;
+		cam_z1 = args[0] ? args[0] : 256;
+		cam_x1 = args[1] / 6;
+		cam_y1 = args[2] / 6;
+		cam_len = skip_mode ? 0 : args[3];
+		cam_curve = args[4];
+		cam_t0 = (int)video_frames();
+		break;
+	case OP_SCENE:
+		bg_start = video_frames();
+		gallery_mark(args[0]);
+		scene_dirty = 1;
+		if (win_auto)
+			win_on = 0;
+		break;
+	case OP_MENU:
+		if (win_auto)
+			win_on = 0;
+		break;
+	case OP_SAY:
+	case OP_SAYX:
+		if (win_auto)
+			win_on = 1;
+		break;
+	case OP_TEXTBOX:
+		if ((args[0] & 3) == 1) {
+			win_auto = 1;
+		} else {
+			win_auto = 0;
+			win_on = (args[0] & 3) == 2;
+		}
+		if (args[0] & TEXTBOX_INSTANT)
+			box_level = win_on ? BOX_FADE : 0;
+		break;
+	case OP_SHOW:
+		gallery_mark(args[1]);
+		scene_dirty = 1;
+		break;
+	case OP_SHOW_RANDOM:
+		scene_dirty = 1;
+		break;
+	case OP_BACKGROUND:
+		gallery_mark(args[0]);
+		scene_dirty = 1;
+		break;
+	case OP_HIDE:
+	case OP_ORDER:
+		scene_dirty = 1;
+		break;
+	case OP_MARK_SEEN:
+		gallery_mark(args[0]);
+		break;
+	case OP_ENDING:
+		endings_mask |= 1u << ((args[0] - 1) & 31);
+		skip_mode = 0;
+		break;
+	case OP_LOAD_CHAPTER:
+		skip_mode = 0;
+		break;
+	case OP_UNLOCK_BONUS:
+		bonus_mask |= 1u << (args[0] & 31);
+		break;
+	case OP_MUSIC_PLAY:
+		audio_music_play(args[0], args[1], args[2]);
+		break;
+	case OP_MUSIC_QUEUE:
+		audio_music_queue(args[0]);
+		break;
+	case OP_MUSIC_STOP:
+		audio_music_stop(args[0]);
+		break;
+	case OP_AMBIENT_PLAY:
+		audio_ambient_play(args[0], args[1], args[2]);
+		break;
+	case OP_AMBIENT_STOP:
+		audio_ambient_stop(args[0], args[1]);
+		break;
+	case OP_SFX_PLAY:
+		if (!skip_mode)                  /* al saltar no suenan los efectos (como en Ren'Py) */
+			audio_sfx_play(args[0]);
+		break;
+	case OP_SFX_STOP:
+		audio_sfx_stop_fade(args[0]);
+		break;
+	case OP_VOLUME:
+		audio_volume(args[0], args[1], args[2]);
+		break;
+	}
+}
+
+static int op_size(const OpInfo *info)
+{
+	const char *f;
+	int n = 0;
+
+	for (f = info->fmt; *f; f++)
+		n += (*f == 'H' || *f == 'h') ? 2 : (*f == 'I') ? 4 : 1;
+	return n;
+}
+
+/* Congelones: cuadros que tardaron mas de 0.1 s (lecturas del CD, descompresion). La prueba en emulador los lee:
+ * cuantos hubo, el mayor y los 32 peores como (vblanks << 24) | (capitulo << 18) | pc */
+#define STALL_VBLANKS 6
+#define STALL_LOG 32
+volatile uint32_t stall_count, stall_max, stall_total, stall_log[STALL_LOG];
+volatile uint32_t decode_vblanks;            /* preparar escenas sin contar el CD: descomprimir y subir a VRAM */
+extern volatile uint32_t cd_sync_vblanks, cd_wait_vblanks, res_trace_tag;
+
+static void log_stall(int vblanks)
+{
+	uint32_t entry;
+	int i, low = 0;
+
+	if (vblanks > 255)
+		vblanks = 255;
+	entry = ((uint32_t)vblanks << 24) | ((uint32_t)(vm.chapter & 63) << 18) | (vm.pc & 0x3FFFF);
+	for (i = 1; i < STALL_LOG; i++)
+		if (stall_log[i] < stall_log[low])
+			low = i;
+	if (entry > stall_log[low])
+		stall_log[low] = entry;
+	stall_count++;
+	stall_total += vblanks;
+	if ((uint32_t)vblanks > stall_max)
+		stall_max = vblanks;
+}
+
+#define LOOKAHEAD_IMAGES 32
+
+static int near_sfx_missing;                 /* look_ahead: un efecto de antes de la proxima linea no esta en la SPU */
+static int say_prefetched;                   /* ya se reviso lo que viene despues de la linea actual */
+
+static void add_image(uint16_t *ids, int *n, int id)
+{
+	int i;
+
+	if (!id || *n >= LOOKAHEAD_IMAGES)
+		return;
+	for (i = 0; i < *n; i++)
+		if (ids[i] == id)
+			return;
+	ids[(*n)++] = (uint16_t)id;
+}
+
+/* Recorre el guion hacia adelante (sin entrar en decisiones) juntando las imagenes y ambientes que se van a usar; con
+ * `queue_sfx` pone en cola los efectos que van a sonar. En `*near` (si no es 0) deja cuantos se usan antes de la
+ * proxima linea. `steps` limita cuantas instrucciones mira. */
+static int look_ahead(int steps, uint16_t *ids, int *near, int queue_sfx)
+{
+	uint32_t pc = vm.pc;
+	int n = 0, k, e;
+
+	near_sfx_missing = 0;
+	if (near)
+		*near = -1;
+	for (k = 0; k < steps && pc < vm.ch.code_size && n < LOOKAHEAD_IMAGES; k++) {
+		const uint8_t *p = vm.ch.code + pc;
+		const OpInfo *info = op_info(p[0]);
+
+		if (!info || p[0] == OP_MENU || p[0] == OP_CALL || p[0] == OP_RETURN || p[0] == OP_LOAD_CHAPTER ||
+		    p[0] == OP_END || p[0] == OP_HALT)
+			break;
+		if (p[0] == OP_JUMP) {
+			pc = rd32(p + 1);                /* salto fijo: se sigue el camino */
+			continue;
+		}
+		if ((p[0] == OP_SAY || p[0] == OP_SAYX) && near && *near < 0)
+			*near = n;
+		if (p[0] == OP_SFX_PLAY && queue_sfx)
+			audio_preload(rd16(p + 1));
+		if (p[0] == OP_SFX_PLAY && near && *near < 0 && audio_sfx_missing(rd16(p + 1)))
+			near_sfx_missing = 1;
+		if (p[0] == OP_AMBIENT_PLAY && audio_ambient_missing(p[1], rd16(p + 2)))
+			add_image(ids, &n, RES_SOUND | rd16(p + 2));     /* el bucle va a la cache de RAM con las imagenes */
+		if (p[0] == OP_SCENE || p[0] == OP_BACKGROUND)
+			add_image(ids, &n, rd16(p + 1));
+		if (p[0] == OP_SHOW_RANDOM)              /* showCG(): cualquiera de sus imagenes */
+			for (e = 0; e < p[4]; e++)
+				add_image(ids, &n, rd16(p + 2) + e);
+		if (p[0] == OP_SHOW) {
+			const uint8_t *anim = scene_anim(&vm, rd16(p + 7)), *ev;
+
+			add_image(ids, &n, rd16(p + 2));
+			if (anim && anim[0])                 /* cuadros que la animacion muestra despues */
+				for (e = 0, ev = anim + 3 + 15 * anim[0]; e < anim[2]; e++, ev += 7)
+					if (!(ev[4] & 2))
+						add_image(ids, &n, rd16(ev + 2));
+		}
+		pc += 1 + op_size(info);
+	}
+	if (near && *near < 0)
+		*near = n;
+	return n;
+}
+
+/* Mientras se lee una linea: si lo que se usa antes de la proxima linea no esta en memoria, se empieza a traer ya en
+ * segundo plano (la musica se pausa una linea antes, pero al avanzar el juego no se congela). Si la musica ya esta
+ * en pausa, se aprovecha para traer tambien lo que sigue. */
+static void prefetch_next(void)
+{
+	uint16_t ids[LOOKAHEAD_IMAGES];
+	int n, near, i;
+
+	if (skip_mode || res_prefetch_busy())
+		return;
+	n = look_ahead(600, ids, &near, 0);
+	for (i = 0; i < near; i++)
+		res_touch(ids[i]);                   /* las que ya estan en VRAM no se desalojan antes de usarse */
+	for (i = 0; i < near && res_have(ids[i]); i++)
+		;
+	if (i < near || near_sfx_missing || audio_cd_paused()) {
+		res_prefetch(ids, n);
+		look_ahead(600, ids, 0, 1);
+	}
+}
+
+/* Sonidos dentro de las animaciones (`play sound` en un bloque ATL): suenan al pasar su tiempo */
+static void anim_sounds(void)
+{
+	int i, e;
+
+	for (i = 0; i < VM_MAX_SPRITES; i++) {
+		VmSprite *s = &vm.sprites[i];
+		const uint8_t *anim, *ev;
+		int t;
+
+		if (!s->used || !s->anim)
+			continue;
+		anim = scene_anim(&vm, s->anim);
+		if (!anim || !anim[2])
+			continue;
+		t = video_frames() - (int)s->shown_at;
+		ev = anim + 3 + 15 * anim[0];
+		for (e = 0; e < anim[2]; e++, ev += 7) {
+			int at = rd16(ev);
+
+			if ((ev[4] & 2) && at > s->sound_t && at <= t && !skip_mode) {
+				int variants = rd16(ev + 5);
+
+				audio_sfx_play(rd16(ev + 2) + (variants > 1 ? random_below(variants) : 0));
+			}
+		}
+		s->sound_t = t;
+	}
+}
+
+/* ---------------------------------------------------------------- escena */
+/* Alineacion del fondo en el cuadro actual (8.8 desplazado 8 bits mas): interpolacion lineal entre claves (Pan). */
+static void bg_align(int *xa, int *ya)
+{
+	const uint8_t *anim = scene_anim(&vm, vm.bg_anim & 0x7FFF), *k0, *k1;
+	int t = video_frames() - bg_start, n, i, t0, t1, x0, y0;
+
+	*xa = 128 << 8;                /* sin animacion: posicion por defecto de Ren'Py */
+	*ya = 256 << 8;
+	if (!anim || !anim[0])
+		return;
+	n = anim[0];
+	for (i = 0; i < n - 1 && t >= rd16(anim + 3 + 15 * (i + 1)); i++)
+		;
+	k0 = anim + 3 + 15 * i;
+	x0 = (int16_t)rd16(k0 + 2);
+	y0 = (int16_t)rd16(k0 + 4);
+	*xa = x0 << 8;
+	*ya = y0 << 8;
+	if (i == n - 1)
+		return;
+	k1 = k0 + 15;
+	t0 = rd16(k0);
+	t1 = rd16(k1);
+	if (t <= t0 || t1 <= t0)
+		return;
+	*xa += (((int16_t)rd16(k1 + 2) - x0) * 256 * (t - t0)) / (t1 - t0);
+	*ya += (((int16_t)rd16(k1 + 4) - y0) * 256 * (t - t0)) / (t1 - t0);
+}
+
+/* Imagen opaca que cubre toda la vista: lo que queda detras no se carga ni se dibuja */
+static int covers_view(const Image *img, const VmSprite *s)
+{
+	return img->kind == 0 && !img->big && !s->anim && img->x == 0 && img->y == 0 &&
+	       img->w >= SCREEN_W && img->h >= VIEW_H && img->full_w == img->w && img->full_h == img->h;
+}
+
+static void scene_sync(void)
+{
+	const VmSprite *order[VM_MAX_SPRITES];
+	uint16_t extra[SCENE_MAX_EVENTS];
+	int rank, i, n, count, first = 0, covered = 0;
+
+	if (!scene_dirty || skip_mode)
+		return;                  /* al saltar no se lee el CD: la escena se carga una vez al detenerse */
+	scene_dirty = 0;
+	res_new_scene();
+	count = scene_sorted(&vm, order);
+	/* lo que la escena ya tiene cargado queda protegido antes de cargar lo nuevo (si no, el fondo, que se pide al
+	 * final, podia desalojarse para hacer lugar a los personajes) */
+	if (vm.bg)
+		res_touch(vm.bg);
+	for (rank = 0; rank < count; rank++)
+		res_touch(order[rank]->image);
+	for (rank = count - 1; rank >= 0 && !covered; rank--) {
+		const Image *img = res_get(order[rank]->image);
+
+		first = rank;
+		covered = img && covers_view(img, order[rank]);
+	}
+	if (vm.bg && !covered)
+		res_get(vm.bg);
+	/* las imagenes que las animaciones muestran despues se cargan si sobra VRAM, para no leer el CD a mitad */
+	for (rank = count - 1; rank >= first; rank--) {
+		n = scene_event_images(&vm, order[rank], extra, SCENE_MAX_EVENTS);
+		for (i = 0; i < n; i++)
+			res_preload(extra[i]);
+	}
+}
+
+/* Imagen para dibujar: al saltar solo lo que ya esta en VRAM */
+static const Image *scene_image(int id)
+{
+	return skip_mode ? res_peek(id) : res_get(id);
+}
+
+/* ---------------------------------------------------------------- transiciones */
+#define TR_CUT 0
+#define TR_DISSOLVE 1
+#define TR_FADE 2
+#define TR_VPUNCH 3
+#define TR_HPUNCH 4
+#define TR_MOVE 5
+#define TR_FADE_WHITE 6
+
+static int trans_type, trans_t, trans_len, trans_a, trans_b, trans_c, snap_x = -1, snap_y;
+static int scene_dx, scene_dy;                       /* desplazamiento de toda la escena (sacudidas) */
+static int16_t last_x[VM_MAX_SPRITES], last_y[VM_MAX_SPRITES];
+static uint8_t last_tag[VM_MAX_SPRITES], last_valid[VM_MAX_SPRITES];
+static int16_t from_x[VM_MAX_SPRITES], from_y[VM_MAX_SPRITES];
+static uint8_t from_edge[VM_MAX_SPRITES];             /* 0 desde su posicion anterior; 1-4 entra por el borde */
+
+static int ease256(int curve, int u)
+{
+	int v = 256 - u;
+
+	switch (curve) {
+	case 1:
+		return (u * u * u) >> 16;
+	case 2:
+		return 256 - ((v * v * v) >> 16);
+	case 3:
+		return u < 128 ? (u * u * u) >> 14 : 256 - ((v * v * v) >> 14);
+	}
+	return u;
+}
+
+static void begin_transition(void)
+{
+	int i;
+
+	trans_type = vm.ev_args[0];
+	trans_a = vm.ev_args[1];
+	trans_b = vm.ev_args[2];
+	trans_c = vm.ev_args[3];
+	trans_t = 0;
+	switch (trans_type) {
+	case TR_DISSOLVE:
+	case TR_VPUNCH:
+	case TR_HPUNCH:
+	case TR_MOVE:
+		trans_len = trans_a;
+		break;
+	case TR_FADE:
+	case TR_FADE_WHITE:
+		trans_len = trans_a + trans_b + trans_c;
+		break;
+	default:
+		trans_len = 0;
+	}
+	if (skip_mode || trans_len <= 0)
+		return;
+	if (trans_type == TR_DISSOLVE || trans_type == TR_FADE || trans_type == TR_FADE_WHITE) {
+		/* el cuadro anterior se guarda en VRAM antes de cargar lo nuevo */
+		if (res_reserve_snapshot(&snap_x, &snap_y))
+			video_snapshot(snap_x, snap_y);
+		else
+			snap_x = -1;             /* VRAM llena con lo que esta en pantalla: corte (la duracion se mantiene) */
+	}
+	if (trans_type == TR_MOVE)
+		for (i = 0; i < VM_MAX_SPRITES; i++) {
+			const VmSprite *s = &vm.sprites[i];
+
+			from_edge[i] = 0;
+			if (!s->used)
+				continue;
+			if (last_valid[i] && last_tag[i] == s->tag) {
+				from_x[i] = last_x[i];
+				from_y[i] = last_y[i];
+			} else {
+				from_edge[i] = (uint8_t)(trans_b & 15);
+			}
+		}
+	state = ST_TRANS;
+}
+
+static void end_transition(void)
+{
+	if (snap_x >= 0) {
+		res_release_snapshot();
+		snap_x = -1;
+	}
+	scene_dx = scene_dy = 0;
+	state = ST_RUN;
+}
+
+static void update_transition(void)
+{
+	if (++trans_t >= trans_len || skip_mode)
+		end_transition();
+}
+
+/* Sacudidas: desplazamiento que alterna de lado cada 2 cuadros y se apaga hacia el final */
+static void transition_offset(void)
+{
+	int amp;
+
+	scene_dx = scene_dy = 0;
+	if (state != ST_TRANS || (trans_type != TR_VPUNCH && trans_type != TR_HPUNCH))
+		return;
+	amp = (trans_b / 6) * (trans_len - trans_t) / trans_len;
+	if ((trans_t >> 1) & 1)
+		amp = -amp;
+	if (trans_type == TR_VPUNCH)
+		scene_dy = amp;
+	else
+		scene_dx = amp;
+}
+
+/* Posicion de un sprite durante MoveTransition (y registro de donde quedo cada uno) */
+static void move_position(int slot, int tag, int w, int h, int *x, int *y)
+{
+	if (state == ST_TRANS && trans_type == TR_MOVE && vm.sprites[slot].used) {
+		int e = ease256(trans_c, trans_t * 256 / trans_len), fx = from_x[slot], fy = from_y[slot];
+
+		switch (from_edge[slot]) {
+		case 1: fx = -w; fy = *y; break;
+		case 2: fx = SCREEN_W; fy = *y; break;
+		case 3: fx = *x; fy = VIEW_Y - h; break;
+		case 4: fx = *x; fy = VIEW_Y + VIEW_H; break;
+		}
+		*x = fx + (*x - fx) * e / 256;
+		*y = fy + (*y - fy) * e / 256;
+	}
+	last_x[slot] = (int16_t)*x;
+	last_y[slot] = (int16_t)*y;
+	last_tag[slot] = (uint8_t)tag;
+	last_valid[slot] = 1;
+}
+
+/* Brillo de la escena nueva durante la transicion (256 = normal). Dissolve: la escena nueva se dibuja a brillo t y
+ * encima se suma la copia de la anterior a brillo 1 - t: nueva * t + vieja * (1 - t), continuo y exacto, porque la
+ * GPU multiplica cada textura por su color sin costo. Fundido a negro: la entrada sube el brillo de 0 a 1. */
+static int transition_brightness(void)
+{
+	int p;
+
+	if (state != ST_TRANS || trans_len <= 0)
+		return 256;
+	p = trans_t * 256 / trans_len;
+	if (trans_type == TR_DISSOLVE && snap_x >= 0)
+		return p;
+	if (trans_type == TR_FADE && trans_t < trans_a && snap_x < 0)    /* sin copia: la salida oscurece lo nuevo */
+		return (trans_a - trans_t) * 256 / trans_a;
+	if (trans_type == TR_FADE && trans_t >= trans_a + trans_b)
+		return (trans_t - trans_a - trans_b) * 256 / (trans_c ? trans_c : 1);
+	return 256;
+}
+
+static void draw_transition(void)
+{
+	int p, v, b, white = trans_type == TR_FADE_WHITE;
+	/* si la caja sigue visible, la de la copia (oscurecida al 50%) se deshace al doble de brillo: si no, se
+	 * oscureceria dos veces */
+	int band = snap_box && box_level >= BOX_FADE ? BOX_Y : SCREEN_H;
+
+	if (state != ST_TRANS)
+		return;
+	p = trans_t * 256 / trans_len;
+	if (trans_type == TR_DISSOLVE && snap_x >= 0) {
+		b = (256 - p) * 128 / 256;
+		video_snapshot_draw(LAYER_FX, snap_x, snap_y, 2, b, band, 2 * b);     /* suma */
+	} else if (trans_type == TR_FADE) {
+		if (trans_t < trans_a) {
+			/* salida: la copia de la escena anterior se oscurece de verdad (multiplicada), no restada */
+			b = (trans_a - trans_t) * 128 / (trans_a ? trans_a : 1);
+			if (snap_x >= 0)
+				video_snapshot_draw(LAYER_FX, snap_x, snap_y, 0, b, band, 2 * b);
+		} else if (trans_t < trans_a + trans_b) {
+			video_rect(LAYER_FX, 0, VIEW_Y, SCREEN_W, VIEW_H, 0, 0, 0, 0);
+		}
+		/* entrada: la escena nueva ya se dibujo con transition_brightness() */
+	} else if (white) {
+		if (trans_t < trans_a) {
+			v = trans_t * 255 / (trans_a ? trans_a : 1);
+			video_rect(LAYER_FX, 0, VIEW_Y, SCREEN_W, VIEW_H, v, v, v, 2);  /* encima de la copia */
+			if (snap_x >= 0)
+				video_snapshot_draw(LAYER_FX, snap_x, snap_y, 0, 128, band, 255);
+		} else if (trans_t < trans_a + trans_b) {
+			video_rect(LAYER_FX, 0, VIEW_Y, SCREEN_W, VIEW_H, 255, 255, 255, 0);
+		} else {
+			v = (trans_len - trans_t) * 255 / (trans_c ? trans_c : 1);
+			video_rect(LAYER_FX, 0, VIEW_Y, SCREEN_W, VIEW_H, v, v, v, 2);
+		}
+	}
+}
+
+static void draw_bg(void)
+{
+	if (!vm.bg)
+		video_rect(LAYER_BG, 0, VIEW_Y, SCREEN_W, VIEW_H, 0, 0, 0, 0);   /* negro dibujado: lleva el bit de mascara */
+	if (vm.bg) {
+		const Image *bg = scene_image(vm.bg);
+
+		if (bg && bg->kind == 2) {
+			video_rect(LAYER_BG, 0, VIEW_Y, SCREEN_W, VIEW_H, bg->solid[0] * img_brightness >> 8,
+			           bg->solid[1] * img_brightness >> 8, bg->solid[2] * img_brightness >> 8, 0);
+		} else if (bg) {
+			int xa, ya, bx, by;
+
+			bg_align(&xa, &ya);
+			bx = (((SCREEN_W - bg->full_w) * xa) >> 16);
+			by = VIEW_Y + (((VIEW_H - bg->full_h) * ya) >> 16);
+			if (camera_on()) {
+				bx = cam_sx(bx);
+				by = cam_sy(by);
+			}
+			bx += scene_dx;
+			by += scene_dy;
+			if (bg->big)                     /* las imagenes grandes no tienen zoom: con camara solo se desplazan */
+				img_draw_big(bg, LAYER_BG, bx, by);
+			else if (camera_on())
+				img_draw_ex(bg, LAYER_BG, bx, by, vm.bg_anim >> 15, 64 * cam_z / 256, 128, 128, 128);
+			else
+				img_draw_flip(bg, LAYER_BG, bx, by, vm.bg_anim >> 15);
+		}
+	}
+}
+
+static void draw_solid(int layer, const uint8_t *rgba, int alpha)
+{
+	SolidBlend sb;
+	int i;
+
+	scene_solid_blend(rgba, alpha, &sb);
+	if (sb.mode != 3) {                  /* el brillo de la transicion tambien oscurece los colores (no las restas) */
+		sb.r = sb.r * img_brightness >> 8;
+		sb.g = sb.g * img_brightness >> 8;
+		sb.b = sb.b * img_brightness >> 8;
+	}
+	for (i = 0; i < sb.passes; i++)
+		video_rect(layer, 0, VIEW_Y, SCREEN_W, VIEW_H, sb.r, sb.g, sb.b, sb.mode);
+}
+
+static void draw_scene(void)
+{
+	const VmSprite *order[VM_MAX_SPRITES];
+	int n = scene_sorted(&vm, order), rank;
+
+	camera_update();
+	/* de adelante hacia atras: al llegar a una imagen que tapa toda la vista no hace falta seguir */
+	for (rank = n - 1; rank >= 0; rank--) {
+		const VmSprite *s = order[rank];
+		const Image *img;
+		int layer = LAYER_BG - 1 - rank;
+		SpriteLook lk;
+
+		scene_look(&vm, s, skip_mode ? SCENE_SETTLED : (int)(video_frames() - s->shown_at), &lk);
+		img = scene_image(lk.image);
+		if (!img && lk.image != s->image)
+			img = scene_image(s->image);     /* cuadro de animacion que no cupo en VRAM: se queda la imagen base */
+		if (!img || img->kind == 3 || lk.alpha < SCENE_HIDDEN_ALPHA)
+			continue;
+		if (layer < LAYER_SPRITE0)
+			layer = LAYER_SPRITE0;
+		if (img->kind == 2) {
+			draw_solid(layer, img->solid, lk.alpha);
+		} else {
+			int w = img->full_w * lk.zoom / 64, h = img->full_h * lk.zoom / 64;
+			int x = ((SCREEN_W - w) * lk.xa) / 256, y = VIEW_Y + ((VIEW_H - h) * lk.ya) / 256;
+
+			move_position((int)(s - vm.sprites), s->tag, w, h, &x, &y);
+			if (vm.persp_on) {
+				/* perspectiva de Ren'Py (reference.py:project): escala = z11 / (z11 - (z - zc)); con zzoom el tamano se compensa
+				 * con (z11 - z) / z11 y la esquina se corre a la mitad de lo que se encoge. La camara traslada antes de escalar. */
+				int32_t depth = vm.persp_z11 - (s->depth - vm.persp_zc), scale, comp = 256, left, top;
+
+				if (depth <= 0)
+					continue;
+				scale = vm.persp_z11 * 256 / depth;
+				if (s->zzoom)
+					comp = (vm.persp_z11 - s->depth) * 256 / vm.persp_z11;
+				if (comp <= 0 || scale * comp / 256 > 32 * 256)
+					continue;
+				if (s->zzoom)
+					x += w * (256 - comp) / 512;
+				y += h * (256 - comp) / 512;
+				left = SCREEN_W / 2 + ((x - cam_x - SCREEN_W / 2) * scale) / 256;
+				top = VIEW_Y + VIEW_H / 2 + ((y - cam_y - (VIEW_Y + VIEW_H / 2)) * scale) / 256;
+				img_draw_ex_rot(img, layer, left + scene_dx, top + scene_dy, lk.flip,
+				                (lk.zoom * cam_z / 256) * scale * comp / (256 * 256), lk.r, lk.g, lk.b, lk.angle);
+			} else {
+				img_draw_ex_rot(img, layer, cam_sx(x) + scene_dx, cam_sy(y) + scene_dy, lk.flip, lk.zoom * cam_z / 256,
+				                lk.r, lk.g, lk.b, lk.angle);
+			}
+		}
+		if (!vm.persp_on && covers_view(img, s)) {
+			video_clip_scene();
+			return;
+		}
+	}
+	draw_bg();
+	video_clip_scene();
+}
+
+/* ---------------------------------------------------------------- interfaz */
+/* with_text = 0: caja vacia (pausa con la ventana visible) */
+static void draw_box(int with_text)
+{
+	const Speaker *sp = vm.ev_speaker < speaker_count ? &speakers[vm.ev_speaker] : &speakers[0];
+	int k = box_level;
+
+	if (k >= BOX_FADE)
+		video_rect(LAYER_BOX, 0, BOX_Y, SCREEN_W, SCREEN_H - BOX_Y, 0, 0, 0, 1);
+	else       /* a medio fundido se resta un gris: en tonos medios coincide con oscurecer al 50% al llegar al final */
+		video_rect(LAYER_BOX, 0, BOX_Y, SCREEN_W, SCREEN_H - BOX_Y, 64 * k / BOX_FADE, 64 * k / BOX_FADE,
+		           64 * k / BOX_FADE, 3);
+	if (!with_text)
+		return;
+	if (sp->name[0])
+		font_draw(LAYER_TEXT, 8, BOX_Y + 2, sp->name, sp->r * k / BOX_FADE, sp->g * k / BOX_FADE,
+		          sp->b * k / BOX_FADE);
+	text_draw(&run, LAYER_TEXT, 8, BOX_Y + 15, 128 * k / BOX_FADE, 128 * k / BOX_FADE, 128 * k / BOX_FADE);
+	if (k >= BOX_FADE && text_page_done(&run) && ((video_frames() / 20) & 1))
+		video_triangle_down(LAYER_TEXT, 290, SCREEN_H - 24, 10, 7, 255, 255, 255);
+}
+
+/* Lleva la caja hacia visible u oculta, un paso por cuadro (al saltar, de golpe) */
+static void update_box(void)
+{
+	int target = show_box && (state == ST_SAY ||
+	             (win_on && (state == ST_RUN || state == ST_PAUSE || state == ST_TRANS)));
+
+	if (!show_box || skip_mode)
+		box_level = target ? BOX_FADE : 0;
+	else if (target && box_level < BOX_FADE)
+		box_level++;
+	else if (!target && box_level > 0)
+		box_level--;
+}
+
+static int option_lines(const char *s)
+{
+	int n = 1;
+
+	for (; *s; s++)
+		if (*s == '\n')
+			n++;
+	return n;
+}
+
+static void menu_begin(void)
+{
+	int i;
+
+	for (i = 0; i < vm.menu_n; i++)
+		menu_order[i] = i;
+	if (vm.menu_flags & 1)
+		for (i = vm.menu_n - 1; i > 0; i--) {
+			int j = random_below(i + 1), t = menu_order[i];
+
+			menu_order[i] = menu_order[j];
+			menu_order[j] = t;
+		}
+	menu_cursor = 0;
+	menu_top = 0;
+}
+
+/* Lista las opciones desde menu_top; ajusta menu_top para que el cursor quede visible */
+/* Menu de imagenes (OP_IMGMENU): fondo y botones en su sitio; un boton ya visto se ve apagado. */
+static void draw_imgmenu(void)
+{
+	const Image *bg = scene_image(vm.menu_bg);
+	int i;
+
+	if (bg && bg->big)
+		img_draw_big(bg, LAYER_BG, 0, VIEW_Y);
+	else if (bg)
+		img_draw(bg, LAYER_BG, 0, VIEW_Y);
+	for (i = 0; i < vm.menu_n; i++) {
+		const Image *img = scene_image(vm.menu_img_id[i]);
+		int dim = vm.menu_seen[i] != 0xFFFF && seen_get(vm.menu_seen[i]);
+
+		if (img)
+			img_draw_ex(img, LAYER_SPRITE0, vm.menu_x[i], VIEW_Y + vm.menu_y[i], 0, 64,
+			            dim ? 64 : 128, dim ? 64 : 128, dim ? 64 : 128);
+	}
+	if (menu_cursor < vm.menu_n) {
+		const Image *c = scene_image(vm.menu_img_id[menu_cursor]);
+		int x = vm.menu_x[menu_cursor], y = VIEW_Y + vm.menu_y[menu_cursor];
+
+		if (c) {
+			int w = c->full_w, h = c->full_h;
+
+			video_rect(LAYER_TEXT, x, y, w, 1, 255, 255, 0, 0);
+			video_rect(LAYER_TEXT, x, y + h - 1, w, 1, 255, 255, 0, 0);
+			video_rect(LAYER_TEXT, x, y, 1, h, 255, 255, 0, 0);
+			video_rect(LAYER_TEXT, x + w - 1, y, 1, h, 255, 255, 0, 0);
+		}
+	}
+}
+
+static void draw_menu(void)
+{
+	if (vm.menu_img) {
+		draw_imgmenu();
+		return;
+	}
+	int lh = font_line_height(), i, y, last;
+
+	video_rect(LAYER_BOX, 0, 0, SCREEN_W, SCREEN_H, 0, 0, 0, 1);
+	for (;;) {
+		y = MENU_TOP;
+		last = -1;
+		for (i = menu_top; i < vm.menu_n; i++) {
+			int h = option_lines(text_string(vm.menu_text[menu_order[i]])) * lh + 8;
+
+			if (y + h > MENU_BOTTOM)
+				break;
+			y += h;
+			last = i;
+		}
+		if (menu_cursor > last && menu_top < menu_cursor)
+			menu_top++;
+		else
+			break;
+	}
+	y = MENU_TOP;
+	for (i = menu_top; i <= last; i++) {
+		const char *s = text_string(vm.menu_text[menu_order[i]]);
+		int selected = i == menu_cursor;
+
+		if (selected)
+			video_triangle_down(LAYER_TEXT, 6, y + 4, 8, 6, 255, 220, 40);
+		font_draw(LAYER_TEXT, 20, y, s, selected ? 255 : 128, selected ? 220 : 128, selected ? 40 : 128);
+		y += option_lines(s) * lh + 8;
+	}
+}
+
+/* ---------------------------------------------------------------- flujo */
+static void begin_special(int id);
+
+static void start_say(void)
+{
+	int gid = vm.ev_gid;
+
+	say_seen_before = seen_get(gid);
+	say_prefetched = 0;
+	text_start(&run, text_string(vm.ev_text));
+	state = ST_SAY;
+}
+
+static void run_vm(void)
+{
+	VmEvent ev;
+
+	audio_batch_begin();             /* todas las lecturas de este paso comparten una sola pausa de la musica */
+	res_trace_tag = (uint32_t)vm.chapter << 16;
+	vm.now = (uint32_t)video_frames();
+	ev = vm_run(&vm);
+
+	{
+		int changed = scene_dirty && !skip_mode;
+
+		/* lo nuevo se carga antes de reservar la copia de la transicion (que sale del framebuffer, no de las
+		 * texturas): asi la reserva sabe que espacio queda de verdad */
+		int t0 = VSync(-1), cd0 = cd_sync_vblanks + cd_wait_vblanks;
+
+		scene_sync();
+		decode_vblanks += VSync(-1) - t0 - (cd_sync_vblanks + cd_wait_vblanks - cd0);
+		if (ev == VM_EV_TRANSITION) {
+			snap_box = box_level >= BOX_FADE;
+			begin_transition();
+			if (!win_on)
+				box_level = 0;       /* la caja que se oculta ya va en la copia y se desvanece con ella */
+		}
+		/* si ya hubo que leer el disco, se aprovecha la pausa para traer las imagenes de las escenas que siguen */
+		if (changed && audio_cd_paused()) {
+			uint16_t ids[LOOKAHEAD_IMAGES];
+
+			res_prefetch(ids, look_ahead(600, ids, 0, 1));
+		}
+	}
+	switch (ev) {
+	case VM_EV_SAY:
+		start_say();
+		break;
+	case VM_EV_MENU:
+		menu_begin();
+		state = ST_MENU;
+		break;
+	case VM_EV_PAUSE:
+		pause_left = vm.ev_frames;
+		state = ST_PAUSE;
+		break;
+	case VM_EV_SPECIAL:
+		begin_special(vm.ev_args[0]);
+		break;
+	case VM_EV_END:
+		state = ST_END;
+		break;
+	case VM_EV_ERROR:
+		printf("VM: %s\n", vm.error);
+		state = ST_ERROR;
+		break;
+	default:
+		break;
+	}
+	audio_batch_end();
+}
+
+static void clear_scene(void)
+{
+	memset(vm.sprites, 0, sizeof(vm.sprites));
+	vm.bg = 0;
+	vm.bg_anim = 0;
+	scene_dirty = 1;
+}
+
+static void begin(int chapter, uint32_t offset, int var, int value)
+{
+	clear_scene();
+	audio_stop_all();
+	memset(vm.vars, 0, sizeof(vm.vars));
+	if (var < VM_VARS)
+		vm.vars[var] = (int16_t)value;
+	skip_mode = 0;
+	play_frames = 0;
+	win_auto = 1;
+	win_on = 0;
+	box_level = 0;
+	if (vm_start(&vm, chapter, offset) != 0)
+		fatal("no se pudo iniciar el capitulo");
+	state = ST_RUN;
+}
+
+static void go_title(void);
+
+/* Fila 0: la historia completa; las demas, las entradas de la tabla */
+static void update_dev(void)
+{
+	int i;
+
+	if (input_pressed(PAD_UP) && menu_cursor > 0)
+		menu_cursor--;
+	if (input_pressed(PAD_DOWN) && menu_cursor < dev_count + extra_count)
+		menu_cursor++;
+	if (input_pressed(PAD_CIRCLE)) {
+		go_title();
+		return;
+	}
+	if (!input_pressed(PAD_CROSS))
+		return;
+	dev_session = 1;
+	playing_extra = 0;
+	if (menu_cursor == 0) {
+		begin(start_chapter, start_offset, 255, 0);
+		return;
+	}
+	i = menu_cursor - 1;
+	if (i >= dev_count) {                             /* despues de la historia, los capitulos extra */
+		i -= dev_count;
+		begin(extra_chapter[i], extra_offset[i], 255, 0);
+		playing_extra = 1;
+		return;
+	}
+	begin(dev_chapter, dev_offset[i], dev_var[i], dev_value[i]);
+}
+
+static void draw_dev(void)
+{
+	int lh = font_line_height(), rows = (MENU_BOTTOM - MENU_TOP - lh) / lh, i, y;
+
+	video_rect(LAYER_BOX, 0, 0, SCREEN_W, SCREEN_H, 0, 0, 0, 1);
+	font_draw(LAYER_TEXT, 20, MENU_TOP - 8, "Menu de capitulos (desarrollo)", 255, 220, 40);
+	if (menu_cursor < menu_top)
+		menu_top = menu_cursor;
+	if (menu_cursor >= menu_top + rows)
+		menu_top = menu_cursor - rows + 1;
+	y = MENU_TOP - 8 + lh + 4;
+	for (i = menu_top; i <= dev_count + extra_count && i < menu_top + rows; i++) {
+		int selected = i == menu_cursor;
+
+		if (selected)
+			video_triangle_down(LAYER_TEXT, 6, y + 4, 8, 6, 255, 220, 40);
+		font_draw(LAYER_TEXT, 20, y, i == 0 ? "Historia completa" : i <= dev_count ? dev_name[i - 1] : extra_name[i - 1 - dev_count],
+		          selected ? 255 : 128, selected ? 220 : 128, selected ? 40 : 128);
+		y += lh;
+	}
+}
+
+/* ---------------------------------------------------------------- guardado (D10, docs/presupuesto-memoria.md) */
+/* Datos: 0 control (save.c), 16 volumenes, 20 finales u32, 24 extras terminados u32, 32 galeria vista, 64 texto
+ * leido, despues las 3 ranuras. Ranura: 0 usada, 1 llamadas, 2 capitulo u16, 4 pc u32, 8 numero de guardado u32,
+ * 12 tiempo u32, 16 fondo u16, 18 anim del fondo u16, 20 musica i16, 22 ambientes 4 x i16, 32 variables 64 x i16,
+ * 160 llamadas 8 x (capitulo u16, pc u32), 208 contador de orden u32, 212 sprites (copia de VmSprite). */
+#define OFS_OPTIONS 16
+#define OFS_ENDINGS 20
+#define OFS_BONUS 24
+#define OFS_GALLERY 32
+#define OFS_SEEN 64
+#define OFS_SLOTS (OFS_SEEN + SEEN_BYTES)
+#define SLOT_BYTES 1024
+#define OFS_CANVAS (OFS_SLOTS + SLOTS * SLOT_BYTES)   /* dibujo del lienzo (1152 bytes, al final: no mueve nada) */
+#define SL_VARS 32
+#define SL_CALLS 160
+#define SL_BORN 208
+#define SL_SPRITES 212
+
+typedef char SaveLayoutFits[(OFS_CANVAS + 1152 <= SAVE_DATA_BYTES) ? 1 : -1];
+
+static uint8_t save_buf[SAVE_DATA_BYTES] __attribute__((aligned(4)));
+static int card_state = SAVE_NO_FILE;
+static uint32_t save_number;
+
+static void wr16(uint8_t *p, int v)
+{
+	p[0] = (uint8_t)v;
+	p[1] = (uint8_t)(v >> 8);
+}
+
+static void wr32(uint8_t *p, uint32_t v)
+{
+	wr16(p, (int)(v & 0xffff));
+	wr16(p + 2, (int)(v >> 16));
+}
+
+static uint8_t *slot_ptr(int i)
+{
+	return save_buf + OFS_SLOTS + i * SLOT_BYTES;
+}
+
+static void progress_to_buf(void)
+{
+	save_buf[OFS_OPTIONS] = (uint8_t)music_level;
+	save_buf[OFS_OPTIONS + 1] = (uint8_t)sfx_level;
+	wr32(save_buf + OFS_ENDINGS, endings_mask);
+	wr32(save_buf + OFS_BONUS, bonus_mask);
+	memcpy(save_buf + OFS_GALLERY, gallery_seen, sizeof(gallery_seen));
+	memcpy(save_buf + OFS_SEEN, seen, SEEN_BYTES);
+	canvas_bits(save_buf + OFS_CANVAS);
+}
+
+static void progress_from_buf(void)
+{
+	int i;
+
+	music_level = save_buf[OFS_OPTIONS] <= 10 ? save_buf[OFS_OPTIONS] : 10;
+	sfx_level = save_buf[OFS_OPTIONS + 1] <= 10 ? save_buf[OFS_OPTIONS + 1] : 10;
+	endings_mask = rd32(save_buf + OFS_ENDINGS);
+	bonus_mask = rd32(save_buf + OFS_BONUS);
+	memcpy(gallery_seen, save_buf + OFS_GALLERY, sizeof(gallery_seen));
+	memcpy(seen, save_buf + OFS_SEEN, SEEN_BYTES);
+	canvas_load(save_buf + OFS_CANVAS);
+	for (i = 0; i < SLOTS; i++)
+		if (rd32(slot_ptr(i) + 8) > save_number)
+			save_number = rd32(slot_ptr(i) + 8);
+	audio_set_levels(music_level, sfx_level);
+}
+
+static int newest_slot(void)
+{
+	int i, best = -1;
+
+	for (i = 0; i < SLOTS; i++)
+		if (slot_ptr(i)[0] && (best < 0 || rd32(slot_ptr(i) + 8) > rd32(slot_ptr(best) + 8)))
+			best = i;
+	return best;
+}
+
+
+/* Pantalla de un solo mensaje dibujada ya (las operaciones de la memory card bloquean) */
+static void show_now(const char *msg)
+{
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		video_rect(LAYER_BOX, 0, 0, SCREEN_W, SCREEN_H, 0, 0, 0, 0);
+		draw_center(SCREEN_H / 2 - 8, msg, 128, 128, 128);
+		video_flip();
+	}
+}
+
+static const char *card_error(int result)
+{
+	switch (result) {
+	case SAVE_NO_CARD:
+		return TX(T_NO_CARD);
+	case SAVE_FULL:
+		return TX(T_CARD_FULL);
+	case SAVE_WRITE_ERROR:
+		return TX(T_CARD_WRITE_FAILED);
+	}
+	return 0;
+}
+
+static int card_disabled;       /* Select al arrancar: se juega sin memory card */
+
+static int write_card(const char *msg)
+{
+	if (card_disabled)
+		return card_state = SAVE_NO_CARD;
+	show_now(msg);
+	progress_to_buf();
+	card_state = save_write(save_buf);
+	return card_state;
+}
+
+static void save_slot(int i)
+{
+	uint8_t *s = slot_ptr(i);
+	int k;
+
+	memset(s, 0, SLOT_BYTES);
+	s[0] = 1;
+	s[1] = (uint8_t)vm.ncalls;
+	wr16(s + 2, vm.chapter);
+	wr32(s + 4, vm.ev_pc);
+	wr32(s + 8, ++save_number);
+	wr32(s + 12, play_frames);
+	wr16(s + 16, vm.bg);
+	wr16(s + 18, vm.bg_anim);
+	wr16(s + 20, audio_music_current());
+	for (k = 0; k < 4; k++)
+		wr16(s + 22 + 2 * k, audio_ambient_current(k));
+	for (k = 0; k < VM_VARS; k++)
+		wr16(s + SL_VARS + 2 * k, vm.vars[k]);
+	for (k = 0; k < vm.ncalls && k < VM_CALLS; k++) {
+		wr16(s + SL_CALLS + 6 * k, vm.calls[k].chapter);
+		wr32(s + SL_CALLS + 6 * k + 2, vm.calls[k].pc);
+	}
+	wr32(s + SL_BORN, vm.born_counter);
+	memcpy(s + SL_SPRITES, vm.sprites, sizeof(vm.sprites));
+}
+
+static void load_slot(int i)
+{
+	const uint8_t *s = slot_ptr(i);
+	int k, music;
+
+	clear_scene();
+	audio_stop_all();
+	skip_mode = 0;
+	win_auto = 1;
+	win_on = 0;
+	box_level = 0;
+	if (vm_start(&vm, rd16(s + 2), rd32(s + 4)) != 0)
+		fatal("no se pudo cargar la partida");
+	for (k = 0; k < VM_VARS; k++)
+		vm.vars[k] = (int16_t)rd16(s + SL_VARS + 2 * k);
+	vm.ncalls = s[1] < VM_CALLS ? s[1] : VM_CALLS;
+	for (k = 0; k < vm.ncalls; k++) {
+		vm.calls[k].chapter = rd16(s + SL_CALLS + 6 * k);
+		vm.calls[k].pc = rd32(s + SL_CALLS + 6 * k + 2);
+	}
+	vm.born_counter = rd32(s + SL_BORN);
+	memcpy(vm.sprites, s + SL_SPRITES, sizeof(vm.sprites));
+	memset(vm.from, 0, sizeof(vm.from));
+	for (k = 0; k < VM_MAX_SPRITES; k++) {
+		vm.sprites[k].shown_at = 0;                    /* las animaciones quedan asentadas */
+		vm.sprites[k].sound_t = 0x7fffffff;            /* y sus sonidos no se repiten */
+	}
+	vm.bg = rd16(s + 16);
+	vm.bg_anim = rd16(s + 18);
+	bg_start = -100000;
+	play_frames = rd32(s + 12);
+	music = (int16_t)rd16(s + 20);
+	if (music >= 0)
+		audio_music_play(music, 10, 0);
+	for (k = 0; k < 4; k++) {
+		int amb = (int16_t)rd16(s + 22 + 2 * k);
+
+		if (amb >= 0)
+			audio_ambient_play(k, amb, 10);
+	}
+	playing_extra = 0;
+	dev_session = 0;
+	camera_reset();
+	scene_dirty = 1;
+	state = ST_RUN;
+}
+
+/* ---------------------------------------------------------------- pantallas */
+enum { UI_SAVE, UI_LOAD };
+enum { CONF_OVERWRITE, CONF_QUIT };
+
+static int ui_cursor, ui_mode, ui_slot, ui_changed, gallery_pos;
+static State ui_back;                         /* a donde vuelve la pantalla actual con O */
+static State pause_from;                      /* estado del juego al abrir la pausa */
+static const char *notice_text;
+static State notice_next;
+static const char *confirm_text;
+static int confirm_action, confirm_yes;
+
+static void notice(const char *text, State next)
+{
+	notice_text = text;
+	notice_next = next;
+	state = ST_NOTICE;
+}
+
+/* Texto centrado; cada linea (separada por \n) se centra por separado */
+void draw_center(int y, const char *s, int r, int g, int b)
+{
+	char line[96];
+
+	while (*s) {
+		int n = 0;
+
+		while (s[n] && s[n] != '\n' && n < (int)sizeof(line) - 1)
+			n++;
+		memcpy(line, s, n);
+		line[n] = 0;
+		font_draw(LAYER_TEXT, (SCREEN_W - font_width(line)) / 2, y, line, r, g, b);
+		y += font_line_height();
+		s += n;
+		if (*s == '\n')
+			s++;
+	}
+}
+
+/* Lista centrada; `disabled` marca en gris las opciones que no se pueden usar */
+static void draw_list(int y, const char *const *items, int n, int cursor, uint32_t disabled)
+{
+	int lh = font_line_height() + 4, i;
+
+	for (i = 0; i < n; i++, y += lh) {
+		int gray = (disabled >> i) & 1, sel = i == cursor;
+
+		if (sel)
+			video_triangle_down(LAYER_TEXT, (SCREEN_W - font_width(items[i])) / 2 - 14, y + 4, 8, 6, 255, 220, 40);
+		draw_center(y, items[i], gray ? 64 : sel ? 255 : 128, gray ? 64 : sel ? 220 : 128, gray ? 64 : sel ? 40 : 128);
+	}
+}
+
+/* Arriba/abajo con vuelta; devuelve 1 con X, -1 con O */
+static int list_input(int *cursor, int n)
+{
+	if (input_pressed(PAD_UP))
+		*cursor = (*cursor + n - 1) % n;
+	if (input_pressed(PAD_DOWN))
+		*cursor = (*cursor + 1) % n;
+	if (input_pressed(PAD_CROSS))
+		return 1;
+	if (input_pressed(PAD_CIRCLE))
+		return -1;
+	return 0;
+}
+
+void panel(void)
+{
+	video_rect(LAYER_BOX, 0, 0, SCREEN_W, SCREEN_H, 0, 0, 0, 1);
+	video_rect(LAYER_BOX, 0, 0, SCREEN_W, SCREEN_H, 0, 0, 0, 1);
+}
+
+/* Capitulos extra visibles: la regla es de cada juego (games/<juego>/game.c) */
+static int extras_list(int *out)
+{
+	int i, n = 0;
+
+	for (i = 0; i < extra_count; i++)
+		if (game_extra_unlocked(i, endings_mask, bonus_mask))
+			out[n++] = i;
+	return n;
+}
+
+static void go_title(void)
+{
+	clear_scene();
+	camera_reset();
+	audio_stop_all();
+	skip_mode = 0;
+	dev_session = 0;
+	playing_extra = 0;
+	ui_cursor = newest_slot() >= 0 ? 1 : 0;
+	state = ST_TITLE;
+}
+
+#define title_items (game_text + T_TITLE_START)          /* 5 entradas seguidas en ui_text.h */
+
+static void open_slots(int mode, State back)
+{
+	ui_mode = mode;
+	ui_back = back;
+	ui_cursor = newest_slot() >= 0 ? newest_slot() : 0;
+	state = ST_SLOTS;
+}
+
+static void open_options(State back)
+{
+	ui_back = back;
+	ui_cursor = 0;
+	ui_changed = 0;
+	state = ST_OPTIONS;
+}
+
+/* Filas del titulo: 0 comenzar, 1 continuar, 2 capitulos extra (solo si el juego tiene), 3 galeria, 4 opciones */
+static int title_rows(int *row)
+{
+	int n = 0, i;
+
+	for (i = 0; i < 5; i++)
+		if (i != 2 || extra_count)
+			row[n++] = i;
+	return n;
+}
+
+static void update_title(void)
+{
+	int extras[MAX_EXTRAS], rows[5], n = title_rows(rows);
+
+	if (input_down(PAD_L1) && input_down(PAD_R1) && input_pressed(PAD_SELECT) && dev_count) {
+		menu_cursor = menu_top = 0;
+		state = ST_DEV;
+		return;
+	}
+	if (ui_cursor >= n)
+		ui_cursor = n - 1;
+	if (list_input(&ui_cursor, n) != 1)
+		return;
+	switch (rows[ui_cursor]) {
+	case 0:
+		dev_session = 0;
+		playing_extra = 0;
+		begin(start_chapter, start_offset, 255, 0);
+		break;
+	case 1:
+		if (newest_slot() < 0)
+			notice(card_state == SAVE_NO_CARD ? TX(T_NO_CARD) : TX(T_NO_SAVES),
+			       ST_TITLE);
+		else
+			open_slots(UI_LOAD, ST_TITLE);
+		break;
+	case 2:
+		if (extras_list(extras) == 0)
+			notice(TX(T_EXTRAS_LOCKED), ST_TITLE);
+		else {
+			ui_cursor = 0;
+			state = ST_EXTRAS;
+		}
+		break;
+	case 3:
+		gallery_pos = 0;
+		state = ST_GALLERY;
+		break;
+	case 4:
+		open_options(ST_TITLE);
+		break;
+	}
+}
+
+static void draw_title(void)
+{
+	const Image *logo = logo_image ? res_get(logo_image) : 0;
+	uint32_t disabled = newest_slot() < 0 ? 2 : 0;
+	int extras[MAX_EXTRAS], rows[5], items_n = title_rows(rows), k;
+	const char *items[5];
+
+	for (k = 0; k < items_n; k++)
+		items[k] = title_items[rows[k]];
+	if (extra_count && !extras_list(extras))
+		disabled |= 4;
+	if (logo && logo->kind <= 1)
+		img_draw(logo, LAYER_TEXT, (SCREEN_W - logo->full_w) / 2, 12);
+	draw_list(130, items, items_n, ui_cursor, disabled);
+	if (disabled & 4) {
+		const Image *lock = lock_image ? res_get(lock_image) : 0;
+
+		if (lock && lock->kind <= 1)
+			img_draw(lock, LAYER_TEXT, (SCREEN_W + font_width(items[2])) / 2 + 6, 130 + 2 * (font_line_height() + 4) + 2);
+	}
+}
+
+#define pause_items (game_text + T_PAUSE_RESUME)         /* 6 entradas seguidas en ui_text.h */
+
+static int pause_opened;                      /* cuadro en que se abrio (el mismo Start no la cierra) */
+
+static void update_pause_menu(void)
+{
+	int r = list_input(&ui_cursor, 6);
+
+	if (r < 0 || (input_pressed(PAD_START) && video_frames() != pause_opened)) {
+		state = pause_from;
+		return;
+	}
+	if (r != 1)
+		return;
+	switch (ui_cursor) {
+	case 0:
+		state = pause_from;
+		break;
+	case 1:
+		state = pause_from;
+		skip_mode = 1;
+		break;
+	case 2:
+		open_slots(UI_SAVE, ST_PMENU);
+		break;
+	case 3:
+		open_slots(UI_LOAD, ST_PMENU);
+		break;
+	case 4:
+		open_options(ST_PMENU);
+		break;
+	case 5:
+		confirm_text = TX(T_CONFIRM_QUIT);
+		confirm_action = CONF_QUIT;
+		confirm_yes = 0;
+		ui_back = ST_PMENU;
+		state = ST_CONFIRM;
+		break;
+	}
+}
+
+static void do_save(int slot)
+{
+	const char *err;
+
+	save_slot(slot);
+	err = card_error(write_card(TX(T_SAVING)));
+	if (err) {
+		slot_ptr(slot)[0] = 0;
+		notice(err, ST_PMENU);
+	} else {
+		notice(TX(T_SAVED), pause_from);
+	}
+}
+
+static void update_slots(void)
+{
+	int r = list_input(&ui_cursor, SLOTS);
+
+	if (r < 0) {
+		ui_cursor = 0;
+		state = ui_back;
+		return;
+	}
+	if (r != 1)
+		return;
+	if (ui_mode == UI_LOAD) {
+		if (slot_ptr(ui_cursor)[0])
+			load_slot(ui_cursor);
+		return;
+	}
+	if (slot_ptr(ui_cursor)[0]) {
+		confirm_text = TX(T_CONFIRM_OVERWRITE);
+		confirm_action = CONF_OVERWRITE;
+		confirm_yes = 0;
+		ui_slot = ui_cursor;
+		state = ST_CONFIRM;
+		return;
+	}
+	do_save(ui_cursor);
+}
+
+static void draw_slots(void)
+{
+	int lh = font_line_height() + 10, i, newest = newest_slot();
+	char line[96];
+
+	panel();
+	draw_center(30, ui_mode == UI_SAVE ? TX(T_SAVE_TITLE) : TX(T_LOAD_TITLE), 255, 220, 40);
+	for (i = 0; i < SLOTS; i++) {
+		const uint8_t *s = slot_ptr(i);
+		int y = 70 + i * lh, sel = i == ui_cursor, c = sel ? 255 : 128;
+
+		if (s[0]) {
+			uint32_t secs = rd32(s + 12) / 60;
+			int ch = rd16(s + 2);
+
+			sprintf(line, TX(T_SLOT_FORMAT), i + 1, ch < MAX_CHAPTERS ? chapter_name[ch] : "",
+			        (int)(secs / 3600), (int)(secs / 60 % 60), i == newest ? "  *" : "");
+		} else {
+			sprintf(line, TX(T_SLOT_EMPTY_FORMAT), i + 1);
+		}
+		if (sel)
+			video_triangle_down(LAYER_TEXT, 14, y + 4, 8, 6, 255, 220, 40);
+		font_draw(LAYER_TEXT, 28, y, line, c, sel ? 220 : 128, sel ? 40 : 128);
+	}
+	draw_center(SCREEN_H - 30, TX(T_SLOTS_HELP), 96, 96, 96);
+}
+
+static void update_confirm(void)
+{
+	if (input_pressed(PAD_LEFT) || input_pressed(PAD_RIGHT) || input_pressed(PAD_UP) || input_pressed(PAD_DOWN))
+		confirm_yes = !confirm_yes;
+	if (input_pressed(PAD_CIRCLE) || (input_pressed(PAD_CROSS) && !confirm_yes)) {
+		state = confirm_action == CONF_OVERWRITE ? ST_SLOTS : ST_PMENU;
+		return;
+	}
+	if (!input_pressed(PAD_CROSS))
+		return;
+	if (confirm_action == CONF_OVERWRITE) {
+		do_save(ui_slot);
+	} else {
+		write_card(TX(T_SAVING_PROGRESS));
+		go_title();
+	}
+}
+
+static void draw_confirm(void)
+{
+	panel();
+	draw_center(90, confirm_text, 128, 128, 128);
+	font_draw(LAYER_TEXT, 120, 120, TX(T_YES), confirm_yes ? 255 : 96, confirm_yes ? 220 : 96, confirm_yes ? 40 : 96);
+	font_draw(LAYER_TEXT, 180, 120, TX(T_NO), confirm_yes ? 96 : 255, confirm_yes ? 96 : 220, confirm_yes ? 96 : 40);
+}
+
+static void update_options(void)
+{
+	int *level = ui_cursor == 0 ? &music_level : ui_cursor == 1 ? &sfx_level : 0;
+
+	if (input_pressed(PAD_UP))
+		ui_cursor = (ui_cursor + 2) % 3;
+	if (input_pressed(PAD_DOWN))
+		ui_cursor = (ui_cursor + 1) % 3;
+	if (level && input_pressed(PAD_LEFT) && *level > 0) {
+		(*level)--;
+		ui_changed = 1;
+	}
+	if (level && input_pressed(PAD_RIGHT) && *level < 10) {
+		(*level)++;
+		ui_changed = 1;
+	}
+	audio_set_levels(music_level, sfx_level);
+	if (input_pressed(PAD_CIRCLE) || (ui_cursor == 2 && input_pressed(PAD_CROSS))) {
+		if (ui_changed)
+			write_card(TX(T_SAVING_OPTIONS));
+		ui_cursor = 0;
+		state = ui_back;
+	}
+}
+
+static void draw_bar(int y, const char *label, int level, int sel)
+{
+	int i;
+
+	font_draw(LAYER_TEXT, 60, y, label, sel ? 255 : 128, sel ? 220 : 128, sel ? 40 : 128);
+	for (i = 0; i < 10; i++)
+		video_rect(LAYER_TEXT, 150 + i * 11, y + 3, 8, 9, i < level ? 220 : 50, i < level ? 200 : 50, i < level ? 60 : 50, 0);
+}
+
+static void draw_options(void)
+{
+	panel();
+	draw_center(40, TX(T_OPTIONS), 255, 220, 40);
+	draw_bar(80, TX(T_MUSIC), music_level, ui_cursor == 0);
+	draw_bar(105, TX(T_SFX), sfx_level, ui_cursor == 1);
+	draw_center(140, TX(T_BACK), ui_cursor == 2 ? 255 : 128, ui_cursor == 2 ? 220 : 128, ui_cursor == 2 ? 40 : 128);
+	draw_center(SCREEN_H - 30, TX(T_OPTIONS_HELP), 96, 96, 96);
+}
+
+static int gallery_seen_at(int k)
+{
+	return (gallery_seen[k >> 3] >> (k & 7)) & 1;
+}
+
+static int gallery_first_image(int k)
+{
+	int i;
+
+	for (i = 0; i < gallery_pairs; i++)
+		if (gallery_index[i] == k)
+			return gallery_image[i];
+	return 0;
+}
+
+/* Indice del video (VID1) de la entrada k de la galeria, o -1 */
+static int video_at(int k)
+{
+	int i;
+
+	for (i = 0; i < video_count; i++)
+		if (video_slot[i] == k)
+			return i;
+	return -1;
+}
+
+static void update_gallery(void)
+{
+	int v;
+
+	if (input_pressed(PAD_LEFT))
+		gallery_pos = (gallery_pos + gallery_count - 1) % gallery_count;
+	if (input_pressed(PAD_RIGHT))
+		gallery_pos = (gallery_pos + 1) % gallery_count;
+	v = video_at(gallery_pos);
+	if (v >= 0 && gallery_seen_at(gallery_pos) && input_pressed(PAD_CROSS)) {
+		fmv_select(video_file[v]);
+		special_return = ST_GALLERY;
+		begin_special(SPECIAL_VIDEO);
+		return;
+	}
+	if (input_pressed(PAD_CIRCLE)) {
+		ui_cursor = 3;
+		state = ST_TITLE;
+	}
+}
+
+static void draw_gallery(void)
+{
+	char line[24];
+	int image = gallery_first_image(gallery_pos);
+
+	if (gallery_seen_at(gallery_pos) && image) {
+		const Image *img;
+
+		res_new_scene();
+		img = res_get(image);
+		if (img && img->kind <= 1) {
+			int x = (SCREEN_W - img->full_w) / 2;
+			int y = VIEW_Y + (img->kind == 0 ? (VIEW_H - img->full_h) / 2 : VIEW_H - img->full_h);
+
+			if (img->big)
+				img_draw_big(img, LAYER_SPRITE0, x, y);
+			else
+				img_draw(img, LAYER_SPRITE0, x, y);
+		}
+	} else if (video_at(gallery_pos) >= 0 && gallery_seen_at(gallery_pos)) {
+		video_rect(LAYER_SPRITE0, 60, VIEW_Y + 40, 200, 100, 30, 30, 30, 0);
+		draw_center(VIEW_Y + 70, "Video", 200, 200, 200);
+		draw_center(VIEW_Y + 90, "X para ver", 128, 128, 128);
+	} else {
+		video_rect(LAYER_SPRITE0, 60, VIEW_Y + 40, 200, 100, 30, 30, 30, 0);
+		draw_center(VIEW_Y + 80, "???", 96, 96, 96);
+	}
+	video_clip_scene();
+	sprintf(line, "%d / %d", gallery_pos + 1, gallery_count);
+	draw_center(SCREEN_H - 24, line, 128, 128, 128);
+	font_draw(LAYER_TEXT, 8, SCREEN_H - 24, "< >", 96, 96, 96);
+	font_draw(LAYER_TEXT, SCREEN_W - 70, SCREEN_H - 24, TX(T_CIRCLE_BACK), 96, 96, 96);
+}
+
+static void update_extras(void)
+{
+	int list[MAX_EXTRAS], n = extras_list(list), r = list_input(&ui_cursor, n);
+
+	if (r < 0) {
+		ui_cursor = 2;
+		state = ST_TITLE;
+		return;
+	}
+	if (r != 1)
+		return;
+	dev_session = 0;
+	begin(extra_chapter[list[ui_cursor]], extra_offset[list[ui_cursor]], 255, 0);
+	playing_extra = 1;
+}
+
+static void draw_extras(void)
+{
+	int list[MAX_EXTRAS], n = extras_list(list), i;
+	const char *items[MAX_EXTRAS];
+
+	for (i = 0; i < n; i++)
+		items[i] = extra_name[list[i]];
+	panel();
+	draw_center(24, TX(T_EXTRAS_TITLE), 255, 220, 40);
+	draw_list(50, items, n, ui_cursor, 0);
+}
+
+/* SPECIAL id del guion: abre el modulo que la tabla del juego asigna a ese id (games/<juego>/specials.c) */
+static void begin_special(int id)
+{
+	int i;
+
+	skip_mode = 0;                       /* como en Ren'Py: una pantalla interactiva detiene el salto */
+	for (i = 0; i < game_special_count; i++)
+		if (game_specials[i].id == id && game_specials[i].special->begin()) {
+			special = game_specials[i].special;
+			state = (State)(ST_SPECIAL + i);
+			return;
+		}
+}
+
+/* Fin de una partida: se guarda el progreso (texto leido, galeria, finales) y se vuelve al titulo */
+static void finish_game(void)
+{
+	if (!dev_session)
+		write_card(TX(T_SAVING_PROGRESS));
+	go_title();
+}
+
+/* Prueba de recorrido (AUTOTEST con autoplay): avanza solo, sin saltar, para que se cargue todo como al jugar. Las
+ * decisiones van rotando para pasar por ramas distintas; al volver al titulo o ante un error pide cerrar el emulador. */
+static int autoplay_started, autoplay_menus;
+
+static void autoplay_step(void)
+{
+	switch (state) {
+	case ST_SAY:
+		if (res_prefetch_busy() || audio_loading() || !say_prefetched)
+			break;                   /* como un jugador: lee la linea mientras la precarga sigue */
+		text_reveal_page(&run);
+		if (run.at_page_end) {
+			text_next_page(&run);
+		} else {
+			seen_set(vm.ev_gid);
+			state = ST_RUN;
+		}
+		autoplay_started = 1;
+		break;
+	/* pausas y transiciones: corren su tiempo solo si hay una carga en segundo plano (como al jugar) */
+	case ST_PAUSE:
+		if (!res_prefetch_busy() && !audio_loading())
+			state = ST_RUN;
+		break;
+	case ST_MENU:
+		vm.choice = menu_order[autoplay_menus++ % vm.menu_n];
+		state = ST_RUN;
+		break;
+	case ST_TRANS:
+		if (!res_prefetch_busy() && !audio_loading())
+			end_transition();
+		break;
+	case ST_NOTICE:
+		state = notice_next;
+		break;
+	case ST_ERROR:
+		autotest_quit = 1;
+		break;
+	case ST_TITLE:
+		if (autoplay_started)
+			autotest_quit = 1;
+		break;
+	default:
+		/* pantallas especiales: cada modulo decide cuando seguir (el teclado escribe un ejemplo) */
+		if (IS_SPECIAL(state) && (!special->autoplay || special->autoplay()))
+			state = ST_RUN;
+		break;
+	}
+}
+
+/* Pasa varias lineas ya leidas y pausas por cuadro; se detiene en la primera linea no leida. */
+static void skip_step(void)
+{
+	int n;
+
+	for (n = 0; skip_mode && n < SKIP_PER_FRAME; n++) {
+		if (state == ST_SAY) {
+			if (!say_seen_before && !dev_session) {
+				skip_mode = 0;
+				break;
+			}
+			seen_set(vm.ev_gid);
+			state = ST_RUN;
+		} else if (state == ST_PAUSE) {
+			state = ST_RUN;
+		} else if (state != ST_RUN) {
+			break;                   /* decision, final o error: espera al jugador */
+		}
+		run_vm();
+	}
+	if (skip_mode && state == ST_SAY)
+		text_reveal_page(&run);      /* la linea que queda a la vista sale completa, sin maquina de escribir */
+}
+
+static void update_say(void)
+{
+	int advance = (input_pressed(PAD_CROSS) && !eat_cross) ||
+	              (text_page_done(&run) && run.auto_next && text_finished(&run));
+
+	if (!say_prefetched && !res_prefetch_busy()) {
+		say_prefetched = 1;                  /* una vez por linea, cuando el CD quedo libre */
+		prefetch_next();
+	}
+	if (show_box && box_level < BOX_FADE)
+		return;                          /* como en Ren'Py, el texto empieza cuando la caja termino de aparecer */
+	if (advance) {
+		if (!text_page_done(&run)) {
+			text_reveal_page(&run);
+		} else if (run.at_page_end) {
+			text_next_page(&run);
+		} else {
+			seen_set(vm.ev_gid);
+			state = ST_RUN;
+			return;
+		}
+	}
+	text_update(&run);
+}
+
+static void update_imgmenu(void)
+{
+	if ((input_pressed(PAD_LEFT) || input_pressed(PAD_UP)) && menu_cursor > 0)
+		menu_cursor--;
+	if ((input_pressed(PAD_RIGHT) || input_pressed(PAD_DOWN)) && menu_cursor < vm.menu_n - 1)
+		menu_cursor++;
+	if (input_pressed(PAD_CROSS)) {
+		vm.choice = menu_cursor;
+		state = ST_RUN;
+	}
+}
+
+static void update_menu(void)
+{
+	if (vm.menu_img) {
+		update_imgmenu();
+		return;
+	}
+	if (input_pressed(PAD_UP) && menu_cursor > 0)
+		menu_cursor--;
+	if (input_pressed(PAD_DOWN) && menu_cursor < vm.menu_n - 1)
+		menu_cursor++;
+	if (input_pressed(PAD_CROSS)) {
+		vm.choice = menu_order[menu_cursor];
+		state = ST_RUN;
+	}
+}
+
+static void draw_debug(int fps)
+{
+	char buf[64];
+
+	sprintf(buf, "FPS %d  CAP %d  PC %d  TXT %d", fps, vm.chapter, (int)vm.pc, vm.ev_gid);
+	font_draw(LAYER_DEBUG, 4, 2, buf, 255, 220, 40);
+}
+
+/* SHOW con VM_SHOW_FROM_CURRENT: el aspecto que se esta dibujando; al saltar todo esta asentado y no se captura */
+static int capture(void *user, const Vm *v, const VmSprite *s, VmLook *out)
+{
+	(void)user;
+	return !skip_mode && scene_capture(v, s, (int)(v->now - s->shown_at), out);
+}
+
+int main(int argc, const char *argv[])
+{
+	static const VmHost host = { 0, chapter_loader, notify, capture };
+	int vb_start, last_vb, frames_window = 0, fps = 0;
+
+	video_init();
+	cd_init();
+	audio_init();
+	vn_platform_set(vn_platform_ps1_ops());   /* el nucleo (chapter, text) lee archivos y dibuja la fuente por aqui */
+	{
+		/* disco sin memory card (build_game.py --nocard): no se instala su controlador (prueba en POPStarter) */
+		int lba, size;
+
+		card_disabled = cd_find("\\DATA\\NOCARD.BIN", &lba, &size) == 0;
+	}
+	input_init(!card_disabled);
+	{
+		/* la fuente pasa por el heap antes del primer capitulo; font_load la copia a la VRAM y se suelta */
+		int lba, size, bytes = 0;
+		uint8_t *font = 0;
+
+		if (cd_find("\\DATA\\FONT.BIN", &lba, &size) == 0) {
+			bytes = (size + 2047) / 2048 * 2048;
+			font = malloc(bytes);
+		}
+		if (!font || cd_read_file("\\DATA\\FONT.BIN", font, bytes) != size || font_load(font, size) != 0)
+			fatal("FONT.BIN");
+		free(font);
+	}
+	load_game_tables();
+	scene_set_positions(pos_x, pos_y, pos_count);
+	vm_init(&vm, &host);
+	if (cd_read_file("\\DATA\\MCICON.BIN", file_buf, sizeof(file_buf)) >= 160)
+		save_set_icon(file_buf);
+	{
+		/* prueba automatica: solo existe en los discos de prueba (tools/engine/emutest.py) */
+		static uint8_t autotest[16384] __attribute__((aligned(4)));
+		int lba, size;
+
+		if (cd_find("\\DATA\\AUTOTEST.BIN", &lba, &size) == 0 && size <= (int)sizeof(autotest) &&
+		    cd_read_file("\\DATA\\AUTOTEST.BIN", autotest, sizeof(autotest)) > 2)
+			input_set_script(autotest + 2, autotest[0] | (autotest[1] << 8));
+	}
+	{
+		/* creditos mientras se lee la memory card; con Select presionado no se lee */
+		int i;
+
+		for (i = 0; i < 2; i++) {
+			draw_center(90, TX(T_BOOT_TITLE), 255, 220, 40);
+			draw_center(108, TX(T_BOOT_AUTHOR), 128, 128, 128);
+			draw_center(140, TX(T_BOOT_PORT), 96, 96, 96);
+			video_flip();
+		}
+		if (input_raw_down(PAD_SELECT))
+			card_disabled = 1;
+		card_state = card_disabled ? SAVE_NO_CARD : save_read(save_buf);
+		{
+			int t0 = VSync(-1);
+			if (card_state == SAVE_OK)
+				progress_from_buf();
+			else
+				memset(save_buf, 0, sizeof(save_buf));
+			while (VSync(-1) - t0 < 150) {
+				draw_center(90, TX(T_BOOT_TITLE), 255, 220, 40);
+				draw_center(108, TX(T_BOOT_AUTHOR), 128, 128, 128);
+				draw_center(140, TX(T_BOOT_PORT), 96, 96, 96);
+				video_flip();
+			}
+		}
+	}
+	go_title();
+	vb_start = last_vb = VSync(-1);
+
+	for (;;) {
+		int vb, in_game;
+
+		input_update();
+		audio_update();
+		if (autotest_autoplay)
+			autoplay_step();
+		in_game = state <= ST_ERROR || state == ST_TRANS || SPECIAL_HAS(SP_IN_GAME);
+		if (in_game)
+			anim_sounds();
+		if (in_game && input_pressed(PAD_SELECT))
+			debug = !debug;
+		if (input_pressed(PAD_SQUARE))
+			show_box = !show_box;
+		/* Start abre la pausa donde se puede guardar: en una linea o en una decision */
+		if ((state == ST_SAY || state == ST_MENU) && input_pressed(PAD_START)) {
+			pause_from = state;
+			pause_opened = video_frames();
+			skip_mode = 0;
+			ui_cursor = 0;
+			state = ST_PMENU;
+		}
+		/* R1 activa o detiene el salto; X tambien lo detiene (fuera de una decision) sin avanzar la linea */
+		eat_cross = 0;
+		if (!in_game) {
+			/* en los menus no se salta */
+		} else if (input_pressed(PAD_R1) && !SPECIAL_HAS(SP_OWN_R1)) {   /* en el chat R1 solo acelera */
+			skip_mode = !skip_mode;
+		} else if (skip_mode && state != ST_MENU && input_pressed(PAD_CROSS)) {
+			skip_mode = 0;
+			eat_cross = 1;
+		}
+		if (in_game)
+			play_frames++;
+		if (autosave_pending && state == ST_SAY && !dev_session) {
+			autosave_pending = 0;
+			write_card(TX(T_SAVING_PROGRESS));
+		}
+
+		if (state == ST_RUN)
+			run_vm();
+		skip_step();
+		scene_sync();
+		switch (state) {
+		case ST_SAY:
+			update_say();
+			break;
+		case ST_MENU:
+			update_menu();
+			break;
+		case ST_PAUSE:
+			if (--pause_left <= 0 || (vm.ev_flags & 1 && input_pressed(PAD_CROSS) && !eat_cross))
+				state = ST_RUN;
+			break;
+		case ST_END:
+			finish_game();
+			break;
+		case ST_ERROR:
+			if (input_pressed(PAD_CROSS))
+				go_title();
+			break;
+		case ST_DEV:
+			update_dev();
+			break;
+		case ST_TRANS:
+			update_transition();
+			break;
+		case ST_TITLE:
+			update_title();
+			break;
+		case ST_PMENU:
+			update_pause_menu();
+			break;
+		case ST_SLOTS:
+			update_slots();
+			break;
+		case ST_OPTIONS:
+			update_options();
+			break;
+		case ST_GALLERY:
+			update_gallery();
+			break;
+		case ST_EXTRAS:
+			update_extras();
+			break;
+		case ST_CONFIRM:
+			update_confirm();
+			break;
+		case ST_NOTICE:
+			if (input_pressed(PAD_CROSS) || input_pressed(PAD_CIRCLE))
+				state = notice_next;
+			break;
+		default:
+			if (IS_SPECIAL(state) && special->update()) {
+				state = special_return;
+				special_return = ST_RUN;
+			}
+			break;
+		}
+		if (state <= ST_ERROR || state == ST_TRANS)
+			update_box();                /* en la pausa y los menus la caja queda como estaba */
+		res_tick();
+
+		transition_offset();
+		img_brightness = transition_brightness();
+		if (state != ST_GALLERY && !SPECIAL_HAS(SP_OWN_SCENE))
+			draw_scene();
+		img_brightness = 256;
+		draw_transition();
+		switch (state) {
+		case ST_DEV:
+			draw_dev();
+			break;
+		case ST_SAY:
+			if (box_level > 0)
+				draw_box(1);
+			break;
+		case ST_RUN:
+		case ST_PAUSE:
+		case ST_TRANS:
+			if (box_level > 0)
+				draw_box(0);
+			break;
+		case ST_MENU:
+			draw_menu();
+			break;
+		case ST_ERROR:
+			font_draw(LAYER_TEXT, 8, BOX_Y + 8, vm.error ? vm.error : "error", 255, 80, 80);
+			break;
+		case ST_TITLE:
+			draw_title();
+			break;
+		case ST_PMENU:
+			panel();
+			draw_center(40, TX(T_PAUSE), 255, 220, 40);
+			draw_list(70, pause_items, 6, ui_cursor, 0);
+			break;
+		case ST_SLOTS:
+			draw_slots();
+			break;
+		case ST_OPTIONS:
+			draw_options();
+			break;
+		case ST_GALLERY:
+			draw_gallery();
+			break;
+		case ST_EXTRAS:
+			draw_extras();
+			break;
+		case ST_CONFIRM:
+			draw_confirm();
+			break;
+		case ST_NOTICE:
+			panel();
+			draw_center(92, notice_text, 128, 128, 128);
+			draw_center(140, TX(T_CROSS_CONTINUE), 96, 96, 96);
+			break;
+		default:
+			if (IS_SPECIAL(state))
+				special->draw();
+			break;
+		}
+		video_unclip();
+
+		vb = VSync(-1);
+		if (in_game && vb - last_vb > STALL_VBLANKS)
+			log_stall(vb - last_vb);
+		last_vb = vb;
+		frames_window++;
+		if (vb - vb_start >= 60) {
+			fps = (frames_window * 60) / (vb - vb_start);
+			frames_window = 0;
+			vb_start = vb;
+		}
+		if (debug)
+			draw_debug(fps);
+		if (skip_mode)
+			font_draw(LAYER_DEBUG, SCREEN_W - 84, 12, TX(T_SKIPPING), 255, 220, 40);
+		video_flip();
+	}
+	return 0;
+}

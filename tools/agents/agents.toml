@@ -13,7 +13,7 @@ prompt_template = "Eres el agente {agent} del proyecto renpy-console-project. Pr
 [agents.beam]
 cmd = ["opencode", "run", "-m", "opencode-go/beam-free", "--auto", "{prompt}"]
 max_parallel = 5          # enjambre de 5 (PLAN.md D10); bajar si aparecen errores 429 o timeouts
-timeout_min = 40
+timeout_min = 90          # T-302 corre Ren'Py de verdad
 
 [agents.codex]
 cmd = ["codex", "exec", "--sandbox", "workspace-write", "-C", "{worktree}", "{prompt}"]

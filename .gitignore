@@ -40,3 +40,4 @@ Thumbs.db
 .agents/logs/
 .agents/status/
 .tmp/
+.agents/reports/

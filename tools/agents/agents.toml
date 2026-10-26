@@ -25,7 +25,8 @@ max_parallel = 1
 timeout_min = 60
 
 [agents.kilo]
-cmd = ["kilo", "run", "--auto", "-m", "xiaomi-token-plan-sgp/mimo-v2.6-pro", "{prompt}"]
+# --dir: sin él kilo trabaja en el repo principal aunque se lance desde el worktree (pasó en la prueba de humo)
+cmd = ["kilo", "run", "--auto", "--dir", "{worktree}", "-m", "xiaomi-token-plan-sgp/mimo-v2.6-pro", "{prompt}"]
 max_parallel = 1
 timeout_min = 60
 

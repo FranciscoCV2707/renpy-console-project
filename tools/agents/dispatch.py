@@ -30,7 +30,9 @@ ROOT = Path(__file__).resolve().parents[2]
 CFG_PATH = ROOT / "tools" / "agents" / "agents.toml"
 AG = ROOT / ".agents"
 CMD_UNSAFE = set('&|<>^%"\r\n')
-RATE_LIMIT_HINTS = ("429", "rate limit", "rate_limit", "too many requests")
+# Frases de error reales; las sueltas ("429", "rate limit") salen en docs que los agentes leen
+RATE_LIMIT_HINTS = ("429 too many requests", "status code 429", "http 429", "error 429", "rate limit exceeded",
+                    "rate_limit_exceeded", "ratelimiterror", "rate limit reached")
 
 
 class DispatchError(Exception):
@@ -143,6 +145,9 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
     }
     print(f"[dispatch] -> {agent} {task}  ({wt})", flush=True)
 
+    # Para detectar un agente que se salió de su worktree y escribió en el repo principal
+    main_head = git("rev-parse", "HEAD", check=False).stdout.strip()
+    main_dirty = git("status", "--porcelain", "--untracked-files=no", check=False).stdout
     timed_out = False
     with log_path.open("w", encoding="utf-8", errors="replace") as log:
         log.write(f"# {status['started']} agent={agent} task={task}\n# cwd={wt}\n\n")
@@ -177,8 +182,11 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
         commits = git("rev-list", "--count", f"{base_branch(cfg)}..{branch}", check=False).stdout.strip()
         dirty = bool(git("status", "--porcelain", cwd=wt, check=False).stdout.strip())
     log_text = log_path.read_text(encoding="utf-8", errors="replace").lower()
+    escaped = (git("rev-parse", "HEAD", check=False).stdout.strip() != main_head
+               or git("status", "--porcelain", "--untracked-files=no", check=False).stdout != main_dirty)
 
     status.update({
+        "escaped_worktree": escaped,
         "finished": now(),
         "exit_code": code,
         "timed_out": timed_out,
@@ -192,9 +200,10 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
     (AG / "status" / f"{task}-{agent}.json").write_text(
         json.dumps(status, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    verdict = "OK" if (code == 0 and report_found and not timed_out) else "REVISAR"
+    verdict = "OK" if (code == 0 and report_found and not timed_out and not escaped) else "REVISAR"
     print(f"[dispatch] <- {agent} {task}: {verdict} exit={code} commits={status['commits_ahead']} "
-          f"reporte={'si' if report_found else 'NO'}{' TIMEOUT' if timed_out else ''}", flush=True)
+          f"reporte={'si' if report_found else 'NO'}{' TIMEOUT' if timed_out else ''}"
+          f"{' FUGA: cambio el repo principal' if escaped else ''}", flush=True)
     return status
 
 

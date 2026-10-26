@@ -34,6 +34,12 @@ CMD_UNSAFE = set('&|<>^%"\r\n')
 RATE_LIMIT_HINTS = ("429 too many requests", "status code 429", "http 429", "error 429", "rate limit exceeded",
                     "rate_limit_exceeded", "ratelimiterror", "rate limit reached",
                     "timed out waiting for response headers")
+PYTHON = ROOT / ".venv" / "Scripts" / "python.exe"
+TEXT_SUFFIXES = {".py", ".c", ".h", ".md", ".toml", ".yaml", ".yml", ".txt", ".rpy", ".json", ".cmake"}
+FIX_PROMPT = ("Eres el agente {agent} del proyecto renpy-console-project. Ya trabajaste la tarea {task} en este "
+              "directorio, pero el despachador encontro problemas. Lee .agents/inbox/{task}-fix.md, corrige cada "
+              "uno sin agregar nada que la tarea no pida, corre las verificaciones, actualiza reports/{task}.md y haz "
+              "un commit nuevo con Refs: {task}. No hagas push, merge ni rebase.")
 
 
 class DispatchError(Exception):
@@ -106,6 +112,34 @@ def escaped_worktree(task: str, main_head: str, root: Path = ROOT) -> bool:
     return f"Refs: {task}" in bodies or (root / "reports" / f"{task}.md").exists()
 
 
+def quality_problems(wt: Path, base: str) -> list[str]:
+    """Lo que la revisión rechazaría siempre: errores de ruff, código muerto (vulture), falta de salto de línea
+    final y pruebas rotas. Solo mira los archivos que la rama cambió respecto de `base`."""
+    changed = git("diff", "--name-only", "--diff-filter=AM", base, cwd=wt, check=False).stdout.split()
+    changed += git("ls-files", "--others", "--exclude-standard", cwd=wt, check=False).stdout.split()
+    changed = [c for c in dict.fromkeys(changed) if (wt / c).is_file()]
+    # En .py el salto de línea final lo revisa ruff (W292)
+    problems = [f"{c}: falta el salto de linea final" for c in changed
+                if Path(c).suffix in TEXT_SUFFIXES - {".py"} and (data := (wt / c).read_bytes())
+                and not data.endswith(b"\n")]
+    py = [c for c in changed if c.endswith(".py")]
+    if py:
+        out = subprocess.run([str(PYTHON), "-m", "ruff", "check", "--output-format", "concise", *py], cwd=wt,
+                             text=True, capture_output=True, encoding="utf-8", errors="replace").stdout
+        problems += [line for line in out.splitlines() if ": " in line and not line.startswith("Found")]
+        # Las pruebas cuentan como uso; solo se reporta código muerto en archivos de la rama que no son pruebas
+        dirs = [d for d in ("tools", "tests") if (wt / d).is_dir()]
+        out = subprocess.run([str(PYTHON), "-m", "vulture", *dirs, "--min-confidence", "60"], cwd=wt,
+                             text=True, capture_output=True, encoding="utf-8", errors="replace").stdout
+        mine = {Path(c) for c in py if not c.startswith("tests/")}
+        problems += [line for line in out.splitlines() if Path(line.split(":", 1)[0]) in mine]
+    tests = subprocess.run([str(PYTHON), "-m", "pytest", "-q", "-x"], cwd=wt, text=True, capture_output=True,
+                           encoding="utf-8", errors="replace")
+    if tests.returncode not in (0, 5):  # 5: no hay pruebas
+        problems.append("pytest falla:\n" + "\n".join(tests.stdout.splitlines()[-25:]))
+    return problems
+
+
 def agent_env(agent_cfg: dict, wt: Path) -> dict:
     """Entorno del agente: el del sistema más `env` de agents.toml, con {worktree} reemplazado."""
     env = os.environ.copy()
@@ -155,21 +189,41 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
     # Para detectar un agente que se salió de su worktree y escribió en el repo principal (Claude puede hacer sus
     # propios commits en main mientras tanto, así que solo cuentan las huellas de esta tarea)
     main_head = git("rev-parse", "HEAD", check=False).stdout.strip()
-    timed_out = False
+    rounds = int(acfg.get("fix_rounds", cfg["settings"].get("fix_rounds", 1)))
+    auto_committed = False
+    problems: list[str] = []
     with log_path.open("w", encoding="utf-8", errors="replace") as log:
         log.write(f"# {status['started']} agent={agent} task={task}\n# cwd={wt}\n\n")
-        log.flush()
-        try:
-            proc = subprocess.run(
-                cmd, cwd=wt, env=env, stdin=subprocess.DEVNULL,
-                stdout=log, stderr=subprocess.STDOUT, timeout=timeout_min * 60,
-            )
-            code = proc.returncode
-        except subprocess.TimeoutExpired:
-            timed_out, code = True, -1
+        for attempt in range(rounds + 1):
+            if attempt:
+                fix = inbox / f"{task}-fix.md"
+                fix.write_text(f"# Problemas en {task} (ronda {attempt})\n\n"
+                               + "\n".join(f"- {p}" for p in problems) + "\n", encoding="utf-8")
+                cmd = build_cmd(acfg, FIX_PROMPT.format(task=task, agent=agent), wt)
+                log.write(f"\n# --- ronda de correccion {attempt}: {len(problems)} problemas ---\n")
+                print(f"[dispatch] .. {agent} {task}: {len(problems)} problemas, ronda de correccion {attempt}",
+                      flush=True)
+            log.flush()
+            timed_out = False
+            try:
+                code = subprocess.run(cmd, cwd=wt, env=env, stdin=subprocess.DEVNULL, stdout=log,
+                                      stderr=subprocess.STDOUT, timeout=timeout_min * 60).returncode
+            except subprocess.TimeoutExpired:
+                timed_out, code = True, -1
+            if acfg.get("auto_commit") and git("status", "--porcelain", cwd=wt, check=False).stdout.strip():
+                # Agentes cuyo sandbox no deja escribir en .git (Codex en Windows): el commit lo hace el despachador
+                git("add", "-A", cwd=wt)
+                git("commit", "-m", f"chore(agents): {task} work by {agent}\n\nRefs: {task}", cwd=wt, check=False)
+                auto_committed = True
+            if timed_out:
+                break
+            problems = quality_problems(wt, base_branch(cfg))
+            if not problems:
+                break
 
-    # La copia de la tarea ya no se necesita: así el worktree queda limpio
-    (inbox / f"{task}.md").unlink(missing_ok=True)
+    # Las copias de la tarea ya no se necesitan: así el worktree queda limpio
+    for f in (inbox / f"{task}.md", inbox / f"{task}-fix.md"):
+        f.unlink(missing_ok=True)
     if inbox.exists() and not any(inbox.iterdir()):
         inbox.rmdir()
 
@@ -180,14 +234,6 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
 
     commits = git("rev-list", "--count", f"{base_branch(cfg)}..{branch}", check=False).stdout.strip()
     dirty = bool(git("status", "--porcelain", cwd=wt, check=False).stdout.strip())
-    auto_committed = False
-    if acfg.get("auto_commit") and dirty and commits == "0":
-        # Agentes cuyo sandbox no deja escribir en .git (Codex en Windows): el commit lo hace el despachador
-        git("add", "-A", cwd=wt)
-        git("commit", "-m", f"chore(agents): {task} work by {agent}\n\nRefs: {task}", cwd=wt)
-        auto_committed = True
-        commits = git("rev-list", "--count", f"{base_branch(cfg)}..{branch}", check=False).stdout.strip()
-        dirty = bool(git("status", "--porcelain", cwd=wt, check=False).stdout.strip())
     log_text = log_path.read_text(encoding="utf-8", errors="replace").lower()
     escaped = escaped_worktree(task, main_head)
 
@@ -200,15 +246,18 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
         "commits_ahead": int(commits) if commits.isdigit() else None,
         "uncommitted_changes": dirty,
         "auto_committed": auto_committed,
+        "fix_rounds_used": attempt,
+        "quality_problems": problems,
         "possible_rate_limit": any(h in log_text for h in RATE_LIMIT_HINTS),
         "log": str(log_path),
     })
     (AG / "status" / f"{task}-{agent}.json").write_text(
         json.dumps(status, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    verdict = "OK" if (code == 0 and report_found and not timed_out and not escaped) else "REVISAR"
+    verdict = "OK" if (code == 0 and report_found and not timed_out and not escaped and not problems) else "REVISAR"
     print(f"[dispatch] <- {agent} {task}: {verdict} exit={code} commits={status['commits_ahead']} "
           f"reporte={'si' if report_found else 'NO'}{' TIMEOUT' if timed_out else ''}"
+          f"{f' PROBLEMAS={len(problems)}' if problems else ''}"
           f"{' FUGA: cambio el repo principal' if escaped else ''}", flush=True)
     return status
 

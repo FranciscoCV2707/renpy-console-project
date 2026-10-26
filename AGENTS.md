@@ -39,7 +39,10 @@ Lo leen solos Codex, OpenCode (Beam) y Kilo; a Claude, Vibe y Antigravity se lo 
 - Documentación en español; código y nombres en inglés.
 
 ## Al terminar
-1. Corre los pasos de verificación de tu tarea.
+1. Corre los pasos de verificación de tu tarea y, si tocaste Python,
+   `E:\Dev\renpy-console-project\.venv\Scripts\python.exe -m ruff check tools tests`. Relee tu diff
+   (`git diff main`) contra la sección Estilo y borra lo que la tarea no pidió. El despachador repite estos
+   chequeos (ruff, vulture, salto de línea final, pytest) y te devuelve lo que falle para una ronda de corrección.
 2. `git add` solo de archivos permitidos y commit en conventional commits en inglés, sin línea de coautor ni
    mención a la IA; la tarea va en el cuerpo: `Refs: T-xxx`. Si tu sandbox no te deja hacer commit, deja los
    cambios: el despachador lo hace.

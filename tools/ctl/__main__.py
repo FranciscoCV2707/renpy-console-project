@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse
 import sys
 
+import yaml
+
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m tools.ctl")
@@ -43,17 +45,9 @@ def main(argv=None) -> int:
 
         try:
             scen = load_scenario(args.scenario)
-        except Exception as e:
-            print(f"error: {e}", file=sys.stderr)
-            return 2
-        try:
             result = compare_scenario(scen, args.trace)
-        except Exception as e:
-            print(f"error: {e}", file=sys.stderr)
-            return 2
-        try:
             write_report(args.target, result, scen)
-        except Exception as e:
+        except (ValueError, OSError, yaml.YAMLError) as e:
             print(f"error: {e}", file=sys.stderr)
             return 2
         print(result.message)
@@ -67,16 +61,10 @@ def main(argv=None) -> int:
         from .scenario import load_scenario
         from .report import write_report
 
-        scen = None
-        if args.scenario:
-            try:
-                scen = load_scenario(args.scenario)
-            except Exception as e:
-                print(f"error: {e}", file=sys.stderr)
-                return 2
         try:
+            scen = load_scenario(args.scenario) if args.scenario else None
             p = write_report(args.target, scenario=scen)
-        except Exception as e:
+        except (ValueError, OSError, yaml.YAMLError) as e:
             print(f"error: {e}", file=sys.stderr)
             return 2
         print(f"report written to {p}")

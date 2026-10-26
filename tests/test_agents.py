@@ -92,3 +92,24 @@ def test_project_skills_have_frontmatter():
         assert text.startswith("---\n")
         assert f"name: {path.parent.name}\n" in text
         assert "\ndescription: " in text
+
+
+def test_fix_prompt_is_safe_for_npm_cmd_shims():
+    prompt = dispatch.FIX_PROMPT.format(task="T-001", agent="beam")
+    assert not dispatch.CMD_UNSAFE.intersection(prompt)
+    assert ".agents/inbox/T-001-fix.md" in prompt
+
+
+def test_quality_problems_catch_dead_code_and_missing_newline(tmp_path):
+    import subprocess
+    run = lambda *a: subprocess.run(["git", *a], cwd=tmp_path, check=True, capture_output=True)
+    run("init", "-q", "-b", "main")
+    run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "base")
+    (tmp_path / "tools").mkdir()
+    (tmp_path / "tools" / "lib.py").write_text("import os\n\n\ndef scan():\n    return 1\n\n\nfind = scan\n",
+                                               encoding="utf-8")
+    (tmp_path / "notes.md").write_text("sin salto", encoding="utf-8")
+    problems = "\n".join(dispatch.quality_problems(tmp_path, "main"))
+    assert "F401" in problems
+    assert "unused variable 'find'" in problems
+    assert "notes.md: falta el salto de linea final" in problems

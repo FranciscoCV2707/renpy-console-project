@@ -1,0 +1,7 @@
+target-version = "py312"
+line-length = 120
+
+[lint]
+# F: imports y variables sin usar, nombres indefinidos; W292: falta salto de linea final;
+# S110/BLE001: try/except que se traga errores (AGENTS.md, Estilo)
+select = ["E9", "F", "W292", "S110", "BLE001"]

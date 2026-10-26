@@ -13,6 +13,10 @@ $ comando
 salida
 ```
 
+## APIs externas usadas
+- `nombre` — archivo:línea donde verificaste que existe (SDK, Ren'Py, emulador, script de otro repo). Sin cita,
+  la revisión lo trata como inventado.
+
 ## Decisiones y supuestos
 
 ## Propuestas de cambio a contratos (si aplica)

@@ -52,3 +52,12 @@
   `dispatch.py`. Instalados `clangd` 22.1.4 (MSYS2) y `pyright` 1.1.414 (npm) con los plugins `clangd-lsp` y
   `pyright-lsp`; `compile_flags.txt` para que clangd encuentre los headers. No se instalaron Superpowers ni
   mattpocock (chocan con los comandos propios del usuario).
+- Fase 1 cerrada. API de plataforma por enlace (decisión D15 del usuario) en lugar de 60 operaciones en
+  `VnPlatformOps`. `main.c`, módulos, juegos y CMake traídos de vn-engine-ps1; Snoot y Wani compilan para PS1 desde
+  este repo. T-102: headers neutrales en `engine/platform/`, `BTN_*`, `video_wait_vblank`/`video_vblank_count`,
+  `vn_platform_default_ops`; la app compila en PC sin headers de PS1 (prueba nueva).
+- G1 con `tests/emu/snoot_check.py` (carga el `snoot.py` de vn-engine-ps1 sin modificarlo): 7 escenarios con
+  capturas idénticas a la v1.0. Chat, teclado y créditos terminan con el contador de cuadros ±2; el motor de
+  vn-engine-ps1 sin cambios también (teclado 3683 contra 3684): es variación de tiempos del CD, no regresión.
+- Oleada 1: T-101, T-205, T-206, T-301 (Kilo, tercer intento), T-402 fusionadas; T-202 en segundo intento. Regla
+  nueva en AGENTS.md contra alias y código muerto (todas las ramas de Beam volvieron por eso).

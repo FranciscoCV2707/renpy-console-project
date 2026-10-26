@@ -223,7 +223,7 @@ que compila, backend PC sin ventana, `pytest` con la prueba de host (VM hasta el
 3. CMake para armar el ejecutable PS1 desde este repo con los datos de `snoot-ps1`.
 4. Correr `vn-engine-ps1/tests/emu/snoot.py check` contra el ejecutable nuevo.
 
-**[GATE G1]** Snoot PS1 armado desde este repo pasa los escenarios de `tests/emu/snoot.py` (título, menús, partida,
+**[GATE G1]** `[cumplida 2026-10-26]` Snoot PS1 armado desde este repo pasa los escenarios de `tests/emu/snoot.py` (título, menús, partida,
 cargar, teclado, chat, créditos) **idéntico píxel a píxel** a la referencia v1.0; Wani compila con el mismo núcleo.
 
 ### Fase 2 — TRACE y Test Lab v1 sobre PS1

@@ -44,6 +44,18 @@ def test_agent_env_points_temp_at_the_worktree(tmp_path):
     assert "PATH" in env or "Path" in env
 
 
+def test_escape_is_only_flagged_by_the_task_own_traces(tmp_path):
+    import subprocess
+    run = lambda *a: subprocess.run(["git", *a], cwd=tmp_path, check=True, capture_output=True)
+    run("init", "-q")
+    run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "base")
+    head = dispatch.git("rev-parse", "HEAD", cwd=tmp_path).stdout.strip()
+    run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "orchestrator work")
+    assert not dispatch.escaped_worktree("T-900", head, tmp_path)
+    run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "x\n\nRefs: T-900")
+    assert dispatch.escaped_worktree("T-900", head, tmp_path)
+
+
 def test_unknown_or_disabled_agent_fails():
     cfg = {"agents": {"off": {"cmd": ["x", "{prompt}"], "enabled": False}}}
     with pytest.raises(dispatch.DispatchError):

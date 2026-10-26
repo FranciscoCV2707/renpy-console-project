@@ -21,8 +21,7 @@ def scenario_steps(scenario: Scenario) -> list[Step]:
     steps: list[Step] = []
     cursor = 0
     has_quit = False
-    inputs = getattr(scenario, "inputs", [])
-    for i, entry in enumerate(inputs):
+    for i, entry in enumerate(scenario.inputs):
         if not isinstance(entry, dict) or len(entry) != 1:
             raise ScenarioError(f"inputs[{i}]", "must be a mapping with one key")
         key, value = next(iter(entry.items()))
@@ -31,7 +30,7 @@ def scenario_steps(scenario: Scenario) -> list[Step]:
         elif key == "press":
             if not isinstance(value, str) or value.upper() not in BUTTONS:
                 raise ScenarioError(f"inputs[{i}]", f"unknown button: {value!r}")
-            steps.append((cursor, "press", value))
+            steps.append((cursor, "press", value.upper()))
             cursor += 30
         elif key == "advance":
             for _ in range(int(value)):
@@ -44,15 +43,12 @@ def scenario_steps(scenario: Scenario) -> list[Step]:
             steps.append((cursor, "press", "CROSS"))
             cursor += 30
         elif key == "shot":
-            steps.append((cursor, "shot", str(value) if not isinstance(value, str) else value))
-            # cursor unchanged
+            steps.append((cursor, "shot", str(value)))
         elif key == "autoplay":
             steps.append((cursor, "autoplay", ""))
-            # cursor unchanged
         elif key == "quit":
             steps.append((cursor, "quit", ""))
             has_quit = True
-            # cursor unchanged
         else:
             raise ScenarioError(f"inputs[{i}]", f"unknown input: {key!r}")
     if not has_quit:

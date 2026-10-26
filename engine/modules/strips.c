@@ -1,4 +1,3 @@
-#include <psxpad.h>
 #include "app.h"
 #include "img.h"
 #include "input.h"
@@ -28,14 +27,14 @@ static int strips_begin(void)
 
 static int strips_update(void)
 {
-	int max = strip_count * VIEW_H - VIEW_H, step = input_down(PAD_R1) ? 8 : 3;
+	int max = strip_count * VIEW_H - VIEW_H, step = input_down(BTN_R1) ? 8 : 3;
 
-	if (input_down(PAD_UP))
+	if (input_down(BTN_UP))
 		strip_pos = strip_pos - step < 0 ? 0 : strip_pos - step;
-	if (input_down(PAD_DOWN))
+	if (input_down(BTN_DOWN))
 		strip_pos = strip_pos + step > max ? max : strip_pos + step;
 	/* como en el original, el boton para salir esta arriba de todo: X sale al llegar al inicio del chat */
-	return strip_pos == 0 && input_pressed(PAD_CROSS);
+	return strip_pos == 0 && input_pressed(BTN_CROSS);
 }
 
 static void strips_draw(void)

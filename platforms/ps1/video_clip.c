@@ -1,6 +1,6 @@
 /* Recorte del area de dibujo: la escena se dibuja solo dentro del recuadro 16:9 de 320x180. */
 #include <psxgpu.h>
-#include "video.h"
+#include "video_ps1.h"
 
 extern int video_draw_origin_y(void);
 

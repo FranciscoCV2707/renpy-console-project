@@ -1,4 +1,3 @@
-#include <psxpad.h>
 #include <string.h>
 #include "app.h"
 #include "input.h"
@@ -43,8 +42,8 @@ static int credits_update(void)
 {
 	int lh = font_line_height() + 4;
 
-	credits_y -= input_down(PAD_CROSS) ? 4 : 1;
-	return credits_y + credits_count * lh < 0 || input_pressed(PAD_START);
+	credits_y -= input_down(BTN_CROSS) ? 4 : 1;
+	return credits_y + credits_count * lh < 0 || input_pressed(BTN_START);
 }
 
 static void credits_draw(void)

@@ -28,4 +28,4 @@ file(GLOB _sources CONFIGURE_DEPENDS
 	engine/core/*.c engine/app/*.c engine/modules/*.c platforms/ps1/*.c games/${GAME}/*.c)
 psn00bsdk_add_executable(${GAME} GPREL ${_sources})
 target_include_directories(${GAME} PRIVATE
-	engine/core engine/app engine/modules platforms/ps1 ${CMAKE_CURRENT_BINARY_DIR}/generated)
+	engine/core engine/platform engine/app engine/modules platforms/ps1 ${CMAKE_CURRENT_BINARY_DIR}/generated)

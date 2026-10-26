@@ -1,4 +1,3 @@
-#include <psxpad.h>
 #include "input.h"
 #include "res.h"
 #include "special.h"
@@ -83,13 +82,13 @@ static int phone_begin(void)
 
 static int phone_update(void)
 {
-	int max = phone_max_scroll(), step = input_down(PAD_R1) ? 8 : 3;
+	int max = phone_max_scroll(), step = input_down(BTN_R1) ? 8 : 3;
 
-	if (input_down(PAD_UP))
+	if (input_down(BTN_UP))
 		ph_scroll = ph_scroll - step < 0 ? 0 : ph_scroll - step;
-	if (input_down(PAD_DOWN))
+	if (input_down(BTN_DOWN))
 		ph_scroll = ph_scroll + step > max ? max : ph_scroll + step;
-	return input_pressed(PAD_CROSS);
+	return input_pressed(BTN_CROSS);
 }
 
 static void phone_draw(void)

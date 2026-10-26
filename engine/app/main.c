@@ -9,10 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <psxapi.h>
-#include <psxpad.h>
 #include "audio.h"
-#include "backend_ps1.h"
+#include "vn_platform.h"
 #include "cd.h"
 #include "chapter.h"
 #include "app.h"
@@ -134,7 +132,7 @@ static void fatal(const char *msg)
 		video_flip();
 	}
 	for (;;)
-		VSync(0);
+		video_wait_vblank();
 }
 
 static uint16_t rd16(const uint8_t *p)
@@ -1157,10 +1155,10 @@ static void run_vm(void)
 
 		/* lo nuevo se carga antes de reservar la copia de la transicion (que sale del framebuffer, no de las
 		 * texturas): asi la reserva sabe que espacio queda de verdad */
-		int t0 = VSync(-1), cd0 = cd_sync_vblanks + cd_wait_vblanks;
+		int t0 = video_vblank_count(), cd0 = cd_sync_vblanks + cd_wait_vblanks;
 
 		scene_sync();
-		decode_vblanks += VSync(-1) - t0 - (cd_sync_vblanks + cd_wait_vblanks - cd0);
+		decode_vblanks += video_vblank_count() - t0 - (cd_sync_vblanks + cd_wait_vblanks - cd0);
 		if (ev == VM_EV_TRANSITION) {
 			snap_box = box_level >= BOX_FADE;
 			begin_transition();
@@ -1234,15 +1232,15 @@ static void update_dev(void)
 {
 	int i;
 
-	if (input_pressed(PAD_UP) && menu_cursor > 0)
+	if (input_pressed(BTN_UP) && menu_cursor > 0)
 		menu_cursor--;
-	if (input_pressed(PAD_DOWN) && menu_cursor < dev_count + extra_count)
+	if (input_pressed(BTN_DOWN) && menu_cursor < dev_count + extra_count)
 		menu_cursor++;
-	if (input_pressed(PAD_CIRCLE)) {
+	if (input_pressed(BTN_CIRCLE)) {
 		go_title();
 		return;
 	}
-	if (!input_pressed(PAD_CROSS))
+	if (!input_pressed(BTN_CROSS))
 		return;
 	dev_session = 1;
 	playing_extra = 0;
@@ -1529,13 +1527,13 @@ static void draw_list(int y, const char *const *items, int n, int cursor, uint32
 /* Arriba/abajo con vuelta; devuelve 1 con X, -1 con O */
 static int list_input(int *cursor, int n)
 {
-	if (input_pressed(PAD_UP))
+	if (input_pressed(BTN_UP))
 		*cursor = (*cursor + n - 1) % n;
-	if (input_pressed(PAD_DOWN))
+	if (input_pressed(BTN_DOWN))
 		*cursor = (*cursor + 1) % n;
-	if (input_pressed(PAD_CROSS))
+	if (input_pressed(BTN_CROSS))
 		return 1;
-	if (input_pressed(PAD_CIRCLE))
+	if (input_pressed(BTN_CIRCLE))
 		return -1;
 	return 0;
 }
@@ -1602,7 +1600,7 @@ static void update_title(void)
 {
 	int extras[MAX_EXTRAS], rows[5], n = title_rows(rows);
 
-	if (input_down(PAD_L1) && input_down(PAD_R1) && input_pressed(PAD_SELECT) && dev_count) {
+	if (input_down(BTN_L1) && input_down(BTN_R1) && input_pressed(BTN_SELECT) && dev_count) {
 		menu_cursor = menu_top = 0;
 		state = ST_DEV;
 		return;
@@ -1672,7 +1670,7 @@ static void update_pause_menu(void)
 {
 	int r = list_input(&ui_cursor, 6);
 
-	if (r < 0 || (input_pressed(PAD_START) && video_frames() != pause_opened)) {
+	if (r < 0 || (input_pressed(BTN_START) && video_frames() != pause_opened)) {
 		state = pause_from;
 		return;
 	}
@@ -1775,13 +1773,13 @@ static void draw_slots(void)
 
 static void update_confirm(void)
 {
-	if (input_pressed(PAD_LEFT) || input_pressed(PAD_RIGHT) || input_pressed(PAD_UP) || input_pressed(PAD_DOWN))
+	if (input_pressed(BTN_LEFT) || input_pressed(BTN_RIGHT) || input_pressed(BTN_UP) || input_pressed(BTN_DOWN))
 		confirm_yes = !confirm_yes;
-	if (input_pressed(PAD_CIRCLE) || (input_pressed(PAD_CROSS) && !confirm_yes)) {
+	if (input_pressed(BTN_CIRCLE) || (input_pressed(BTN_CROSS) && !confirm_yes)) {
 		state = confirm_action == CONF_OVERWRITE ? ST_SLOTS : ST_PMENU;
 		return;
 	}
-	if (!input_pressed(PAD_CROSS))
+	if (!input_pressed(BTN_CROSS))
 		return;
 	if (confirm_action == CONF_OVERWRITE) {
 		do_save(ui_slot);
@@ -1803,20 +1801,20 @@ static void update_options(void)
 {
 	int *level = ui_cursor == 0 ? &music_level : ui_cursor == 1 ? &sfx_level : 0;
 
-	if (input_pressed(PAD_UP))
+	if (input_pressed(BTN_UP))
 		ui_cursor = (ui_cursor + 2) % 3;
-	if (input_pressed(PAD_DOWN))
+	if (input_pressed(BTN_DOWN))
 		ui_cursor = (ui_cursor + 1) % 3;
-	if (level && input_pressed(PAD_LEFT) && *level > 0) {
+	if (level && input_pressed(BTN_LEFT) && *level > 0) {
 		(*level)--;
 		ui_changed = 1;
 	}
-	if (level && input_pressed(PAD_RIGHT) && *level < 10) {
+	if (level && input_pressed(BTN_RIGHT) && *level < 10) {
 		(*level)++;
 		ui_changed = 1;
 	}
 	audio_set_levels(music_level, sfx_level);
-	if (input_pressed(PAD_CIRCLE) || (ui_cursor == 2 && input_pressed(PAD_CROSS))) {
+	if (input_pressed(BTN_CIRCLE) || (ui_cursor == 2 && input_pressed(BTN_CROSS))) {
 		if (ui_changed)
 			write_card(TX(T_SAVING_OPTIONS));
 		ui_cursor = 0;
@@ -1873,18 +1871,18 @@ static void update_gallery(void)
 {
 	int v;
 
-	if (input_pressed(PAD_LEFT))
+	if (input_pressed(BTN_LEFT))
 		gallery_pos = (gallery_pos + gallery_count - 1) % gallery_count;
-	if (input_pressed(PAD_RIGHT))
+	if (input_pressed(BTN_RIGHT))
 		gallery_pos = (gallery_pos + 1) % gallery_count;
 	v = video_at(gallery_pos);
-	if (v >= 0 && gallery_seen_at(gallery_pos) && input_pressed(PAD_CROSS)) {
+	if (v >= 0 && gallery_seen_at(gallery_pos) && input_pressed(BTN_CROSS)) {
 		fmv_select(video_file[v]);
 		special_return = ST_GALLERY;
 		begin_special(SPECIAL_VIDEO);
 		return;
 	}
-	if (input_pressed(PAD_CIRCLE)) {
+	if (input_pressed(BTN_CIRCLE)) {
 		ui_cursor = 3;
 		state = ST_TITLE;
 	}
@@ -2050,7 +2048,7 @@ static void skip_step(void)
 
 static void update_say(void)
 {
-	int advance = (input_pressed(PAD_CROSS) && !eat_cross) ||
+	int advance = (input_pressed(BTN_CROSS) && !eat_cross) ||
 	              (text_page_done(&run) && run.auto_next && text_finished(&run));
 
 	if (!say_prefetched && !res_prefetch_busy()) {
@@ -2075,11 +2073,11 @@ static void update_say(void)
 
 static void update_imgmenu(void)
 {
-	if ((input_pressed(PAD_LEFT) || input_pressed(PAD_UP)) && menu_cursor > 0)
+	if ((input_pressed(BTN_LEFT) || input_pressed(BTN_UP)) && menu_cursor > 0)
 		menu_cursor--;
-	if ((input_pressed(PAD_RIGHT) || input_pressed(PAD_DOWN)) && menu_cursor < vm.menu_n - 1)
+	if ((input_pressed(BTN_RIGHT) || input_pressed(BTN_DOWN)) && menu_cursor < vm.menu_n - 1)
 		menu_cursor++;
-	if (input_pressed(PAD_CROSS)) {
+	if (input_pressed(BTN_CROSS)) {
 		vm.choice = menu_cursor;
 		state = ST_RUN;
 	}
@@ -2091,11 +2089,11 @@ static void update_menu(void)
 		update_imgmenu();
 		return;
 	}
-	if (input_pressed(PAD_UP) && menu_cursor > 0)
+	if (input_pressed(BTN_UP) && menu_cursor > 0)
 		menu_cursor--;
-	if (input_pressed(PAD_DOWN) && menu_cursor < vm.menu_n - 1)
+	if (input_pressed(BTN_DOWN) && menu_cursor < vm.menu_n - 1)
 		menu_cursor++;
-	if (input_pressed(PAD_CROSS)) {
+	if (input_pressed(BTN_CROSS)) {
 		vm.choice = menu_order[menu_cursor];
 		state = ST_RUN;
 	}
@@ -2124,7 +2122,7 @@ int main(int argc, const char *argv[])
 	video_init();
 	cd_init();
 	audio_init();
-	vn_platform_set(vn_platform_ps1_ops());   /* el nucleo (chapter, text) lee archivos y dibuja la fuente por aqui */
+	vn_platform_set(vn_platform_default_ops());   /* el nucleo (chapter, text) lee archivos y dibuja la fuente por aqui */
 	{
 		/* disco sin memory card (build_game.py --nocard): no se instala su controlador (prueba en POPStarter) */
 		int lba, size;
@@ -2169,16 +2167,16 @@ int main(int argc, const char *argv[])
 			draw_center(140, TX(T_BOOT_PORT), 96, 96, 96);
 			video_flip();
 		}
-		if (input_raw_down(PAD_SELECT))
+		if (input_raw_down(BTN_SELECT))
 			card_disabled = 1;
 		card_state = card_disabled ? SAVE_NO_CARD : save_read(save_buf);
 		{
-			int t0 = VSync(-1);
+			int t0 = video_vblank_count();
 			if (card_state == SAVE_OK)
 				progress_from_buf();
 			else
 				memset(save_buf, 0, sizeof(save_buf));
-			while (VSync(-1) - t0 < 150) {
+			while (video_vblank_count() - t0 < 150) {
 				draw_center(90, TX(T_BOOT_TITLE), 255, 220, 40);
 				draw_center(108, TX(T_BOOT_AUTHOR), 128, 128, 128);
 				draw_center(140, TX(T_BOOT_PORT), 96, 96, 96);
@@ -2187,7 +2185,7 @@ int main(int argc, const char *argv[])
 		}
 	}
 	go_title();
-	vb_start = last_vb = VSync(-1);
+	vb_start = last_vb = video_vblank_count();
 
 	for (;;) {
 		int vb, in_game;
@@ -2199,12 +2197,12 @@ int main(int argc, const char *argv[])
 		in_game = state <= ST_ERROR || state == ST_TRANS || SPECIAL_HAS(SP_IN_GAME);
 		if (in_game)
 			anim_sounds();
-		if (in_game && input_pressed(PAD_SELECT))
+		if (in_game && input_pressed(BTN_SELECT))
 			debug = !debug;
-		if (input_pressed(PAD_SQUARE))
+		if (input_pressed(BTN_SQUARE))
 			show_box = !show_box;
 		/* Start abre la pausa donde se puede guardar: en una linea o en una decision */
-		if ((state == ST_SAY || state == ST_MENU) && input_pressed(PAD_START)) {
+		if ((state == ST_SAY || state == ST_MENU) && input_pressed(BTN_START)) {
 			pause_from = state;
 			pause_opened = video_frames();
 			skip_mode = 0;
@@ -2215,9 +2213,9 @@ int main(int argc, const char *argv[])
 		eat_cross = 0;
 		if (!in_game) {
 			/* en los menus no se salta */
-		} else if (input_pressed(PAD_R1) && !SPECIAL_HAS(SP_OWN_R1)) {   /* en el chat R1 solo acelera */
+		} else if (input_pressed(BTN_R1) && !SPECIAL_HAS(SP_OWN_R1)) {   /* en el chat R1 solo acelera */
 			skip_mode = !skip_mode;
-		} else if (skip_mode && state != ST_MENU && input_pressed(PAD_CROSS)) {
+		} else if (skip_mode && state != ST_MENU && input_pressed(BTN_CROSS)) {
 			skip_mode = 0;
 			eat_cross = 1;
 		}
@@ -2240,14 +2238,14 @@ int main(int argc, const char *argv[])
 			update_menu();
 			break;
 		case ST_PAUSE:
-			if (--pause_left <= 0 || (vm.ev_flags & 1 && input_pressed(PAD_CROSS) && !eat_cross))
+			if (--pause_left <= 0 || (vm.ev_flags & 1 && input_pressed(BTN_CROSS) && !eat_cross))
 				state = ST_RUN;
 			break;
 		case ST_END:
 			finish_game();
 			break;
 		case ST_ERROR:
-			if (input_pressed(PAD_CROSS))
+			if (input_pressed(BTN_CROSS))
 				go_title();
 			break;
 		case ST_DEV:
@@ -2278,7 +2276,7 @@ int main(int argc, const char *argv[])
 			update_confirm();
 			break;
 		case ST_NOTICE:
-			if (input_pressed(PAD_CROSS) || input_pressed(PAD_CIRCLE))
+			if (input_pressed(BTN_CROSS) || input_pressed(BTN_CIRCLE))
 				state = notice_next;
 			break;
 		default:
@@ -2353,7 +2351,7 @@ int main(int argc, const char *argv[])
 		}
 		video_unclip();
 
-		vb = VSync(-1);
+		vb = video_vblank_count();
 		if (in_game && vb - last_vb > STALL_VBLANKS)
 			log_stall(vb - last_vb);
 		last_vb = vb;

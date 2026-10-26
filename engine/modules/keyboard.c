@@ -1,4 +1,3 @@
-#include <psxpad.h>
 #include <string.h>
 #include "app.h"
 #include "input.h"
@@ -63,21 +62,21 @@ static void kb_erase(void)
 
 static int kb_update(void)
 {
-	if (input_pressed(PAD_UP))
+	if (input_pressed(BTN_UP))
 		kb_row = (kb_row + KB_ROWS - 1) % KB_ROWS;
-	if (input_pressed(PAD_DOWN))
+	if (input_pressed(BTN_DOWN))
 		kb_row = (kb_row + 1) % KB_ROWS;
-	if (input_pressed(PAD_LEFT))
+	if (input_pressed(BTN_LEFT))
 		kb_col = (kb_col + KB_COLS - 1) % KB_COLS;
-	if (input_pressed(PAD_RIGHT))
+	if (input_pressed(BTN_RIGHT))
 		kb_col = (kb_col + 1) % KB_COLS;
-	if (input_pressed(PAD_L1))
+	if (input_pressed(BTN_L1))
 		kb_upper = !kb_upper;
-	if (input_pressed(PAD_CIRCLE))
+	if (input_pressed(BTN_CIRCLE))
 		kb_erase();
-	if (input_pressed(PAD_START))
+	if (input_pressed(BTN_START))
 		return 1;
-	if (!input_pressed(PAD_CROSS))
+	if (!input_pressed(BTN_CROSS))
 		return 0;
 	if (kb_row < KB_ROWS - 1) {
 		kb_type(kb_keys[kb_upper][kb_row][kb_col]);

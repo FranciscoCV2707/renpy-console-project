@@ -78,6 +78,7 @@ menús, 3 ranuras, galería; es la referencia de UI para todos los ports).
 | D11 | **Motor MIT; ports AGPL-3.0 + CC-BY-SA 4.0** | Ajuste a v2.0 | El motor no lleva código del juego; el disco/ROM de cada port sí (ver sección 10) |
 | D12 | **Coordenadas por perfil**: el compilador VNB genera posiciones por plataforma | Ajuste a v2.0 (pedía 1920x1080 virtual) | Así ya funciona con los perfiles `snoot` y `wani` del compilador |
 | D13 | **Snoot primero, Wani detrás**; el núcleo no tiene nada fijo de un juego | v0.1 + regla de `vn-engine-ps1` | Snoot está completo en PS1; Wani valida que el núcleo es genérico |
+| D15 | **API de plataforma por enlace**: `video`, `img`, `res`, `audio`, `input`, `save`, `cd` son funciones C que cada backend implementa (el linker elige); `VnPlatformOps` queda solo para archivos y fuente | Usuario (2026-10-26) | Cada consola compila un solo backend: una tabla de ~60 punteros no aporta y obliga a reescribir ~290 llamadas de `main.c` y arriesga G1 |
 | D14 | **Commits:** conventional commits en inglés, sin coautor; la tarea va en el cuerpo (`Refs: T-041`) | Reglas del repo sobre v2.0 | v2.0 pedía `T-xxx: resumen`; se conserva la convención existente |
 
 Descartado de v2.0: el submódulo `upstream/` (D2/inventario), la rama `integration` mientras trabaje un solo agente
@@ -146,7 +147,7 @@ Las carpetas vacías de v0.1 (`engine/audio`, `engine/graphics`, `engine/save-sy
 | Contrato | Archivo | Dueño | Estado |
 |---|---|---|---|
 | C1 — Bytecode VNB v3 | `vn-engine-ps1/docs/bytecode.md` | Claude | Vigente; cambiarlo actualiza spec, compilador, simulador y motor juntos |
-| C2 — Plataforma (`VnPlatformOps`) | `engine/core/vn_platform.h`, `docs/core-api.md` | Claude | Archivos y fuente listos; imágenes, audio, entrada y guardado en la Fase 1 |
+| C2 — Plataforma | `engine/core/vn_platform.h` (archivos y fuente), headers de la API por enlace (D15), `docs/core-api.md` | Claude | PS1 implementa todo; quitar lo de PS1 de los headers que ve el núcleo (T-102) |
 | C3 — TRACE | sección 4.1 | Claude | Nuevo (Fase 2); reemplaza los logs `[ENGINE]` de v0.1 |
 | C4 — Escenarios | sección 4.2 | Claude | Nuevo (Fase 2); reemplaza el formato `steps:` de v0.1 |
 
@@ -217,7 +218,8 @@ que compila, backend PC sin ventana, `pytest` con la prueba de host (VM hasta el
 ### Fase 1 — PS1 sobre el núcleo nuevo
 1. Extraer `vn-engine-ps1/app/main.c` (bucle, menús, guardado, galería) y `modules/` al núcleo, separando lo de
    PS1 (botones `psxpad`, VRAM) detrás de `vn_ops`.
-2. Ampliar `VnPlatformOps` con lo que pida `main.c`: imágenes (`res`/`img`), audio, entrada, guardado, tiempo.
+2. Sacar lo de PS1 (`psxgpu.h`, VRAM, CLUT) de los headers de la API por enlace que ven `engine/core`, `engine/app` y
+   `engine/modules` (D15); lo propio de PS1 queda en `platforms/ps1/`.
 3. CMake para armar el ejecutable PS1 desde este repo con los datos de `snoot-ps1`.
 4. Correr `vn-engine-ps1/tests/emu/snoot.py check` contra el ejecutable nuevo.
 
@@ -309,9 +311,9 @@ Orca; Superpowers es opcional y solo para Claude.
 | ID | Fase | Agente | Tarea | Depende |
 |---|---|---|---|---|
 | T-101 | 1 | beam | Mapear `main.c` y `modules/`: qué es lógica y qué es PS1 → `docs/analysis/main-c.md` (Claude lo revisa) | — |
-| T-102 | 1 | claude | Ampliar `VnPlatformOps` (imágenes, audio, entrada, guardado, tiempo) | T-101 |
-| T-103 | 1 | claude/codex | Mover `main.c` y `modules/` a `engine/core` sobre `vn_ops` | T-102 |
-| T-104 | 1 | claude | CMake PS1 en este repo + disco con datos de `snoot-ps1` | T-103 |
+| T-102 | 1 | claude | Headers de la API por enlace sin nada de PS1 (D15) | T-101 |
+| T-103 | 1 | claude | `main.c` y `modules/` en `engine/app` y `engine/modules` (`fmv.c` en `platforms/ps1`) `[hecho]` | T-101 |
+| T-104 | 1 | claude | CMake PS1 en este repo (Snoot y Wani compilan) `[hecho]` | T-103 |
 | T-105 | 1 | claude | `tests/emu/snoot.py check` contra el build nuevo (G1) | T-104 |
 | T-201 | 2 | claude | TRACE en el motor | G1 |
 | T-202 | 2 | beam | Esqueleto `tools/ctl` (CLI, config, reporte MD) | — |

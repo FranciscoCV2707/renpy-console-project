@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 		return 2;
 	}
 	vn_platform_pc_init(0, argv[1]);
-	vn_platform_set(vn_platform_pc_ops());
+	vn_platform_set(vn_platform_default_ops());
 
 	font_size = vn_ops->file_size("FONT.BIN");
 	check(font_size > 0, "FONT.BIN existe");

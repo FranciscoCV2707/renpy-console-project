@@ -2,6 +2,10 @@
 -Wall
 -Wextra
 -Iengine/core
+-Iengine/platform
+-Iengine/app
+-Iengine/modules
+-Ibuild/generated
 -Iplatforms/pc
 -Iplatforms/ps1
 -IC:/msys64/usr/local/psn00bsdk/include/libpsn00b

@@ -5,9 +5,9 @@
  */
 #include <stdio.h>
 #include <psxgpu.h>
-#include "backend_ps1.h"
+#include "vn_platform.h"
 #include "cd.h"
-#include "video.h"
+#include "video_ps1.h"
 
 /* Los archivos del juego viven en \DATA\ del disco */
 static void data_path(char *out, const char *name)
@@ -89,7 +89,7 @@ static const VnPlatformOps ps1_ops = {
 	.log = ps1_log,
 };
 
-const VnPlatformOps *vn_platform_ps1_ops(void)
+const VnPlatformOps *vn_platform_default_ops(void)
 {
 	return &ps1_ops;
 }

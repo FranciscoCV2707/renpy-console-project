@@ -5,7 +5,7 @@
 #include "img.h"
 #include "lz4.h"
 #include "scene.h"
-#include "video.h"
+#include "video_ps1.h"
 
 #define HEADER_SIZE   24
 #define PALETTE_BYTES 512

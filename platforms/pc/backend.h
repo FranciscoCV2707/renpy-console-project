@@ -7,8 +7,6 @@
 
 #include "vn_platform.h"
 
-/* Devuelve las operaciones del backend PC. */
-const VnPlatformOps *vn_platform_pc_ops(void);
 
 /* Inicializa/cierra el backend PC. `data_dir` es la carpeta con los archivos del disco (C00.VNB, FONT.BIN...). */
 int  vn_platform_pc_init(const VnPlatformCaps *caps, const char *data_dir);

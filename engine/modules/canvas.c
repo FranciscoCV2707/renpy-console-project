@@ -1,4 +1,3 @@
-#include <psxpad.h>
 #include <string.h>
 #include "input.h"
 #include "special.h"
@@ -44,28 +43,28 @@ static void stamp(void)
 
 static int canvas_update(void)
 {
-	if (input_down(PAD_LEFT) && cur_x > 0)
+	if (input_down(BTN_LEFT) && cur_x > 0)
 		cur_x--;
-	if (input_down(PAD_RIGHT) && cur_x < CV_W - 1)
+	if (input_down(BTN_RIGHT) && cur_x < CV_W - 1)
 		cur_x++;
-	if (input_down(PAD_UP) && cur_y > 0)
+	if (input_down(BTN_UP) && cur_y > 0)
 		cur_y--;
-	if (input_down(PAD_DOWN) && cur_y < CV_H - 1)
+	if (input_down(BTN_DOWN) && cur_y < CV_H - 1)
 		cur_y++;
 
-	if (input_pressed(PAD_L1))
+	if (input_pressed(BTN_L1))
 		cur_thick = cur_thick % 3 + 1;
-	if (input_pressed(PAD_CROSS)) {
+	if (input_pressed(BTN_CROSS)) {
 		memcpy(cv_undo, cv, CV_BYTES);
 		drawing = 1;
 	}
-	if (drawing && input_down(PAD_CROSS))
+	if (drawing && input_down(BTN_CROSS))
 		stamp();
 	else
 		drawing = 0;
-	if (input_pressed(PAD_CIRCLE) && !drawing)
+	if (input_pressed(BTN_CIRCLE) && !drawing)
 		memcpy(cv, cv_undo, CV_BYTES);
-	return input_pressed(PAD_START);
+	return input_pressed(BTN_START);
 }
 
 /* Cada fila se dibuja en tiras: una tira por cada racha de pixeles seguidos */

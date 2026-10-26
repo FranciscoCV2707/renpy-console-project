@@ -4,7 +4,7 @@
 #include "cd.h"
 #include "img.h"
 #include "res.h"
-#include "video.h"
+#include "video_ps1.h"
 
 #define FILE_BYTES    (172 * 1024)      /* el mayor archivo de imagen (stairs) ocupa 164 KB */
 #define MAX_ENTRIES   28

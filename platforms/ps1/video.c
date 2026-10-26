@@ -1,6 +1,6 @@
 #include <psxgpu.h>
 #include <psxapi.h>
-#include "video.h"
+#include "video_ps1.h"
 
 #define PRIM_BYTES 40000
 
@@ -127,6 +127,16 @@ void video_flip(void)
 int video_frames(void)
 {
 	return frames;
+}
+
+void video_wait_vblank(void)
+{
+	VSync(0);
+}
+
+int video_vblank_count(void)
+{
+	return VSync(-1);
 }
 
 /* Copia la vista 16:9 del ultimo cuadro terminado a VRAM (x, y) */

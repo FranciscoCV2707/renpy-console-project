@@ -12,7 +12,7 @@
 #include "input.h"
 #include "res.h"
 #include "special.h"
-#include "video.h"
+#include "video_ps1.h"
 
 /* Video STR (MDEC) a pantalla completa con audio XA intercalado, como el ejemplo examples/mdec/strvideo del PSn00bSDK.
  * El CD lee en continuo (CdlReadS) y la interrupcion del CD copia cada sector de video al cuadro que se esta armando;

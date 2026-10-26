@@ -54,3 +54,5 @@ typedef struct VnPlatformOps {
 /* Backend activo; se fija una vez al arrancar, antes de llamar al nucleo. */
 extern const VnPlatformOps *vn_ops;
 void vn_platform_set(const VnPlatformOps *ops);
+/* Operaciones del backend con el que se enlaza este ejecutable (cada plataforma define la suya) */
+const VnPlatformOps *vn_platform_default_ops(void);

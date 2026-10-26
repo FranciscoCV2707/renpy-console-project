@@ -94,7 +94,7 @@ static VnPlatformOps pc_ops = {
     .sleep_ms = pc_sleep_ms
 };
 
-const VnPlatformOps *vn_platform_pc_ops(void) { return &pc_ops; }
+const VnPlatformOps *vn_platform_default_ops(void) { return &pc_ops; }
 
 int vn_platform_pc_init(const VnPlatformCaps *caps, const char *dir) {
     if (caps) pc_caps = *caps;

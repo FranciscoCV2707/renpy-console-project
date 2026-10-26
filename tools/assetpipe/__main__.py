@@ -7,7 +7,6 @@ import sys
 from pathlib import Path
 
 from .manifest import run
-from .profiles import PROFILES
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -20,13 +19,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", required=True, help="carpeta de salida")
     args = parser.parse_args(argv)
 
-    if args.profile not in PROFILES:
-        parser.error(f"perfil desconocido: {args.profile} (disponibles: {', '.join(sorted(PROFILES))})")
-
     game = Path(args.game)
     out = Path(args.out)
-    if not game.is_dir():
-        parser.error(f"no existe el directorio de juego: {game}")
 
     try:
         manifest = run(args.profile, game, out)

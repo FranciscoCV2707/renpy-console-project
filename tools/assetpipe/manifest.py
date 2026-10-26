@@ -39,7 +39,7 @@ _KIND_BY_EXT: dict[str, str] = {
     ".mkv": "video",
     ".ogv": "video",
     ".m4v": "video",
-    # Fuentes (tambien se detectan por extension en cualquier carpeta)
+    # Fuentes
     ".ttf": "font",
     ".otf": "font",
 }
@@ -56,49 +56,35 @@ def _is_cached(parts: tuple[str, ...]) -> bool:
 
 
 def classify_kind(rel_path) -> str | None:
-    """Devuelve el tipo de recurso para una ruta relativa, o None."""
-    path = Path(rel_path)
-    ext = path.suffix.lower()
-    if ext in (".ttf", ".otf"):
-        return "font"
-    return _KIND_BY_EXT.get(ext)
-
-
-def is_resource(rel_path) -> bool:
-    """Indica si una ruta relativa del juego es un recurso a incluir."""
+    """Devuelve el tipo de recurso para una ruta relativa, o None si no es recurso."""
     path = Path(rel_path)
     parts = path.parts
     if not parts or _is_cached(parts):
-        return False
+        return None
     ext = path.suffix.lower()
     if ext in (".rpy", ".rpyc"):
-        return False
+        return None
     if parts and parts[0].lower() in _RESOURCE_ROOTS:
-        return ext in _KIND_BY_EXT
+        return _KIND_BY_EXT.get(ext)
     # Fuentes en cualquier carpeta.
-    return ext in (".ttf", ".otf")
+    if ext in (".ttf", ".otf"):
+        return "font"
+    return None
 
 
 def inventory(game_dir) -> list[Path]:
     """Lista ordenada de rutas relativas (Path) de recursos del juego."""
     game_dir = Path(game_dir)
     found: list[Path] = []
-    if not game_dir.is_dir():
-        return found
     for path in game_dir.rglob("*"):
         if not path.is_file():
             continue
         rel = path.relative_to(game_dir)
-        if is_resource(rel):
+        kind = classify_kind(rel)
+        if kind is not None:
             found.append(rel)
     found.sort(key=lambda p: p.as_posix())
     return found
-
-
-# Alias por si se busca con otro nombre.
-list_resources = inventory
-scan = inventory
-discover = inventory
 
 
 def sha256_file(path) -> str:
@@ -109,12 +95,8 @@ def sha256_file(path) -> str:
     return h.hexdigest()
 
 
-def copy_resources(profile: str, game_dir, out_dir, resources: Iterable) -> None:
-    """Copia los recursos al directorio de salida segun el perfil.
-
-    Por ahora todos los perfiles copian tal cual (perfil pc). Los perfiles
-    futuros reemplazaran esta funcion o la extenderan.
-    """
+def copy_resources(game_dir, out_dir, resources: Iterable) -> None:
+    """Copia los recursos al directorio de salida."""
     game_dir = Path(game_dir)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -141,7 +123,6 @@ def build_manifest(profile: str, game_dir, resources: Iterable) -> dict:
                 "sha256": sha256_file(full),
             }
         )
-    entries.sort(key=lambda e: e["path"])
     return {
         "profile": profile,
         "count": len(entries),
@@ -160,7 +141,9 @@ def _is_out_inside_game(game_dir: Path, out_dir: Path) -> bool:
 def run(profile: str, game, out) -> dict:
     """Ejecuta el pipeline completo y devuelve el manifiesto."""
     if profile not in PROFILES:
-        raise ValueError(f"perfil desconocido: {profile}")
+        raise ValueError(
+            f"perfil desconocido: {profile} (disponibles: {', '.join(sorted(PROFILES))})"
+        )
     game_dir = Path(game)
     out_dir = Path(out)
     if not game_dir.is_dir():
@@ -169,7 +152,7 @@ def run(profile: str, game, out) -> dict:
         raise ValueError("--out no puede estar dentro de --game")
     resources = inventory(game_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    copy_resources(profile, game_dir, out_dir, resources)
+    copy_resources(game_dir, out_dir, resources)
     manifest = build_manifest(profile, game_dir, resources)
     manifest_path = out_dir / "manifest.json"
     with manifest_path.open("w", encoding="utf-8", newline="\n") as f:

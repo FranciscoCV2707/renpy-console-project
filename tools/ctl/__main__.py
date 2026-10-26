@@ -1,30 +1,12 @@
-"""CLI del Console Test Lab (T-202, T-203)."""
+"""CLI del Console Test Lab."""
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 
 import yaml
-
-
-def _invoke_run_scenario(scenario, out_dir):
-    """Resuelve run_scenario permitiendo parches en ps1 o en este modulo (pruebas)."""
-    main_mod = sys.modules[__name__]
-    if "run_scenario" in main_mod.__dict__ and main_mod.run_scenario is not _invoke_run_scenario:
-        return main_mod.run_scenario(scenario, out_dir)
-    from . import ps1
-
-    if hasattr(ps1, "run_scenario"):
-        return ps1.run_scenario(scenario, out_dir)
-    raise RuntimeError("run_scenario no disponible")
-
-
-# Re-export for compatibility with tests that patch tools.ctl.__main__.run_scenario.
-try:
-    from .ps1 import run_scenario as run_scenario
-except ImportError:
-    run_scenario = _invoke_run_scenario
 
 
 def main(argv=None) -> int:
@@ -61,30 +43,19 @@ def main(argv=None) -> int:
         if not args.scenario:
             print("error: --scenario is required", file=sys.stderr)
             return 2
+        from .ps1 import run_scenario
+        from .report import write_report
         from .scenario import load_scenario
         from .trace import compare_scenario
-        from .report import write_report
 
         try:
             scen = load_scenario(args.scenario)
-        except (ValueError, OSError, yaml.YAMLError) as e:
-            print(f"error: {e}", file=sys.stderr)
-            return 2
-
-        out_dir = Path("build") / "ctl" / args.target
-        try:
-            trace_path = _invoke_run_scenario(scen, out_dir)
-        except (ImportError, OSError, RuntimeError, ValueError) as e:
-            print(f"error: startup failed: {e}", file=sys.stderr)
-            return 2
-
-        try:
-            result = compare_scenario(scen, trace_path)
+            trace = run_scenario(scen, Path("build") / "ctl" / args.target)
+            result = compare_scenario(scen, trace)
             write_report(args.target, result, scen)
-        except (ValueError, OSError, yaml.YAMLError) as e:
+        except (ValueError, OSError, yaml.YAMLError, subprocess.CalledProcessError) as e:
             print(f"error: {e}", file=sys.stderr)
             return 2
-
         print(result.message)
         print(f"verdict: {result.verdict}")
         return 0 if result.equal else 1

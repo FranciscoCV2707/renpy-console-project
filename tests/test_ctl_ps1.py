@@ -26,7 +26,6 @@ def test_run_exit_code_success(monkeypatch, tmp_path):
         return trace
 
     monkeypatch.setattr("tools.ctl.ps1.run_scenario", fake_run_scenario)
-    monkeypatch.setattr("tools.ctl.__main__.run_scenario", fake_run_scenario, raising=False)
 
     scen = tmp_path / "s.yaml"
     scen.write_text(
@@ -47,7 +46,6 @@ def test_run_exit_code_fail(monkeypatch, tmp_path):
         return act
 
     monkeypatch.setattr("tools.ctl.ps1.run_scenario", fake_run_scenario)
-    monkeypatch.setattr("tools.ctl.__main__.run_scenario", fake_run_scenario, raising=False)
 
     scen = tmp_path / "s.yaml"
     scen.write_text(
@@ -63,7 +61,6 @@ def test_run_exit_code_startup(monkeypatch, tmp_path):
         raise RuntimeError("boom")
 
     monkeypatch.setattr("tools.ctl.ps1.run_scenario", fake_run_scenario)
-    monkeypatch.setattr("tools.ctl.__main__.run_scenario", fake_run_scenario, raising=False)
 
     scen = tmp_path / "s.yaml"
     scen.write_text(

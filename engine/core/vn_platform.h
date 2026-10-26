@@ -1,5 +1,5 @@
 /*
- * Contrato 3: lo que el nucleo pide a cada plataforma. El nucleo no incluye nada de una consola; solo llama a
+ * Contrato C2: lo que el nucleo pide a cada plataforma. El nucleo no incluye nada de una consola; solo llama a
  * estas operaciones a traves de vn_ops. Una operacion en NULL significa que el backend aun no la ofrece.
  */
 #pragma once

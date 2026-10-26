@@ -1,29 +1,27 @@
 # renpy-console-project
 
-Ecosistema de portabilidad de Ren'Py a consolas, asistido por IA.
+Ecosistema de portabilidad de Ren'Py a consolas, asistido por IA: un núcleo C99 compartido, un backend por
+plataforma y un laboratorio de pruebas automático. Primero Snoot Game; después Wani y otros juegos Ren'Py.
 
-Objetivo: tomar un proyecto compatible de Ren'Py, importarlo una sola vez y generar
-versiones para múltiples consolas (PS1, PS2, PS3, PS4, PS5, PSP, PSP Go, PS Vita,
-GB, GBC, GBA, NDS, 3DS, Wii, Switch 1, Xbox Classic, Xbox 360, Xbox One, Xbox
-Series S/X) desde un núcleo compartido y datos de escena comunes.
+## Primera meta
+
+Snoot Game en **PS1, PC, PSP y PS2** desde el mismo núcleo y los mismos datos.
 
 ## Estructura
 
-- `tools/` — conversor Ren'Py, conversor de recursos, analizador de compatibilidad, Console Test Lab.
-- `engine/` — núcleo compartido (VM, escena, texto, audio, guardado, lógica).
-- `platforms/` — backends por consola.
-- `tests/` — escenarios, trazas de referencia, regresión visual.
-- `docs/` — arquitectura, contratos, bitácora.
+- `engine/core/` — núcleo C99 portable (VM, escena, texto, capítulos) y contrato con las plataformas.
+- `platforms/` — backends: `ps1/` (PSn00bSDK), `pc/` (pruebas de host); `sdl/` y el resto según el plan.
+- `tools/` — Test Lab (`ctl`), recursos (`assetpipe`), agentes.
+- `tests/` — pruebas de host, escenarios y trazas de referencia.
+- `docs/` — API del núcleo, matriz de plataformas, descargas, bitácora.
 
-## Primer objetivo
+## Documentos
 
-Snoot Game funcionando en **PS1, PS2 y PSP** desde el mismo código de lógica y los
-mismos datos de escena.
-
-## Reglas
-
-Ver `CLAUDE.md` y `docs/ai-agent-rules.md`.
+- `PLAN.md` — plan, decisiones, contratos y fases con compuertas.
+- `STATUS.md` — en qué va el proyecto.
+- `AGENTS.md` — reglas para todos los agentes IA.
 
 ## Licencia
 
-Motor: MIT. Los ports son obras derivadas de sus juegos originales y respetan sus licencias.
+Motor: MIT. Cada port publicado es obra derivada del juego original y respeta sus licencias (Snoot y Wani:
+AGPL-3.0 para el código, CC-BY-SA 4.0 para arte y audio). Ver `PLAN.md` sección 10.

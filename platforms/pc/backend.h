@@ -1,5 +1,5 @@
 /* platforms/pc/backend.h
- * Contrato 3: backend PC para pruebas en host. Sin ventana todavia (SDL2 pendiente): lee los archivos de una
+ * Contrato C2: backend PC para pruebas en host. Sin ventana todavia (SDL2 pendiente): lee los archivos de una
  * carpeta y registra lo que se dibuja.
  */
 #ifndef VN_PLATFORM_PC_H

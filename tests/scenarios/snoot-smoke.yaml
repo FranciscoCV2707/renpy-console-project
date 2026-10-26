@@ -1,0 +1,15 @@
+# Escenario de ejemplo del Test Lab (PLAN.md seccion 4.2). Se activa en la Fase 2; la traza de referencia
+# sale en la Fase 3.
+id: snoot-smoke
+reference: tests/reference/traces/snoot/ruta-a.trace
+inputs:
+  - advance: 12
+  - choose: 2
+  - advance: 30
+expect:
+  - {ev: LABEL, name: start}
+compare:
+  events: [LABEL, SAY, SHOW, HIDE, SCENE, PLAY, STOP, MENU, CHOICE]
+  tolerance: {frames: 2}
+limits:
+  max_seconds: 300

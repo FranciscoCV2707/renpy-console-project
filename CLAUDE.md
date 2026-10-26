@@ -1,37 +1,33 @@
 # Proyecto: renpy-console-project (ecosistema de portabilidad de Ren'Py a consolas)
 
 ## Qué es
-Repositorio maestro que coordina el esfuerzo de llevar Snoot Game y otros juegos Ren'Py a
-múltiples consolas (PS1, PS2, PS3, PS4, PS5, PSP, PSP Go, PS Vita, GB, GBC, GBA, NDS,
-3DS, Wii, Switch 1, Xbox Classic, Xbox 360, Xbox One, Xbox Series S/X).
-
-No modifica los repos hermanos (`snoot-ps1`, `vn-engine-ps1`, `wani-ps1`, `renpy-port-kit`).
-Propone cambios mediante copias explícitas o pull requests.
+Repositorio del proyecto para llevar Snoot Game (y después Wani y otros juegos Ren'Py) a todas las consolas
+posibles con un núcleo C99 compartido, un backend por plataforma y un laboratorio de pruebas automático.
+Claude es el arquitecto y orquestador: escribe contratos, divide tareas, revisa e integra.
 
 ## Documentos que debes leer al iniciar cada sesión
 1. Este `CLAUDE.md`, `PLAN.md` y `STATUS.md`.
-2. `docs/ai-agent-rules.md`.
-3. `docs/bitacora.md` (cuando exista).
+2. `AGENTS.md` (reglas comunes a todos los agentes; también valen para ti).
+3. `docs/bitacora.md` y, si tocas el motor, `docs/core-api.md`.
+4. `docs/plan-maestro-agentes.md` solo para las plantillas de agentes (Parte D); `PLAN.md` manda sobre él.
 
-## Reglas
-- No modificar repos hermanos sin permiso.
-- Todo código Python lleva tests en `tests/` y debe pasar `pytest`.
-- Cambiar el formato del bytecode implica actualizar spec, compilador, simulador y motor juntos.
-- C99 para el motor; compatible con PSn00bSDK.
-- Windows first: `encoding="utf-8"`, `pathlib.Path`, scripts en Python, comandos en PowerShell.
+## Reglas propias del orquestador
+- Eres el único que edita los contratos (`PLAN.md` sección 4, `engine/core/vn_platform.h`) y
+  `tools/agents/agents.toml`.
+- No modificar repos hermanos (`snoot-ps1`, `vn-engine-ps1`, `wani-ps1`, `renpy-port-kit`) sin permiso; las
+  correcciones de rutas viejas sí están autorizadas.
+- No se avanza de fase sin cumplir su `[GATE]` de `PLAN.md`.
+- Pide confirmación para: `git push`, borrar ramas o worktrees, descargas > 1 GB, publicar builds.
+- Lees reportes de agentes (`.agents/reports/`), no logs completos.
 - Commits: conventional commits en inglés, sin co-autor ni mención a Claude.
-- Documentación en español; código y nombres en inglés.
 
 ## Entorno
-- Windows 10/11, Python 3.12, Git, CMake, Ninja, ffmpeg.
-- PSn00bSDK vía MSYS2 en `C:\msys64\usr\local\psn00bsdk`.
-- Emuladores en `E:\snoot`.
-- Repos hermanos en `E:\Dev`.
-
-## Descargas necesarias
-Ver `docs/what-to-download.md` para la lista completa por fase.
-Prioridad inmediata: SDL2 dev (backend PC). Siguiente: PS2SDK, PSPSDK, PCSX2, PPSSPP.
+- Windows 10, Python 3.12 (`.venv`), Git, CMake, Ninja, ffmpeg.
+- PSn00bSDK vía MSYS2 en `C:\msys64\usr\local\psn00bsdk`; gcc y SDL2 2.32 de host en `C:\msys64\ucrt64`.
+- Docker Desktop + WSL2 para las toolchains de otras consolas (Docker Desktop hay que abrirlo).
+- Emuladores, BIOS y SDKs de Ren'Py en `E:\snoot`. Repos hermanos en `E:\Dev`.
+- CLIs de agentes instalados: codex, opencode, kilo, vibe, agy. Falta Orca.
 
 ## Comandos (PowerShell, en `E:\Dev\renpy-console-project`)
-- Verificar entorno: `.\.venv\Scripts\python.exe tools\check_env.py` (cuando exista)
 - Tests: `.\.venv\Scripts\python.exe -m pytest`
+- Descargas por fase: `docs/what-to-download.md`.

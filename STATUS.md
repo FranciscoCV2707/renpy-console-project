@@ -1,40 +1,29 @@
 # STATUS — renpy-console-project
 
-## Fecha: 2026-10-25
-
-## Estado actual
-- Repositorio creado en `E:\Dev\renpy-console-project`.
-- Plan maestro escrito (`PLAN.md`, v0.1 extendido).
-- CLAUDE.md y reglas de agentes creadas.
-- Estructura de directorios creada (tools/, engine/, platforms/, tests/, docs/).
-- Contratos iniciales: `engine/core/vn_core.h` (Contrato 2), `platforms/pc/backend.h/.c` (Contrato 3 parcial), `tests/scenarios/snoot_intro.yaml` (Contrato 4), `docs/formats/vnscene.md` (Contrato 1).
-- Console Test Lab: esqueleto CLI en `tools/console-test-lab/cli.py`.
-- Motor base copiado en `engine/ps1-base/` (copia de `vn-engine-ps1`, solo lectura de referencia).
-- Documentación adicional: `docs/what-to-download.md`, `docs/core-api.md`, `docs/platform-matrix.md`.
-- Lista de descargas por fase documentada en `docs/what-to-download.md`.
+## Fecha: 2026-10-26
 
 ## Fase actual
-Fase 1 — Consolidar PS1 y crear referencia para PC (en progreso).
+Fase 1 — PS1 sobre el núcleo nuevo (`PLAN.md` sección 6). Fase 0 terminada.
 
 ## Hecho
-- [x] Análisis de `E:\Dev` y `E:\snoot`.
-- [x] Plan maestro con arquitectura, matriz de plataformas, contratos, roadmap, tareas.
-- [x] Estructura de directorios creada.
-- [x] Contratos iniciales escritos (headers + esqueletos).
-- [x] Motor base copiado (`engine/ps1-base/`).
-- [x] Lista de descargas y matriz de plataformas documentadas.
+- [x] Repo con git; rutas a `E:\snoot` en este repo y en los hermanos.
+- [x] Núcleo en `engine/core/`: `vm`, `scene`, `str`, `lz4` (copia exacta) y `chapter`, `text` sobre `vn_ops`.
+- [x] Contrato de plataforma `engine/core/vn_platform.h` con archivos y fuente.
+- [x] Backend PS1 (`platforms/ps1/`, compila con PSn00bSDK) y backend PC sin ventana (`platforms/pc/`).
+- [x] `pytest`: la prueba de host lleva la VM hasta el primer diálogo de Wani y lo dibuja (1 pasa).
+- [x] Plan integrado v0.2: `PLAN.md` une el v0.1 con `PLAN_MAESTRO_SNOOT_PORTS.md` (copia en
+  `docs/plan-maestro-agentes.md`); `AGENTS.md` reemplaza a `docs/ai-agent-rules.md`.
 
-## Siguiente
-- [x] Crear `docs/core-api.md` (borrador).
-- [x] Extraer a `engine/core/` los módulos sin hardware: `vm`, `scene`, `str`, `lz4`, `opcodes.h`, `vn_limits.h`.
-  Copia exacta de `ps1-base`; compilan en host con `gcc -std=c99 -Wall -Wextra -pedantic` sin avisos.
-- [x] `VnPlatformOps` ampliado con archivos y fuente (`engine/core/vn_platform.h`); `chapter` y `text` en el
-  núcleo sobre `vn_ops`.
-- [x] Backend PS1 (`platforms/ps1/backend_ps1.c`) con los módulos de hardware copiados; compila con PSn00bSDK.
-- [x] Backend PC sin ventana (archivos desde carpeta, cuenta glifos) y prueba `tests/core/test_core_host.c`:
-  pasa con los datos de Wani (`E:\Dev\wani-ps1\build\fase0`).
-- [ ] Extraer `app/main.c` (bucle, menús, guardado) y enlazar un ejecutable PS1 con este núcleo.
-- [ ] Ops de imágenes y audio cuando el núcleo las necesite (al extraer `main.c`).
-- [ ] Backend PC con SDL2 (falta descargar SDL2 dev).
-- [ ] Crear backend PC con SDL2 para pruebas rápidas.
-- [ ] No tocar repos hermanos.
+## Siguiente (pista principal)
+- [ ] T-101: mapear `vn-engine-ps1/app/main.c` y `modules/` (lógica vs PS1).
+- [ ] T-102..T-104: ampliar `VnPlatformOps`, mover `main.c` al núcleo, CMake PS1 en este repo.
+- [ ] T-105 / G1: `tests/emu/snoot.py check` idéntico a v1.0.
+
+## Siguiente (pista de agentes, `[HUMANO]`)
+- [ ] Logins de codex, opencode, kilo, vibe y agy; abrir Docker Desktop; instalar Orca.
+- [ ] Probar Beam desde México (`PLAN.md` paso A2).
+
+## Avisos
+- `psxavenc.exe` termina con 0xC0000139 al convertir audio: rompe 1 prueba de wani-ps1
+  (`tests/test_programa.py::test_real_chapter_graphics_preserve_branches_and_disc_resources`). No lo causaron los
+  cambios de rutas (falla igual sin ellos).

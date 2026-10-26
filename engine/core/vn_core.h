@@ -1,5 +1,5 @@
 /* engine/core/vn_core.h
- * Contrato 2: interfaz del nucleo compartido.
+ * Interfaz publica del nucleo (todavia sin implementar: hoy se usan vm.h, chapter.h y text.h directo).
  * El nucleo NO conoce ninguna consola. Los backends implementan VnPlatformOps.
  */
 #ifndef VN_CORE_H
@@ -7,7 +7,7 @@
 
 #include <stddef.h>
 
-#include "vn_platform.h"   /* VnPlatformCaps, VnPlatformOps (Contrato 3) */
+#include "vn_platform.h"   /* VnPlatformCaps, VnPlatformOps (Contrato C2) */
 
 /* Contexto opaco del nucleo. */
 typedef struct VnContext VnContext;
@@ -25,7 +25,7 @@ int        vn_load_scene(VnContext *ctx, const char *scene_id);
 int        vn_step(VnContext *ctx);          /* avanza un frame/linea */
 void       vn_shutdown(VnContext *ctx);
 
-/* Helpers de log estructurado (Contrato: logs [ENGINE]). */
+/* Log del nucleo; las trazas siguen el protocolo TRACE (PLAN.md seccion 4.1). */
 void vn_log(VnContext *ctx, const char *fmt, ...);
 
 #endif /* VN_CORE_H */

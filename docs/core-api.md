@@ -1,4 +1,4 @@
-# Core API — Contrato 2 (núcleo compartido)
+# Core API — Contrato C2 (núcleo y plataforma)
 
 > Basado en `engine/ps1-base/core/` (copia de `vn-engine-ps1`). El núcleo NO conoce ninguna consola.
 
@@ -21,9 +21,10 @@
 | Límites | `vn_limits.h` | Topes de memoria (VNB 96 KiB, texto 96 KiB) |
 | OpCodes | `opcodes.h` | Definición de opcodes VNB |
 
-## Interfaz pública (a extraer)
+## Interfaz pública (pendiente)
 
-El núcleo expone (ver `engine/core/vn_core.h`):
+`engine/core/vn_core.h` declara esta API, pero aún no está implementada: hoy el anfitrión usa `vm.h`,
+`chapter.h` y `text.h` directamente. Se define al mover `main.c` (T-103).
 
 ```c
 VnContext *vn_init(const VnPlatformOps *ops, const VnConfig *cfg);
@@ -50,13 +51,10 @@ El backend activo se fija con `vn_platform_set(ops)` al arrancar; el núcleo lo 
 Hoy el núcleo solo llama a archivos y fuente. Las demás quedan en `NULL` en el backend PS1 hasta que un módulo del
 núcleo las necesite (no se adivina su semántica).
 
-## Tareas de extracción (Fase 1)
+## Tareas de extracción
 
-1. Copiar `engine/ps1-base/core/` a `engine/core/`.
-2. Reemplazar llamadas directas a hardware PS1 por callbacks `VnPlatformOps`.
-3. Eliminar dependencias de PSn00bSDK del núcleo (mover a backend).
-4. Compilar el núcleo para PC (SDL2) y probar.
-5. Documentar cada función pública en este archivo.
+Ver `PLAN.md` Fase 1 (T-101..T-105): mapear `main.c` y `modules/`, ampliar `VnPlatformOps`, mover `main.c` al
+núcleo, CMake PS1 en este repo y regresión contra v1.0.
 
 ## Estado de la extracción
 

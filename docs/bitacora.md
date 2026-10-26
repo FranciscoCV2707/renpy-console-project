@@ -19,3 +19,12 @@
   (copia de 947cb3b).
 - `.venv` con Python 3.12 y pytest; `pytest.ini` limita las pruebas a `tests/`. `tests/test_core_host.py` compila
   y corre la prueba de host: 1 pasa.
+- Plan integrado v0.2: `PLAN.md` reescrito uniendo el v0.1 y `E:\Dev\PLAN_MAESTRO_SNOOT_PORTS.md` v2.0 (copiado
+  sin cambios a `docs/plan-maestro-agentes.md`). Decisiones clave: este repo es el del proyecto, VNB es el formato
+  intermedio (se descartan SnootIR y VNSCENE), backend SDL2 compartido, Docker para toolchains, TRACE + Test Lab
+  CLI, agentes en paralelo desde la Fase 4. `AGENTS.md` reemplaza a `docs/ai-agent-rules.md`; se borraron
+  `docs/formats/vnscene.md`, el stub `tools/console-test-lab` y las carpetas vacías.
+- Rutas `Path.home() / "Desktop" / "snoot"` (no las tomó el script anterior) cambiadas a `E:\snoot`:
+  snoot-ps1 4385f4c (`emutest.py`, `audit/capture.py`), wani-ps1 81c56d8 (`playtest.py`), renpy-port-kit d395512
+  (`paths.py`). Kit 404 pasan; snoot-ps1 59 pasan; wani-ps1 146 pasan y 1 falla por `psxavenc.exe` 0xC0000139
+  (falla igual antes del cambio).

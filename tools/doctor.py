@@ -6,12 +6,15 @@ import argparse
 import shutil
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+AGENTS_TOML = ROOT / "tools" / "agents" / "agents.toml"
 
 # (nombre, ejecutable, args, obligatorio)
 CHECKS = [
     ("Git", "git", ["--version"], True),
-    ("Python", "python", ["--version"], True),
     ("Node.js", "node", ["--version"], True),
     ("npm", "npm", ["--version"], True),
     ("uv", "uv", ["--version"], True),
@@ -30,15 +33,7 @@ CHECKS = [
     ("Kilo CLI", "kilo", ["--version"], True),
     ("Mistral Vibe", "vibe", ["--version"], True),
     ("Antigravity CLI", "agy", ["--version"], False),
-    ("Orca CLI", r"C:\Users\Pako\AppData\Local\Programs\orca\resources\bin\orca.exe", ["status", "--json"], False),
-]
-
-SMOKE = [
-    ("Beam", ["opencode", "run", "-m", "opencode-go/beam-free", "Responde solo: OK"]),
-    ("Codex", ["codex", "exec", "Responde solo: OK"]),
-    ("Kilo", ["kilo", "run", "--auto", "Responde solo: OK"]),
-    ("Vibe", ["vibe", "--prompt", "Responde solo: OK", "--max-turns", "1"]),
-    ("Claude", ["claude", "-p", "Responde solo: OK"]),
+    ("Orca CLI", r"C:\Users\Pako\AppData\Local\Programs\orca\resources\bin\orca.exe", ["--version"], False),
 ]
 
 PATH_CHECKS = [
@@ -58,6 +53,9 @@ def run(cmd: list[str], timeout: int = 30) -> tuple[int, str]:
         p = subprocess.run(
             [exe, *cmd[1:]],
             capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
             stdin=subprocess.DEVNULL,
         )
@@ -65,13 +63,7 @@ def run(cmd: list[str], timeout: int = 30) -> tuple[int, str]:
         return 124, f"timeout tras {timeout}s"
     except OSError as exc:
         return 126, str(exc)
-    out = p.stdout
-    err = p.stderr
-    if isinstance(out, (bytes, bytearray)):
-        out = out.decode("utf-8", errors="replace")
-    if isinstance(err, (bytes, bytearray)):
-        err = err.decode("utf-8", errors="replace")
-    text = ((out or "") + "\n" + (err or "")).replace("\x00", "").strip()
+    text = ((p.stdout or "") + "\n" + (p.stderr or "")).replace("\x00", "").strip()
     return p.returncode, text
 
 
@@ -81,6 +73,40 @@ def _pcsx_path() -> Path:
     if matches:
         return matches[0]
     return base / "pcsx-redux.exe"
+
+
+def _fill_placeholders(cmd: list) -> list:
+    prompt = "Responde solo: OK"
+    worktree = str(ROOT)
+    gitdir = str(ROOT / ".git")
+    out = []
+    for part in cmd:
+        if isinstance(part, str):
+            part = (
+                part.replace("{prompt}", prompt)
+                .replace("{worktree}", worktree)
+                .replace("{gitdir}", gitdir)
+            )
+        out.append(part)
+    return out
+
+
+def load_smoke_commands() -> list[tuple[str, list]]:
+    try:
+        with AGENTS_TOML.open("rb") as f:
+            cfg = tomllib.load(f)
+    except (OSError, tomllib.TOMLDecodeError):
+        return []
+    result: list[tuple[str, list]] = []
+    for name, agent in (cfg.get("agents") or {}).items():
+        cmd = agent.get("cmd")
+        if not cmd:
+            continue
+        result.append((name, _fill_placeholders(list(cmd))))
+    return result
+
+
+SMOKE = load_smoke_commands()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -112,12 +138,12 @@ def main(argv: list[str] | None = None) -> int:
     if code != 0:
         missing_required.append("Docker daemon")
 
-    code, out = run(["git", "config", "--global", "core.longpaths"])
+    _, out = run(["git", "config", "--global", "core.longpaths"])
     longpaths = (out or "").strip()
     mark = "OK " if longpaths == "true" else "aviso"
     print(f"[{mark}] git core.longpaths = {longpaths or '(sin definir)'}")
 
-    code, out = run(["opencode", "models"], timeout=60)
+    _, out = run(["opencode", "models"], timeout=60)
     has_beam = "beam-free" in (out or "")
     mark = "OK " if has_beam else "aviso"
     print(f"[{mark}] Beam listado en opencode-go: {'si' if has_beam else 'no'}")

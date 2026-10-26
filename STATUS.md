@@ -28,7 +28,7 @@ Fase 2 — TRACE y Test Lab sobre PS1. Fase 1 terminada: G1 cumplida el 2026-10-
 - [x] Docker Desktop 28.5.1 en marcha.
 - [x] Plugins de Claude: `clangd-lsp` y `pyright-lsp` (con clangd y pyright instalados). Superpowers descartado.
 - [x] A4 / GA: prueba de humo de los 10 agentes en verde (ramas `agent/*/T-001..T-010`).
-- [ ] Primera oleada de 5 Beam: T-101, T-202, T-205, T-301, T-402 (PLAN.md sección 8).
+- [x] Primera oleada: T-101, T-202, T-205, T-206, T-301, T-402 fusionadas (T-301 escaló a Kilo; T-202 lo terminó Claude).
 
 ## Avisos
 - `psxavenc.exe` termina con 0xC0000139 al convertir audio: rompe 1 prueba de wani-ps1

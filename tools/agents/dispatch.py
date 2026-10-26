@@ -34,7 +34,7 @@ CMD_UNSAFE = set('&|<>^%"\r\n')
 RATE_LIMIT_HINTS = ("429 too many requests", "status code 429", "http 429", "error 429", "rate limit exceeded",
                     "rate_limit_exceeded", "ratelimiterror", "rate limit reached",
                     "timed out waiting for response headers")
-PYTHON = ROOT / ".venv" / "Scripts" / "python.exe"
+PYTHON = Path(sys.executable)
 TEXT_SUFFIXES = {".py", ".c", ".h", ".md", ".toml", ".yaml", ".yml", ".txt", ".rpy", ".json", ".cmake"}
 FIX_PROMPT = ("Eres el agente {agent} del proyecto renpy-console-project. Ya trabajaste la tarea {task} en este "
               "directorio, pero el despachador encontro problemas. Lee .agents/inbox/{task}-fix.md, corrige cada "

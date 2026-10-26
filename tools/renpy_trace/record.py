@@ -18,10 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PORT_KIT = Path("E:/Dev/renpy-port-kit")
-DEFAULT_SNOOT_FOLDER = DEFAULT_PORT_KIT / "juegos" / "snoot"
 DEFAULT_BUILD_DIR = ROOT / "build" / "renpy" / "snoot"
 DEFAULT_TRACE_DIR = ROOT / "tests" / "reference" / "traces" / "snoot"
-DEFAULT_ROUTES = DEFAULT_SNOOT_FOLDER / "reporte" / "rutas.json"
 HOOK = Path(__file__).with_name("trace_hook.rpy")
 
 __all__ = [

@@ -34,3 +34,8 @@
   `agy -p` 1.4.7 responde sin terminal. 5 skills propias en `.agents/skills/` adaptadas a VNB y a las rutas reales,
   3 subagentes en `.claude/agents/`, plantillas, `agents.toml` con flags verificados con `--help`, `dispatch.py` y
   `sync_skills.py` con 8 pruebas. `npx skills` no se pudo correr (código externo bloqueado por permisos).
+- Orca: las skills de Codex, OpenCode, Kilo, Vibe y MiMo van a `~/.agents/skills` (carpeta compartida), por eso
+  Orca solo mostraba enlaces para Claude y Antigravity. Los 6 agentes arrancan con `orca agent launch`. Codex fallaba
+  por `service_tier = "default"` en `~/.codex/config.toml` (se quitó la línea) y Orca usaba Codex 0.128 y OpenCode
+  1.14.33 viejos de `AppData\Roaming\npm` (Orca pone esa carpeta antes que `C:\nvm4w\nodejs`); se desinstalaron con
+  permiso del usuario. Ahora Orca lanza Codex 0.164 y OpenCode 2.1.4. Repo agregado a Orca.

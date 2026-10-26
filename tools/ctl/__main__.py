@@ -37,8 +37,8 @@ def main(argv=None) -> int:
         return 2
 
     if args.command == "compare":
-        from .scenario import load_scenario, ScenarioError
-        from .trace import compare_scenario, TraceParseError
+        from .scenario import load_scenario
+        from .trace import compare_scenario
         from .report import write_report
 
         try:
@@ -64,7 +64,7 @@ def main(argv=None) -> int:
         return 0 if result.equal else 1
 
     if args.command == "report":
-        from .scenario import load_scenario, ScenarioError
+        from .scenario import load_scenario
         from .report import write_report
 
         scen = None

@@ -192,6 +192,7 @@ def run(profile: str, game, out) -> dict:
             with Image.open(src) as img:
                 img = img.copy()
                 img.thumbnail(prof["image_size"], Image.LANCZOS)
+                img.info.clear()
                 img.save(dst, format="PNG")
         elif kind == "audio" and prof.get("audio_rate") is not None:
             subprocess.run(

@@ -351,6 +351,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-606 | 6 | agy | PS4 con el backend SDL (OpenOrbis en Docker) | T-R01 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |
+| T-702 | 7 | codex | Empaquetador de recursos de GBA (LZ77, modo 4, PCM 8 kHz) | T-701 |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 
 **Primera oleada de Beam (5 en paralelo, tras la prueba de humo):** T-101, T-202, T-205, T-301, T-402; T-206 entra

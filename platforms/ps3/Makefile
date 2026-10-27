@@ -20,17 +20,15 @@ OFILES = $(OBJS)
 
 include $(PSL1GHT)/ppu_rules
 
-PORTLIBS ?= $(PS3DEV)/portlibs/ppu
-
 INCLUDES = -I/src/engine/core -I/src/engine/platform -I/src/engine/app \
            -I/src/engine/modules -I/src/games/snoot -I/src/platforms/sdl \
            -I$(BUILDDIR)/generated $(LIBPSL1GHT_INC) \
-           -I$(PORTLIBS)/include -I$(PORTLIBS)/include/SDL2
+           -I$(BUILDDIR)/sdl2/include -I$(BUILDDIR)/sdl2/include/SDL2
 
 CFLAGS = $(MACHDEP) -std=c99 -Wall -Wextra -Wno-unused-parameter -pedantic -O2 \
          -D__PSL1GHT__ $(INCLUDES)
 LDFLAGS = $(MACHDEP) -Wl,-q
-LIBS = -L$(PORTLIBS)/lib -lSDL2 -lm -lgcm_sys -lrsx -lsysutil -lio -laudio \
+LIBS = -L$(BUILDDIR)/sdl2/lib -lSDL2 -lm -lgcm_sys -lrsx -lsysutil -lio -laudio \
        -lrt -llv2 $(LIBPSL1GHT_LIB)
 
 all: snoot.self snoot.pkg

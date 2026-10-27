@@ -27,6 +27,10 @@ GAME_DIR = RPCS3_DIR / "dev_hdd0" / "game" / GAME_ID
 DATA_DIR = GAME_DIR / "USRDIR" / "data"
 EBOOT = GAME_DIR / "USRDIR" / "EBOOT.BIN"
 TTY_LOG = RPCS3_DIR / "log" / "TTY.log"
+# RPCS3 no corre el juego en tiempo real: el puerto SDL2 de PSL1GHT solo tiene renderer software y el
+# guion avanza por cuadros de juego, asi que el plazo del escenario (max_seconds, pensado para consolas
+# en tiempo real) se escala por este factor.
+TIMEOUT_FACTOR = 8
 
 
 def extract_trace(log: str) -> str:
@@ -88,7 +92,7 @@ def run_scenario(scenario, out: Path) -> Path:
     # AUTOTEST, que detiene la emulacion. Si no sale, lo corta limits.max_seconds.
     proc = subprocess.Popen([str(RPCS3_EXE), "--no-gui", str(EBOOT.resolve())],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    deadline = time.monotonic() + scenario.limits.max_seconds
+    deadline = time.monotonic() + scenario.limits.max_seconds * TIMEOUT_FACTOR
     while proc.poll() is None and time.monotonic() < deadline:
         time.sleep(1)
     if proc.poll() is None:

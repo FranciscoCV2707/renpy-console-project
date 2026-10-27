@@ -1,16 +1,21 @@
 """Arranca ``build/ds/snoot.nds`` en melonDS 1.1 y guarda una captura de las dos pantallas.
 
 Las opciones de línea de comandos de melonDS 1.1 (``melonDS.exe --help``) no incluyen captura de
-pantalla, así que se trae la ventana al frente, se captura con ``PIL.ImageGrab`` y se recortan las
-dos pantallas: la de abajo se localiza por su color de fondo y la de arriba va justo encima (el
-layout por defecto de melonDS es vertical sin hueco, a escala 1:1). La salida es
-``build/ds/snoot-screens.png``, con la pantalla de arriba (256x192) sobre la de abajo (256x192).
+pantalla, así que se captura el área cliente con ``PrintWindow`` (PW_CLIENTONLY). La barra de menú de
+melonDS 1.1 se dibuja dentro del área cliente (Qt) y su alto no es el que melonDS reserva al tamaño de
+la ventana: en este anfitrión mide 53 px, no 22, y con el tamaño por defecto la pantalla inferior queda
+cortada. Por eso el alto se mide: al arranque ambas pantallas son negras y la barra es clara, así que la
+primera fila oscura es el inicio de la pantalla superior; con esa medida se agranda la ventana para que
+el cliente mida 256 x (barra + 384) y las pantallas quedan exactamente en las últimas 384 filas, que es
+lo que se recorta. La salida es ``build/ds/snoot-screens.png``: la pantalla de arriba (256x192) sobre la
+de abajo (256x192), sin barra de menú ni marco.
 """
 
 from __future__ import annotations
 
 import ctypes
 import ctypes.wintypes
+import struct
 import subprocess
 import time
 from pathlib import Path
@@ -22,13 +27,15 @@ MELONDS = Path("E:/snoot/melonds-1.1/melonDS.exe")
 ROM = ROOT / "build" / "ds" / "snoot.nds"
 OUT = ROOT / "build" / "ds" / "snoot-screens.png"
 BOOT_SECONDS = 10
+MEASURE_SECONDS = 4
 SCREEN_WIDTH = 256
 SCREEN_HEIGHT = 192
-SWP_NOSIZE = 0x0001
-SWP_NOMOVE = 0x0002
-# Fondo de la pantalla inferior en main.c: ARGB16(1, 4, 6, 12) convertido a 8 bits por canal.
-BOTTOM_COLOR = (33, 49, 99)
-COLOR_TOLERANCE = 6
+SCREEN_ROWS = SCREEN_HEIGHT * 2
+DARK_ROW_MEAN = 128
+PW_CLIENTONLY = 2
+SWP_NOMOVE = 0x0004
+WM_CLOSE = 0x0010
+MAX_MEASURE_TRIES = 10
 
 
 def find_window(pid: int) -> int:
@@ -53,37 +60,10 @@ def find_window(pid: int) -> int:
     return found[0]
 
 
-def screen_rects(shot: Image.Image) -> tuple[tuple[int, int, int, int], tuple[int, int, int, int]]:
-    width, height = shot.size
-    pixels = shot.load()
-    row_hits = [0] * height
-    for y in range(height):
-        for x in range(width):
-            color = pixels[x, y]
-            if all(abs(color[channel] - BOTTOM_COLOR[channel]) <= COLOR_TOLERANCE for channel in range(3)):
-                row_hits[y] += 1
-    rows = [y for y in range(height) if row_hits[y] * 4 >= SCREEN_WIDTH * 3]
-    if not rows:
-        raise RuntimeError("no se encontró la pantalla inferior en la captura")
-    col_hits = [0] * width
-    for y in range(rows[0], rows[-1] + 1):
-        for x in range(width):
-            color = pixels[x, y]
-            if all(abs(color[channel] - BOTTOM_COLOR[channel]) <= COLOR_TOLERANCE for channel in range(3)):
-                col_hits[x] += 1
-    columns = [x for x in range(width) if col_hits[x] * 4 >= (rows[-1] - rows[0] + 1) * 3]
-    if not columns:
-        raise RuntimeError("no se encontró la pantalla inferior en la captura")
-    bottom = (columns[0], rows[0], columns[-1] + 1, rows[-1] + 1)
-    if (bottom[2] - bottom[0], bottom[3] - bottom[1]) != (SCREEN_WIDTH, SCREEN_HEIGHT):
-        raise RuntimeError("la pantalla inferior de la captura no mide 256x192")
-    top = (columns[0], rows[0] - SCREEN_HEIGHT, columns[-1] + 1, rows[0])
-    return top, bottom
-
-
-def grab_window(hwnd: int) -> Image.Image:
+def grab_client(pid: int) -> Image.Image:
     user32 = ctypes.windll.user32
     gdi32 = ctypes.windll.gdi32
+    hwnd = find_window(pid)
 
     rect = ctypes.wintypes.RECT()
     user32.GetClientRect(hwnd, ctypes.byref(rect))
@@ -95,11 +75,9 @@ def grab_window(hwnd: int) -> Image.Image:
     hbm = gdi32.CreateCompatibleBitmap(hdc_window, w, h)
     gdi32.SelectObject(hdc_mem, hbm)
 
-    pw_clientonly = 2
-    user32.PrintWindow(hwnd, hdc_mem, pw_clientonly)
+    user32.PrintWindow(hwnd, hdc_mem, PW_CLIENTONLY)
 
     bmp_info = ctypes.create_string_buffer(40)
-    import struct
     struct.pack_into("<IiiHHIIIIII", bmp_info, 0, 40, w, -h, 1, 32, 0, w * h * 4, 0, 0, 0, 0)
     buf = ctypes.create_string_buffer(w * h * 4)
     gdi32.GetDIBits(hdc_mem, hbm, 0, h, buf, bmp_info, 0)
@@ -108,8 +86,44 @@ def grab_window(hwnd: int) -> Image.Image:
     gdi32.DeleteDC(hdc_mem)
     user32.ReleaseDC(hwnd, hdc_window)
 
-    im = Image.frombuffer("RGBA", (w, h), buf, "raw", "BGRA", 0, 1)
-    return im.convert("RGB")
+    return Image.frombuffer("RGBA", (w, h), buf, "raw", "BGRA", 0, 1).convert("RGB")
+
+
+def measure_menubar_rows(shot: Image.Image) -> int:
+    """Alto de la barra de menú: primera fila oscura del área cliente (al arranque las pantallas son negras)."""
+    w, h = shot.size
+    pixels = shot.load()
+    for y in range(1, h):
+        mean = sum(sum(pixels[x, y]) for x in range(0, w, 4)) / (w / 4 * 3)
+        if mean < DARK_ROW_MEAN:
+            return y
+    raise RuntimeError("no se pudo medir la barra de menú: no hay filas osuras en la ventana")
+
+
+def resize_client(pid: int, client_height: int) -> None:
+    """Agranda la ventana para que el área cliente mida 256 x client_height (la barra más las dos pantallas)."""
+    user32 = ctypes.windll.user32
+    hwnd = find_window(pid)
+
+    outer = ctypes.wintypes.RECT()
+    rect = ctypes.wintypes.RECT()
+    user32.GetWindowRect(hwnd, ctypes.byref(outer))
+    user32.GetClientRect(hwnd, ctypes.byref(rect))
+    chrome_x = (outer.right - outer.left) - (rect.right - rect.left)
+    chrome_y = (outer.bottom - outer.top) - (rect.bottom - rect.top)
+    user32.SetWindowPos(hwnd, 0, 0, 0, SCREEN_WIDTH + chrome_x, client_height + chrome_y, SWP_NOMOVE)
+    time.sleep(0.5)
+
+
+def close_melonds(process: subprocess.Popen) -> None:
+    user32 = ctypes.windll.user32
+    try:
+        hwnd = find_window(process.pid)
+        user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+        process.wait(timeout=6)
+    except (RuntimeError, subprocess.TimeoutExpired):
+        process.terminate()
+        process.wait()
 
 
 def capture(out_path: Path | None = None, boot_seconds: int = BOOT_SECONDS) -> Path:
@@ -117,36 +131,28 @@ def capture(out_path: Path | None = None, boot_seconds: int = BOOT_SECONDS) -> P
     ctypes.windll.user32.SetProcessDPIAware()
     process = subprocess.Popen([str(MELONDS), str(ROM)])
     try:
-        time.sleep(boot_seconds)
-        hwnd = find_window(process.pid)
-        shot = grab_window(hwnd)
+        time.sleep(MEASURE_SECONDS)
+        menubar_rows = 0
+        for _ in range(MAX_MEASURE_TRIES):
+            shot = grab_client(process.pid)
+            try:
+                menubar_rows = measure_menubar_rows(shot)
+            except RuntimeError:
+                time.sleep(1)
+                continue
+            break
+        if not menubar_rows:
+            raise RuntimeError("no se pudo medir la barra de menú de melonDS")
+        resize_client(process.pid, menubar_rows + SCREEN_ROWS)
+        time.sleep(max(0, boot_seconds - MEASURE_SECONDS))
+        shot = grab_client(process.pid)
     finally:
-        user32 = ctypes.windll.user32
-        WM_CLOSE = 0x0010
-        try:
-            hwnd = find_window(process.pid)
-            if hwnd:
-                user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
-            process.wait(timeout=5)
-        except (RuntimeError, subprocess.TimeoutExpired):
-            process.terminate()
-            process.wait()
+        close_melonds(process)
 
     w, h = shot.size
-    if w == SCREEN_WIDTH and h == SCREEN_HEIGHT * 2 + 22:
-        top_crop = shot.crop((0, 22, SCREEN_WIDTH, SCREEN_HEIGHT + 22))
-        bot_crop = shot.crop((0, SCREEN_HEIGHT + 22, SCREEN_WIDTH, h))
-    elif w == SCREEN_WIDTH and h == SCREEN_HEIGHT * 2:
-        top_crop = shot.crop((0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
-        bot_crop = shot.crop((0, SCREEN_HEIGHT, SCREEN_WIDTH, h))
-    else:
-        top_rect, bottom_rect = screen_rects(shot)
-        top_crop = shot.crop(top_rect)
-        bot_crop = shot.crop(bottom_rect)
-
-    screens = Image.new("RGB", (SCREEN_WIDTH, SCREEN_HEIGHT * 2))
-    screens.paste(top_crop, (0, 0))
-    screens.paste(bot_crop, (0, SCREEN_HEIGHT))
+    if w != SCREEN_WIDTH or h != menubar_rows + SCREEN_ROWS:
+        raise RuntimeError(f"el área cliente mide {w}x{h}, se esperaba {SCREEN_WIDTH}x{menubar_rows + SCREEN_ROWS}")
+    screens = shot.crop((0, h - SCREEN_ROWS, SCREEN_WIDTH, h))
     out.parent.mkdir(parents=True, exist_ok=True)
     screens.save(out)
     return out

@@ -70,10 +70,24 @@ contenedor y deja el ROM en `build/ds/snoot.nds`.
     (<https://github.com/melonDS-emu/melonDS/pull/2523>).
   - README: <https://github.com/melonDS-emu/melonDS#how-to-use> ("Firmware boot (not direct boot) requires a
     BIOS/firmware dump from an original DS or DS Lite").
-- Captura de las dos pantallas: `platforms/ds/capture.py`. Como melonDS 1.1 no captura por CLI, el script trae
-  la ventana al frente, captura con `PIL.ImageGrab` y recorta las dos pantallas localizando la de abajo por su
-  color de fondo (layout por defecto: vertical, sin hueco, escala 1:1). Salida: `build/ds/snoot-screens.png`
-  (arriba 256×192, debajo 256×192).
+- Captura de las dos pantallas: `platforms/ds/capture.py`. Como melonDS 1.1 no captura por CLI, el script captura el
+  área cliente con `PrintWindow` (PW_CLIENTONLY). La barra de menú de melonDS 1.1 se dibuja dentro del área cliente
+  (Qt) y su alto no es el que melonDS reserva al crear la ventana: en este anfitrión mide 53 px, no 22, así que el
+  tamaño por defecto (256×406) corta 31 filas de la pantalla inferior. El alto se mide en cada captura: al arranque
+  ambas pantallas son negras y la barra es clara, así que la primera fila oscura del cliente es el inicio de la
+  pantalla superior; con esa medida se agranda la ventana a cliente 256×(barra+384) y las pantallas quedan
+  exactamente en las últimas 384 filas, que es lo que se recorta. Salida: `build/ds/snoot-screens.png`
+  (arriba 256×192, debajo 256×192, sin barra ni marco).
+- Para capturar un momento concreto de un diálogo se usa un AUTOTEST con pasos absolutos (`steps` del escenario,
+  `tools/ctl/autotest.py`): compilar con `build(trace=True, autotest_path=...)` (la traza mide el momento: tras
+  `SCENE|img=...` llega el `SAY` con fondo), dejar que el guion agote las pulsaciones y capturar la ventana con el
+  recorte de arriba. En chapter_x2, 24 `press CROSS` a 45 cuadros desde el 800 dejan el juego en el SAY 13
+  (`who=3;text=13290`, fondo `img=293`), confirmado leyendo `sd/trace.txt` tras cerrar melonDS.
+- Ojo con el DLDI: `cd_find` prueba `nitro:/` y luego `fat:/`, y melonDS sincroniza la carpeta `[DLDI]` completa. Un
+  `AUTOTEST.BIN` viejo que quede en la carpeta de la SD hace que la ROM "limpia" repita ese recorrido. Usa una
+  carpeta vacía para el título.
+- melonDS corre el juego a ~60 cuadros por segundo de tiempo real aunque `LimitFPS = false`: los pasos absolutos
+  están en cuadros del juego, así que un recorrido de 2000 cuadros tarda ~33 s de reloj, no instantáneo.
 
 ## Traza por DLDI en melonDS 1.1 (T-709)
 

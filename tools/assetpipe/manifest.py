@@ -142,6 +142,13 @@ def build_manifest(profile: str, game_dir, resources: Iterable, language: str | 
     }
 
 
+def _probe_duration(path) -> float:
+    """Duracion en segundos del audio con ffprobe (formato=duration)."""
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
+                         capture_output=True, text=True, check=True).stdout
+    return float(out)
+
+
 def convert_resources(profile: dict, game_dir: Path, out_dir: Path, resources: Iterable,
                       language: str | None = None) -> dict:
     """Reduce los recursos segun el perfil; devuelve el manifiesto con ``source`` por recurso y ``skipped``."""
@@ -152,18 +159,24 @@ def convert_resources(profile: dict, game_dir: Path, out_dir: Path, resources: I
             skipped.append({"source": rel.as_posix()})
             continue
         src = source_file(game_dir, rel, language)
-        out_rel = rel.with_suffix({"image": ".png", "audio": ".wav"}.get(kind, rel.suffix))
+        if kind == "audio":
+            # D18: lo largo es musica (OGG Vorbis), lo corto efecto o UI (WAV PCM)
+            kind = "music" if _probe_duration(src) > profile["music_threshold"] else "sound"
+        out_rel = rel.with_suffix({"image": ".png", "music": ".ogg", "sound": ".wav"}.get(kind, rel.suffix))
         dst = out_dir / out_rel
         dst.parent.mkdir(parents=True, exist_ok=True)
+        ffmpeg = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(src), "-map_metadata", "-1", "-bitexact"]
         if kind == "image":
             # thumbnail no agranda; sin info (metadatos) el PNG sale igual byte a byte
             with Image.open(src) as img:
                 img.thumbnail(profile["image_size"], Image.LANCZOS)
                 img.info.clear()
                 img.save(dst, format="PNG")
-        elif kind == "audio":
-            subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(src), "-map_metadata", "-1",
-                            "-bitexact", "-ar", str(profile["audio_rate"]), "-ac", str(profile["audio_channels"]),
+        elif kind == "music":
+            subprocess.run([*ffmpeg, "-ar", str(profile["music_rate"]), "-ac", str(profile["music_channels"]),
+                            "-c:a", "libvorbis", "-q:a", str(profile["music_quality"]), str(dst)], check=True)
+        elif kind == "sound":
+            subprocess.run([*ffmpeg, "-ar", str(profile["audio_rate"]), "-ac", str(profile["audio_channels"]),
                             "-sample_fmt", "s16", str(dst)], check=True)
         else:
             shutil.copyfile(src, dst)

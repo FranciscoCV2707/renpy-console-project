@@ -109,7 +109,7 @@ def _make_console_game(tmp_path: Path) -> Path:
     return game
 
 
-@pytest.mark.parametrize("profile, size, rate, channels", [("psp", (480, 270), 22050, 1), ("ps2", (640, 360), 44100, 2)])
+@pytest.mark.parametrize("profile, size, rate, channels", [("psp", (480, 270), 22050, 1), ("ps2", (640, 360), 22050, 1)])
 def test_console_profiles_reduce_resources(tmp_path, profile, size, rate, channels):
     import wave
 
@@ -146,3 +146,50 @@ def test_language_uses_translated_files(tmp_path):
     assert not any(r["path"].startswith("tl/") for r in manifest["resources"])
     with pytest.raises(ValueError, match="traduccion fr"):
         run("pc", game, tmp_path / "out2", "fr")
+
+
+def _make_audio_duration_game(tmp_path: Path) -> Path:
+    game = tmp_path / "game"
+    (game / "audio").mkdir(parents=True)
+    subprocess.run(
+        ["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i",
+         "sine=frequency=440:duration=15", "-c:a", "libvorbis", str(game / "audio" / "long.ogg")],
+        check=True,
+    )
+    subprocess.run(
+        ["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i",
+         "sine=frequency=440:duration=1", str(game / "audio" / "short.ogg")],
+        check=True,
+    )
+    return game
+
+
+@pytest.mark.parametrize("profile", ["psp", "ps2"])
+def test_console_audio_split_by_duration(tmp_path, profile):
+    import wave
+
+    from tools.assetpipe.manifest import run
+
+    game = _make_audio_duration_game(tmp_path)
+    out = tmp_path / "out"
+    manifest = run(profile, game, out)
+    by_source = {r["source"]: r for r in manifest["resources"]}
+    assert by_source["audio/long.ogg"]["kind"] == "music"
+    assert by_source["audio/long.ogg"]["path"] == "audio/long.ogg"
+    assert by_source["audio/short.ogg"]["kind"] == "sound"
+    assert by_source["audio/short.ogg"]["path"] == "audio/short.wav"
+    assert (out / "audio" / "long.ogg").is_file()
+    assert (out / "audio" / "short.wav").is_file()
+    with wave.open(str(out / "audio" / "short.wav")) as w:
+        assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (22050, 1, 2)
+    # OGG de musica: 44100 Hz estereo
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries",
+         "stream=sample_rate,channels", "-of", "csv=p=0", str(out / "audio" / "long.ogg")],
+        capture_output=True, text=True, check=True,
+    )
+    assert probe.stdout.strip() == "44100,2"
+    # determinismo del manifest
+    out2 = tmp_path / "out2"
+    run(profile, game, out2)
+    assert (out / "manifest.json").read_bytes() == (out2 / "manifest.json").read_bytes()

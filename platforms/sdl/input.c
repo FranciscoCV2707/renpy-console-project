@@ -1,6 +1,6 @@
 #include "input.h"
+#include "sdl_target.h"
 #include "video.h"
-#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,14 +12,14 @@ static int count, choice_at, frame;
 static uint8_t done[2800];
 static uint16_t cur, prev;
 static int shot_pending;
-#ifndef __PSP__
+#if SDL_TARGET_HAS_GAME_CONTROLLER
 static SDL_GameController *controller;
 #endif
 extern void sdl_shot_request(void);
 void input_init(int card)
 {
 	(void)card;
-#ifndef __PSP__
+#if SDL_TARGET_HAS_GAME_CONTROLLER
 	if (SDL_NumJoysticks() > 0 && SDL_IsGameController(0))
 		controller = SDL_GameControllerOpen(0);
 #endif
@@ -66,7 +66,7 @@ void input_update(void)
 	KEY(SDLK_F1, BTN_START);
 	KEY(SDLK_F2, BTN_SELECT);
 #undef KEY
-#ifndef __PSP__
+#if SDL_TARGET_HAS_GAME_CONTROLLER
 	if (controller) {
 		SDL_GameControllerUpdate();
 #define PAD(button, bit)                                                                                               \

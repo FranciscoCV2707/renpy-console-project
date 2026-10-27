@@ -1,16 +1,10 @@
 #include "save.h"
+#include "sdl_target.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 
-#ifdef __PSP__
-static char dir[512] = "ms0:/PSP/GAME/SNOOT/SAVE";
-#elif defined(__vita__)
-static char dir[512] = "ux0:data/snoot/save";
-#else
-static char dir[512] = "build/pc/save";
-#endif
+static char dir[512] = SDL_TARGET_SAVE_DIR;
 static unsigned seq;
 static int last = -1;
 static unsigned checksum(const uint8_t *p)
@@ -95,11 +89,7 @@ SaveResult save_write(uint8_t *d)
 		char *slash = strrchr(folder, '/');
 		if (slash) {
 			*slash = 0;
-#if defined(__PSP__) || defined(__vita__)
-			mkdir(folder, 0777);
-#else
-			mkdir(folder);
-#endif
+			make_dir(folder);
 		}
 	}
 	f = fopen(p, "wb");

@@ -1,6 +1,6 @@
 #include "video.h"
 
-#include <SDL2/SDL.h>
+#include "sdl_target.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,30 +24,12 @@ static int shot_requested, shot_number;
 static int output_w = SCREEN_W, output_h = SCREEN_H;
 void sdl_snapshot_to(const char *path);
 
-#ifdef __PSP__
-#define PSP_OUT_W  480
-#define PSP_OUT_H  272
-#define PSP_VIEW_X 60
-#define PSP_VIEW_W 360
-#define PSP_VIEW_H 272
-#elif defined(__vita__)
-#define VITA_OUT_W  960
-#define VITA_OUT_H  544
-#define VITA_VIEW_X 160
-#define VITA_VIEW_Y 32
-#define VITA_VIEW_W 640
-#define VITA_VIEW_H 480
-#endif
-
-/* En PSP los 320x240 del motor van a 360x272 centrados en la pantalla de 480x272; en PC, tal cual. */
+/* Mapeo de coordenadas del motor (320x240) a la ventana de la consola. */
 static void map_pos(int *mx, int *my, int x, int y)
 {
-#if defined(__PSP__)
-	*mx = PSP_VIEW_X + x * PSP_VIEW_W / SCREEN_W;
-	*my = y * PSP_VIEW_H / SCREEN_H;
-#elif defined(__vita__)
-	*mx = VITA_VIEW_X + x * VITA_VIEW_W / SCREEN_W;
-	*my = VITA_VIEW_Y + y * VITA_VIEW_H / SCREEN_H;
+#if SDL_TARGET_MANUAL_SCALE
+	*mx = SDL_TARGET_VIEW_X + x * SDL_TARGET_VIEW_W / SCREEN_W;
+	*my = SDL_TARGET_VIEW_Y + y * SDL_TARGET_VIEW_H / SCREEN_H;
 #else
 	*mx = x;
 	*my = y;
@@ -107,48 +89,23 @@ static void rect(int layer, int x, int y, int w, int h, int r, int g, int b, int
 }
 void video_init(void)
 {
-#ifdef __PSP__
-	SDL_SetMainReady();
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != 0)
+	SDL_TARGET_CALL_SET_MAIN_READY();
+	if (SDL_InitSubSystem(SDL_TARGET_INIT_FLAGS) != 0)
 		return;
-#elif defined(__vita__)
-	SDL_SetMainReady();
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
-		return;
-#else
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
-		return;
-#endif
 	if (getenv("SDL_VIDEODRIVER") && strcmp(getenv("SDL_VIDEODRIVER"), "dummy") == 0) {
 		headless_surface = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_W, SCREEN_H, 32, SDL_PIXELFORMAT_RGBA32);
 		if (headless_surface)
 			renderer = SDL_CreateSoftwareRenderer(headless_surface);
 	} else {
-#ifdef __PSP__
-		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, PSP_OUT_W,
-		                          PSP_OUT_H, SDL_WINDOW_SHOWN);
+		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_TARGET_WINDOW_W,
+		                          SDL_TARGET_WINDOW_H, SDL_WINDOW_SHOWN);
 		if (window)
-			renderer = SDL_CreateRenderer(window, -1, 0);
+			renderer = SDL_CreateRenderer(window, -1, SDL_TARGET_RENDERER_FLAGS);
 		if (!renderer && window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-#elif defined(__vita__)
-		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, VITA_OUT_W,
-		                          VITA_OUT_H, SDL_WINDOW_SHOWN);
-		if (window)
-			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		if (!renderer && window)
-			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-#else
-		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720,
-		                          SDL_WINDOW_SHOWN);
-		if (window)
-			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		if (!renderer && window)
-			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-#endif
 	}
 	if (renderer) {
-#if !defined(__PSP__) && !defined(__vita__)
+#if SDL_TARGET_USE_LOGICAL_SIZE
 		SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);
 #endif
 		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
@@ -250,6 +207,7 @@ void video_flip(void)
 					SDL_SetRenderDrawColor(renderer, d->r, d->g, d->b, d->blend ? 128 : 255);
 					SDL_RenderFillRect(renderer, &dst);
 				} else if (d->type == 2) {
+#if SDL_TARGET_HAS_RENDER_GEOMETRY
 					int ax, ay, bx, by, cx, cy;
 					SDL_Vertex v[3];
 					map_pos(&ax, &ay, d->x, d->y);
@@ -265,6 +223,11 @@ void video_flip(void)
 					                    {(Uint8)d->r, (Uint8)d->g, (Uint8)d->b, 255},
 					                    {0, 0}};
 					SDL_RenderGeometry(renderer, NULL, v, 3, NULL, 0);
+#else
+					SDL_Rect tr = {d->x, d->y, d->w > 0 ? d->w : 1, d->h > 0 ? d->h : 1};
+					SDL_SetRenderDrawColor(renderer, d->r, d->g, d->b, 255);
+					SDL_RenderFillRect(renderer, &tr);
+#endif
 				} else if (d->type == 3) {
 					SDL_SetTextureColorMod(d->texture, d->r, d->g, d->b);
 					SDL_SetTextureBlendMode(d->texture,

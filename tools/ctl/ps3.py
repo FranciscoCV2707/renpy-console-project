@@ -1,9 +1,15 @@
-"""Adapter PS3/RPCS3 del Console Test Lab (T-613).
+"""Adapter PS3/RPCS3 del Console Test Lab (T-613, T-621).
 
 Instala el firmware oficial y el ``snoot.pkg`` en RPCS3 si faltan, copia el disco de PS1 a
-``dev_hdd0/game/SNOT00001/USRDIR/data`` con el ``AUTOTEST.BIN`` del escenario, corre RPCS3 sin interfaz
-(``--no-gui``) sobre el ``EBOOT.BIN`` instalado y extrae la traza del ``log/TTY.log``, que es donde RPCS3
-deja lo que el juego escribe por ``printf`` (sys_tty_write).
+``dev_hdd0/game/SNOT00001/USRDIR/data`` con el ``AUTOTEST.BIN`` del escenario, escribe la configuracion
+propia del juego (renderer OpenGL y opciones del RSX, T-621), corre RPCS3 con ``--no-gui`` (sin la
+ventana del emulador, con renderer real) sobre el ``EBOOT.BIN`` instalado y extrae la traza del
+``log/TTY.log``, que es donde RPCS3 deja lo que el juego escribe por ``printf`` (sys_tty_write).
+
+``--headless`` (renderer Null) no sirve para este juego: SDL_PSL1GHT bloquea cada cuadro en
+``waitFlip`` (``build/ps3/sdl2-src/src/render/psl1ght/SDL_psl1ghtrender.c:113``, bucle sobre
+``gcmGetFlipStatus`` + ``usleep(200)`` desde ``PSL1GHT_RenderPresent``, linea 798) y el renderer Null
+nunca completa el flip, asi que el juego no avanza del primer cuadro.
 """
 from __future__ import annotations
 
@@ -27,6 +33,22 @@ GAME_DIR = RPCS3_DIR / "dev_hdd0" / "game" / GAME_ID
 DATA_DIR = GAME_DIR / "USRDIR" / "data"
 EBOOT = GAME_DIR / "USRDIR" / "EBOOT.BIN"
 TTY_LOG = RPCS3_DIR / "log" / "TTY.log"
+# Configuracion propia del juego en RPCS3 (T-621). El renderer OpenGL con "Force CPU Blit" evita el
+# crash del cache de texturas con los blits chicos del renderer software de SDL_PSL1GHT
+# (GLTextureCache.h:729 / VKTextureCache.cpp:1053, "Verification failed (object: 0x0)"); "Write/Read
+# Color Buffers" y las opciones strict son las que acompanan la unica corrida con flips continuos a
+# ~30 fps en este host (RPCS3.log: 7 "Flip texture was not found in cache" y despues silencio).
+CUSTOM_CONFIG = RPCS3_DIR / "config" / "custom_configs" / "config_SNOT00001.yml"
+CUSTOM_CONFIG_TEXT = (
+    "Video:\n"
+    "  Renderer: OpenGL\n"
+    "  Resolution: 1280x720\n"
+    "  Force CPU Blit: true\n"
+    "  Write Color Buffers: true\n"
+    "  Read Color Buffers: true\n"
+    "  Strict Texture Flushing: true\n"
+    "  Strict Rendering Mode: true\n"
+)
 # RPCS3 no corre el juego en tiempo real: el puerto SDL2 de PSL1GHT solo tiene renderer software y el
 # guion avanza por cuadros de juego, asi que el plazo del escenario (max_seconds, pensado para consolas
 # en tiempo real) se escala por este factor.
@@ -65,6 +87,14 @@ def install_pkg(pkg: Path) -> None:
         raise RuntimeError(f"RPCS3 no instalo el paquete {pkg}; revisa {RPCS3_DIR / 'log' / 'RPCS3.log'}")
 
 
+def install_custom_config() -> None:
+    """Escribe ``config/custom_configs/config_SNOT00001.yml`` si falta (RPCS3 la aplica al arrancar)."""
+    if CUSTOM_CONFIG.is_file():
+        return
+    CUSTOM_CONFIG.parent.mkdir(parents=True, exist_ok=True)
+    CUSTOM_CONFIG.write_text(CUSTOM_CONFIG_TEXT, encoding="utf-8", newline="\n")
+
+
 def stage_data(data_dir: Path, disc: Path, autotest: bytes) -> Path:
     """Copia los archivos del disco de PS1 en ``USRDIR/data`` y escribe el ``AUTOTEST.BIN`` del escenario."""
     data_dir.mkdir(parents=True, exist_ok=True)
@@ -85,14 +115,16 @@ def run_scenario(scenario, out: Path) -> Path:
     subprocess.run([sys.executable, str(ROOT / "platforms" / "ps3" / "build.py"), "--trace"], cwd=ROOT, check=True)
     install_firmware()
     install_pkg(ROOT / "build" / "ps3" / "snoot.pkg")
+    install_custom_config()
     stage_data(DATA_DIR, disc, autotest_bin(scenario_steps(scenario)))
 
     TTY_LOG.parent.mkdir(exist_ok=True)
     TTY_LOG.unlink(missing_ok=True)
-    # --headless corre el (S)ELF con el renderer Null (rpcs3 --help): el veredicto compara eventos, no pixeles, y el
-    # renderer OpenGL de RPCS3 truena con los blits chicos del renderer software de SDL. El juego termina con exit(0)
-    # del AUTOTEST, que detiene la emulacion. Si no sale, lo corta limits.max_seconds.
-    proc = subprocess.Popen([str(RPCS3_EXE), "--headless", str(EBOOT.resolve())],
+    # --no-gui corre el (S)ELF con el renderer de la configuracion propia (OpenGL), sin la ventana del
+    # emulador: --headless fuerza el renderer Null y el juego se queda esperando el flip del RSX para
+    # siempre (ver waitFlip en el docstring del modulo). El juego termina con exit(0) del AUTOTEST, que
+    # detiene la emulacion. Si no sale, lo corta limits.max_seconds.
+    proc = subprocess.Popen([str(RPCS3_EXE), "--no-gui", str(EBOOT.resolve())],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     deadline = time.monotonic() + scenario.limits.max_seconds * TIMEOUT_FACTOR
     while proc.poll() is None and time.monotonic() < deadline:

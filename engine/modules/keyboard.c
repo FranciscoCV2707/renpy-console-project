@@ -31,6 +31,14 @@ static const char *const kb_keys[2][KB_ROWS - 1][KB_COLS] = {
 static char kb_text[KB_MAX * 2 + 1];
 static int kb_len, kb_row, kb_col, kb_upper, kb_wait;
 
+/* Consulta tactil sin backend (PS1, GBA): el teclado solo responde a los botones ahi */
+__attribute__((weak)) int input_touch(int *x, int *y)
+{
+	(void)x;
+	(void)y;
+	return 0;
+}
+
 static int kb_begin(void)
 {
 	kb_len = kb_row = kb_col = kb_upper = 0;
@@ -60,8 +68,41 @@ static void kb_erase(void)
 	kb_len--;
 }
 
+/* Tecla tocada con el dedo (DS, 3DS, Vita): selecciona y activa la tecla de una vez */
+static int kb_tap(int x, int y)
+{
+	int col = (x - KB_X) / KB_W, row = (y - KB_Y) / KB_H;
+
+	if (col < 0 || col >= KB_COLS || row < 0 || row >= KB_ROWS)
+		return 0;                    /* fuera del teclado */
+	kb_row = row;
+	kb_col = col;
+	if (row < KB_ROWS - 1) {
+		kb_type(kb_keys[kb_upper][row][col]);
+		return 0;
+	}
+	switch (col * 4 / KB_COLS) {      /* la fila de acciones, igual que con CROSS */
+	case 0:
+		kb_upper = !kb_upper;
+		break;
+	case 1:
+		kb_type(" ");
+		break;
+	case 2:
+		kb_erase();
+		break;
+	default:
+		return 1;
+	}
+	return 0;
+}
+
 static int kb_update(void)
 {
+	int tx, ty;
+
+	if (input_touch(&tx, &ty))
+		return kb_tap(tx, ty);
 	if (input_pressed(BTN_UP))
 		kb_row = (kb_row + KB_ROWS - 1) % KB_ROWS;
 	if (input_pressed(BTN_DOWN))

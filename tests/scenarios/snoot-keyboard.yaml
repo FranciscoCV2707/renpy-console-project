@@ -1,0 +1,83 @@
+# Teclado del anuario (capitulo 13D, ruta 4): llega por el menu de desarrollo (L1+R1+Select),
+# salta el capitulo con R1 y, con el teclado abierto, escribe con la cruceta (h, i), borra una letra,
+# pasa a mayusculas (I) y confirma con Start. Lo escrito no lo usa el guion (renpy.input sin
+# asignacion, 13D linea 3240); lo que se prueba son los controles.
+id: snoot-keyboard
+reference: tests/reference/traces/pc/snoot-keyboard.trace
+inputs:
+  - steps: >
+      60 press L1;
+      60 press R1;
+      60 press SELECT;
+      130 press DOWN;
+      140 press DOWN;
+      150 press DOWN;
+      160 press DOWN;
+      170 press DOWN;
+      180 press DOWN;
+      190 press DOWN;
+      200 press DOWN;
+      210 press DOWN;
+      220 press DOWN;
+      230 press DOWN;
+      240 press DOWN;
+      250 press DOWN;
+      260 press DOWN;
+      270 press DOWN;
+      280 press DOWN;
+      290 press DOWN;
+      300 press DOWN;
+      310 press DOWN;
+      320 press DOWN;
+      330 press DOWN;
+      340 press DOWN;
+      350 press DOWN;
+      360 press DOWN;
+      370 press DOWN;
+      380 press DOWN;
+      390 press DOWN;
+      400 press DOWN;
+      410 press DOWN;
+      440 press CROSS;
+      500 press R1;
+      560 press CROSS;
+      570 press R1;
+      620 press CROSS;
+      630 press R1;
+      680 press CROSS;
+      690 press R1;
+      740 press CROSS;
+      750 press R1;
+      800 press CROSS;
+      810 press R1;
+      860 press CROSS;
+      870 press R1;
+      1100 press CIRCLE;
+      1130 press CIRCLE;
+      1160 press CIRCLE;
+      1180 shot teclado;
+      1190 press DOWN;
+      1220 press DOWN;
+      1250 press RIGHT;
+      1280 press RIGHT;
+      1310 press RIGHT;
+      1340 press RIGHT;
+      1370 press RIGHT;
+      1400 press CROSS;
+      1430 press RIGHT;
+      1460 press RIGHT;
+      1490 press CROSS;
+      1530 shot teclado_texto;
+      1560 press CIRCLE;
+      1590 press L1;
+      1620 press CROSS;
+      1660 shot teclado_mayus;
+      1700 press START;
+      1780 shot anuario;
+      2100 quit
+expect: []
+compare:
+  events: [SAY, MENU]
+  tolerance: {frames: 30}
+limits:
+  max_seconds: 300

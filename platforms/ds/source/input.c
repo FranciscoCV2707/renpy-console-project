@@ -9,6 +9,7 @@ static const uint8_t *script;
 static int count, choice_at, frame;
 static uint8_t done[2800];
 static uint16_t cur, prev;
+static int touch_x, touch_y, touch_hit;
 
 void input_init(int with_card)
 {
@@ -61,6 +62,16 @@ void input_update(void)
 	if (keys & KEY_R)
 		cur |= BTN_R1;
 
+	/* Tactil de la pantalla de abajo: el teclado se dibuja ahi con la escala 4/5 del guion (video.c),
+	 * asi que la posicion se convierte de 256x192 a 320x240. Solo al tocar, no mientras se mantiene. */
+	if (keysDown() & KEY_TOUCH) {
+		touchPosition touch = touchReadXY();
+
+		touch_x = touch.px * 5 / 4;
+		touch_y = touch.py * 5 / 4;
+		touch_hit = 1;
+	}
+
 	for (int i = 0; i < count; i++) {
 		const uint8_t *p = script + 6 * i;
 		uint32_t at = p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
@@ -107,6 +118,16 @@ int input_pressed(uint16_t mask)
 int input_raw_down(uint16_t mask)
 {
 	return input_down(mask);
+}
+
+int input_touch(int *x, int *y)
+{
+	if (!touch_hit)
+		return 0;
+	touch_hit = 0;
+	*x = touch_x;
+	*y = touch_y;
+	return 1;
 }
 
 int input_autotest_choice(void)

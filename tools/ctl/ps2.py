@@ -40,6 +40,8 @@ def run_scenario(scenario, out: Path) -> Path:
                    cwd=ROOT, check=True)
     executable = ROOT / "build" / "ps2" / "snoot.elf"
     log = out / "pcsx2.log"
+    # sin borrarlo, un VN_QUIT de la corrida anterior corta esta en cuanto PCSX2 reescribe el log
+    log.unlink(missing_ok=True)
     stdout_path = out / "stdout.txt"
     command = [
         str(PCSX2), "-portable", "-nogui", "-fastboot", "-elf", str(executable),

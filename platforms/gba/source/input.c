@@ -126,3 +126,21 @@ int input_autotest_choice(void)
 	}
 	return -1;
 }
+
+/* La GBA no tiene stick analogico ni pantalla tactil */
+int input_stick_x(void)
+{
+	return 0;
+}
+
+int input_stick_y(void)
+{
+	return 0;
+}
+
+int input_touch_down(int *x, int *y)
+{
+	(void)x;
+	(void)y;
+	return 0;
+}

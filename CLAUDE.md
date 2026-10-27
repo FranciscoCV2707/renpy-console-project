@@ -25,7 +25,9 @@ Claude es el arquitecto y orquestador: escribe contratos, divide tareas, revisa 
 - Windows 10, Python 3.12 (`.venv`), Git, CMake, Ninja, ffmpeg.
 - PSn00bSDK vía MSYS2 en `C:\msys64\usr\local\psn00bsdk`; gcc y SDL2 2.32 de host en `C:\msys64\ucrt64`.
 - Docker Desktop + WSL2 para las toolchains de otras consolas (Docker Desktop hay que abrirlo).
-- Emuladores, BIOS y SDKs de Ren'Py en `E:\snoot`. Repos hermanos en `E:\Dev`.
+- Emuladores, BIOS y SDKs de Ren'Py en `E:\snoot`: PCSX-Redux y DuckStation (PS1), `ppsspp-1.20.4` (PSP),
+  `pcsx2-2.8.2` (PS2, portable, con la BIOS `scph39001.bin` en su `bios\`; el resto de BIOS en `ps2 bios\`).
+  Repos hermanos en `E:\Dev`.
 - CLIs de agentes con login: codex, opencode (Beam), kilo (MiMo), vibe, agy. Orca instalado; su CLI está en
   `C:\Users\Pako\AppData\Local\Programs\orca\resources\bin\orca.exe` (en el PATH al activar "Orca CLI").
 - Agentes: `python tools/agents/dispatch.py list-agents|run|batch|status|remove`; skills propias en

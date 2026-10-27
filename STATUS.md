@@ -3,7 +3,7 @@
 ## Fecha: 2026-10-26
 
 ## Fase actual
-Fase 3 (referencia Ren'Py, falta G3) y Fase 4 (PC con SDL) en paralelo (D20). G1 y G2 cumplidas el 2026-10-26.
+Fases 4-7 en paralelo (D20): PC, PSP y PS2 juegan rutas completas; Vita, 3DS, Wii, Xbox, Switch y PS4 compilan; demakes de GBA y GB en marcha. G1, G2 y G3 cumplidas.
 
 ## Hecho
 - [x] Repo con git; rutas a `E:\snoot` en este repo y en los hermanos.

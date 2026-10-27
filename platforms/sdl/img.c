@@ -1,7 +1,7 @@
 #include "img.h"
+#include "sdl_target.h"
 #include "video.h"
 
-#include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <string.h>
 #include "lz4.h"

@@ -1,7 +1,7 @@
 #include "audio.h"
 #include "cd.h"
 #include "psx_audio.h"
-#include <SDL2/SDL.h>
+#include "sdl_target.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -240,13 +240,7 @@ int audio_init(void)
 		if (cd_find("\\MUSIC.XA", &lba, &size) == 0) {
 			char path[600];
 			const char *root = getenv("VN_DATA_DIR");
-#ifdef __PSP__
-			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : "ms0:/PSP/GAME/SNOOT/DATA");
-#elif defined(__vita__)
-			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : "ux0:data/snoot");
-#else
-			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : ".");
-#endif
+			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : SDL_TARGET_DATA_DIR);
 			music_file = fopen(path, "rb");
 		}
 	}

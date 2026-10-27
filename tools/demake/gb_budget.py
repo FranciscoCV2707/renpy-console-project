@@ -99,9 +99,15 @@ def split_tiles(indices: bytes, width: int, height: int) -> tuple[list[bytes], b
     bytes del mapa): el byte guarda el indice modulo 256 y los tiles 256-383 van
     al banco 1 de VRAM elegido por el bit 3 del atributo de GBC (Pan Docs, Tile
     Maps y Tile Data)."""
+    unique, full_map = split_tiles_full(indices, width, height)
+    return unique, bytes(index & 0xFF for index in full_map)
+
+
+def split_tiles_full(indices: bytes, width: int, height: int) -> tuple[list[bytes], list[int]]:
+    """Deduplica tiles y conserva sus indices completos para el atributo de banco GBC."""
     unique: list[bytes] = []
     index_of: dict[bytes, int] = {}
-    map_bytes = bytearray()
+    tile_map: list[int] = []
     for ty in range(0, height, TILE):
         for tx in range(0, width, TILE):
             tile = bytearray()
@@ -114,8 +120,8 @@ def split_tiles(indices: bytes, width: int, height: int) -> tuple[list[bytes], b
                 idx = len(unique)
                 index_of[tile] = idx
                 unique.append(tile)
-            map_bytes.append(idx & 0xFF)
-    return unique, bytes(map_bytes)
+            tile_map.append(idx)
+    return unique, tile_map
 
 
 def pack_2bpp(tile: bytes) -> bytes:
@@ -162,6 +168,18 @@ def encode_glyphs(text: str, glyph_ids: dict[str, int]) -> bytes:
     del espanol entran en la tabla de 256 (PLAN.md D19 y tarea T-703)."""
     table = {ord(ch): idx for ch, idx in glyph_ids.items()}
     return text.translate(table).encode("latin-1")
+
+
+def glyph_table(game_dir: Path, language: str) -> dict[str, int]:
+    """Arma el mismo orden de glifos que usa la medida de texto del presupuesto."""
+    paths = sorted((Path(game_dir) / "tl" / language).rglob("*.rpy"))
+    contents = [path.read_bytes().decode("utf-8") for path in paths]
+    glyphs = sorted(set("".join(contents)))
+    if len(glyphs) > GLYPHS:
+        raise ValueError(
+            f"{len(glyphs)} caracteres distintos en tl/{language}: no caben en la tabla de {GLYPHS} glifos"
+        )
+    return {character: index for index, character in enumerate(glyphs)}
 
 
 def _save_sample(indices: bytes, width: int, height: int, dst: Path) -> Path:
@@ -271,12 +289,7 @@ def measure_text(game_dir: Path, language: str) -> tuple[dict, int]:
     distintos usados)."""
     paths = sorted((game_dir / "tl" / language).rglob("*.rpy"))
     contents = [path.read_bytes().decode("utf-8") for path in paths]
-    glyphs = sorted(set("".join(contents)))
-    if len(glyphs) > GLYPHS:
-        raise ValueError(
-            f"{len(glyphs)} caracteres distintos en tl/{language}: no caben en la tabla de {GLYPHS} glifos"
-        )
-    glyph_ids = {ch: idx for idx, ch in enumerate(glyphs)}
+    glyph_ids = glyph_table(game_dir, language)
     raw = 0
     compressed = 0
     for text in contents:
@@ -289,7 +302,7 @@ def measure_text(game_dir: Path, language: str) -> tuple[dict, int]:
         "bytes": compressed,
         "method": f"{raw} caracteres a 1 byte por glifo, comprimidos con LZ77 propio",
     }
-    return category, len(glyphs)
+    return category, len(glyph_ids)
 
 
 def build_budget(

@@ -105,3 +105,44 @@ No hace falta hoy, pero por orden de ahorro:
   5,5 MB.
 - El LZ77 del texto es un formato propio de software: la ROM lo descomprime con código
   del motor, no hay que citarlo como hardware.
+
+## Empaquetado binario (T-704)
+
+`python -m tools.demake.gb_pack --game <game> --out <directorio>` escribe:
+
+- `bg/<sha16>.bin`: cabecera y flujo LZ77 tipo 0x10 de los tiles 2bpp únicos, mapa de
+  20×18 índices, mapa de atributos de 20×18 bytes y ocho paletas de cuatro colores.
+  Los índices 0–255 usan el banco 0; los 256–383 se guardan módulo 256 y el atributo
+  selecciona el banco 1 (bit 3). La paleta elegida es la 0.
+- `face/<sha16>.bin`: tiles 2bpp únicos del busto de 48×48 comprimidos con el mismo LZ77,
+  mapa de 6×6 índices, atributos del banco 0 y las ocho paletas.
+- `font.bin`: exactamente 256 glifos de 8×8 a 2bpp (16 bytes cada uno). El ID de cada
+  glifo es el orden Unicode ascendente que comparte `gb_budget.glyph_table`; los no
+  usados quedan en blanco. Los glifos se rasterizan desde la primera fuente del juego
+  en orden de ruta, a 8 px.
+- `text.bin`: cantidad u16 little-endian; por entrada, dos offsets u32 little-endian
+  (ID UTF-8 NUL y texto como índices de glifo NUL), seguidos del pool. Las entradas
+  siguen el orden por ID de traducción.
+- `manifest.json`: IDs y rutas originales, tipo, archivo de salida, tamaño y SHA-256;
+  además total binario y bytes libres contra 8 MiB. El manifiesto se serializa en JSON
+  ordenado y UTF-8 para que la misma fuente dé el mismo hash.
+
+Los campos gráficos siguen [Tile Data](https://gbdev.io/pandocs/Tile_Data.html),
+[Tile Maps](https://gbdev.io/pandocs/Tile_Maps.html) y
+[Palettes](https://gbdev.io/pandocs/Palettes.html) de Pan Docs; el límite del cartucho
+usa [MBC5](https://gbdev.io/pandocs/MBC5.html). Una pantalla de 160×144 contiene 360
+celdas, por lo que una imagen no puede producir más de 360 tiles únicos. El empaquetador
+registra el conteo de imágenes que excedan los 384 tiles de VRAM; el layout deja el error
+explícito si en el futuro cambia la resolución o el cuantizador y se supera ese límite.
+
+El empaquetador guarda únicamente texto extraído por ID de traducción; el presupuesto
+T-703 cuenta los `.rpy` completos como cota superior. También mide tiles sin comprimir,
+mientras el paquete guarda el flujo comprimido. Por eso ambos totales son medidas
+distintas y el resultado empaquetado debe compararse con el límite físico de 8 MiB.
+
+Corrida sobre `E:/snoot/snootgame/game`: el paquete ocupa **1.877.453 bytes**. El
+presupuesto T-703 estima 2.587.196 bytes, diferencia de −27,4% (texto: 697.403 frente a
+1.326.422 bytes; fondos: 1.039.085 frente a 1.107.422; retratos: 136.869 frente a
+146.280; glifos: 4.096 en ambos; no se emiten efectos originales). No se cumple el
+margen de ±5% solicitado para comparar esos totales: las dos mediciones tienen distinta
+compresión y cobertura. La ROM sí queda bajo el límite de 8.388.608 bytes.

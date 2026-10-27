@@ -29,3 +29,38 @@ reproducirse con `python -m tools.ctl.full_diff <traza>`.
 La regla para `room anon day alt` se apoya en `scene room anon day alt` en el guion, línea 74: es fondo, no sprite. Los
 8 residuos de música son todos diferencias de estado derivadas del STOP no capturado; la evidencia actual no apunta
 a una falla de compilación del port. La traza no permite validar el flip efectivo ni la capa `black` transitoria.
+
+## Revisión PC de las 14 rutas (T-628)
+
+Se compararon las trazas `pc-routes/snoot-route-*.trace` con las referencias `snoot/*.trace`. El total cuenta diferencias de campo en SAY alineados. Los conteos finales quedan fijados por `tests/test_trace_full.py`.
+
+| Ruta | Antes | Después |
+|---|---:|---:|
+| chapter_x1 | 5 | 0 |
+| chapter_x2 | 0 | 0 |
+| chapter_x3 | 87 | 0 |
+| chapter_x4 | 6 | 0 |
+| chapter_x5 | 3 | 0 |
+| chapter_x6 | 9 | 0 |
+| chapter_x7 | 432 | 3 |
+| chapter_x8 | 168 | 2 |
+| chapter_x9 | 554 | 163 |
+| chapter_x10 | 187 | 144 |
+| ruta-1 | 3961 | 5826 |
+| ruta-2 | 3760 | 5848 |
+| ruta-3 | 5015 | 8198 |
+| ruta-4 | 4498 | 7084 |
+
+Las rutas largas suben porque la corrección dejó de interpretar cada `SHOW` sin atributos como fondo. El normalizador conserva esas capas como sprites y deja que `SCENE` defina el fondo; así expone pérdidas de estado del hook y diferencias sin clasificación en vez de ocultarlas como fondos falsos.
+
+| Patrón | Causa y evidencia | Regla o bug | Dónde |
+|---|---|---|---|
+| `SHOW` sin atributos sobreescribía el fondo | `x3-PTA-meeting.rpy:18-26` declara `scene auditorium` y luego `show` de personajes sin atributos. `x7-naomi-tribulations.rpy:343-349` muestra `dimmer_darker` y sprites. | Representación: solo una escena reconocida cambia el fondo; los demás `SHOW` son sprites. | Regla simétrica en `trace.py`; X1–X6 quedan en cero. |
+| `fang embarrass` / `fang embarass` | El guion original usa `show fang embarass flip` (`x6-passion-of-the-trigga.rpy:767`); el mapa compilado emite `embarrass`. | Errata original canonizada para esa expresión exacta en ambos lados. | Regla en `trace.py`; X6 queda en cero. |
+| Atributos por defecto de `fangphonevideocall` y `layeredanonphone` | `src/image_definitions.rpy:1181-1250,1254-1352` declara capas `default`; Ren'Py `get_attributes` entrega atributos activos y el nombre compilado incluye defaults. | Representación: se eliminan solo los defaults verificados y se ordena el conjunto de atributos del teléfono en ambos lados. | Regla en `trace.py`; reduce X7 y las rutas largas. |
+| Capas `dimmer_*` | `x9-naomi-tribulations.rpy:923-926` las muestra encima de `scene home fang night`. | Son sprites, no fondos. | Regla en `trace.py`; elimina estas diferencias de fondo. |
+| Pistas sincronizadas incompletas | `x9-naomi-tribulations.rpy:101-102,271,678-696` reproduce piano, percusión y sintetizador en canales separados; el hook conserva solo `_rcp_music_cmd` de `channel == "music"`. | Pérdida del hook; no se declara bug de audio del port. Recapturar el conjunto de pistas activas por SAY. | Propuesta para `trace_hook.rpy`; cambio detallado en el reporte. |
+| `camera shot NNN` frente a escena y componentes | X10 compone escena, blur/zoom y sprites (`x10-raymbas-observations.rpy:127-176`); motor traza `camera shot NNN`, Ren'Py separa fondo y capas. | La traza no certifica equivalencia visual; no se etiqueta como bug confirmado. Recapturar imagen de escena, atributos y transform aplicado. | Pendiente de recaptura; quedan 144 diferencias en X10. |
+| `good faith reprise intro.ogg` | `x8-naomi-tribulations.rpy:422` ejecuta `play music`; aparece en dos SAY de Ren'Py y no en el estado del motor. | Bug de audio por confirmar auditando PLAY/STOP del compilador para esa sección. | Pendiente; 2 diferencias de música en X8. |
+
+Los residuos medidos son X7 3 (cámara y orden de atributos), X8 2 (música), X9 163 (pistas en capas), X10 144 (cámara y composición) y 5.848–8.198 por ruta larga. Salvo las normalizaciones con evidencia citada, no hay información suficiente para llamarlos bugs reales: el hook no conserva el estado de varias capas ni las pistas de otros canales. Esta revisión no certifica `renpy_full` como terminado; el líder debe ajustar el hook y regrabar antes de cerrar la lista de bugs reales.

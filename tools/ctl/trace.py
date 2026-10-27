@@ -1,6 +1,7 @@
 """Parser y comparacion de lineas TRACE (contrato C3)."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -170,11 +171,38 @@ def _resource_name(snoot_map, image_id, tag=None):
 
 def _sprite_name(tag, image_name):
     expression = image_name[len(tag):].strip() if image_name.startswith(tag) else image_name
-    return " ".join(attribute for attribute in expression.split() if attribute != "flip")
+    attributes = _normalize_sprite_attributes(tag, expression.split())
+    if tag == "fang" and attributes == ["embarrass"]:
+        attributes = ["embarass"]
+    return " ".join(attributes)
+
+
+def _normalize_sprite_attributes(tag, attributes):
+    defaults = {
+        "fangphonevideocall": {"basic", "bgday", "blackmid"},
+        "layeredanonphone": {"blackmid", "coverbasic"},
+    }
+    ignored = defaults.get(tag, set()) | {"flip"}
+    normalized = [attribute for attribute in attributes if attribute not in ignored]
+    if tag == "fangphonevideocall":
+        normalized.sort()
+    return normalized
 
 
 def _music_name(value):
-    return value.replace("\\", "/").casefold() if value else None
+    if not value:
+        return None
+    tracks = value.split("+") if value.startswith("mix:") else [value]
+    normalized = set()
+    for track in tracks:
+        track = track.strip()
+        if track.casefold().startswith("mix:"):
+            track = track[4:]
+        track = re.sub(r"^(?:<[^>]+>)+", "", track, flags=re.IGNORECASE)
+        track = track.replace("\\", "/").casefold()
+        if track:
+            normalized.add(track)
+    return "mix:" + "+".join(sorted(normalized)) if normalized else None
 
 
 def _background_name(value):
@@ -210,6 +238,17 @@ def _state_event(seq, who, text, bg, sprites, music):
     })
 
 
+def engine_background_names(events, snoot_map) -> set[str]:
+    """Nombres de escena usados por el motor, para reconocerlos en los SHOW de Ren'Py."""
+    names = set()
+    for event in events:
+        if event.ev == "SCENE" and "img" in event.fields:
+            name = _background_name(_resource_name(snoot_map, int(event.fields["img"])))
+            names.add(name)
+            names.add(name.split(" ", 1)[0])
+    return names
+
+
 def normalize_engine_full(events, snoot_map, spanish) -> list[TraceEvent]:
     """Normaliza cada SAY junto al fondo, sprites y música activos en el motor."""
     bg = None
@@ -230,14 +269,12 @@ def normalize_engine_full(events, snoot_map, spanish) -> list[TraceEvent]:
             expression = _sprite_name(tag, image_name)
             if _is_overlay_tag(tag):
                 sprites[tag] = ""
-            elif expression and not _is_background_tag(tag):
-                sprites[tag] = expression
-                if bg is not None and tag == bg[0]:
-                    bg = None
-            else:
+            elif _is_background_tag(tag):
                 bg_name = _background_name(image_name)
                 bg = (tag, bg_name)
                 sprites.pop(tag, None)
+            else:
+                sprites[tag] = expression
         elif event.ev == "HIDE":
             tag = snoot_map["tags"].get(int(fields["tag"]), f"tag:{fields['tag']}")
             if _is_untraced_black_overlay(tag):
@@ -256,7 +293,7 @@ def normalize_engine_full(events, snoot_map, spanish) -> list[TraceEvent]:
     return result
 
 
-def normalize_renpy_full(events, spanish) -> list[TraceEvent]:
+def normalize_renpy_full(events, spanish, background_names=None) -> list[TraceEvent]:
     """Normaliza los cambios SHOW/SCENE/PLAY de Ren'Py al estado de cada SAY."""
     bg = None
     sprites = {}
@@ -270,13 +307,19 @@ def normalize_renpy_full(events, spanish) -> list[TraceEvent]:
             sprites.clear()
         elif event.ev == "SHOW":
             tag = fields["tag"]
+            if tag == "config.gl_test_image":
+                continue
             attrs = fields.get("attrs", "").split()
-            if _is_renpy_background_tag(tag) or (not attrs and not _is_overlay_tag(tag)):
+            if (_is_renpy_background_tag(tag) or
+                  " ".join([tag, *attrs]) in (background_names or set()) or
+                  tag in (background_names or set())):
                 bg_name = " ".join([tag, *attrs])
                 bg = (tag, _background_name(bg_name))
                 sprites.pop(tag, None)
             else:
-                expression = " ".join(attribute for attribute in attrs if attribute not in ("flip",))
+                expression = " ".join(_normalize_sprite_attributes(tag, attrs))
+                if tag == "fang" and expression == "embarrass":
+                    expression = "embarass"
                 sprites[tag] = expression
                 if bg is not None and bg[0] == tag:
                     bg = None
@@ -355,7 +398,7 @@ def compare_scenario(scenario, trace_path) -> CompareResult:
         spanish = load_spanish()
         result = compare_renpy_full(
             normalize_engine_full(actual_events, snoot_map, spanish),
-            normalize_renpy_full(ref_events, spanish),
+            normalize_renpy_full(ref_events, spanish, engine_background_names(actual_events, snoot_map)),
             scenario.compare.exceptions,
         )
         result.scenario = scenario.id

@@ -178,12 +178,12 @@ def test_all_pc_routes_have_fixed_renpy_full_difference_counts():
         "chapter_x6": 0,
         "chapter_x7": 3,
         "chapter_x8": 2,
-        "chapter_x9": 163,
+        "chapter_x9": 0,
         "chapter_x10": 144,
-        "ruta-1": 5826,
-        "ruta-2": 5848,
-        "ruta-3": 8198,
-        "ruta-4": 7084,
+        "ruta-1": 5795,
+        "ruta-2": 5828,
+        "ruta-3": 8167,
+        "ruta-4": 7022,
     }
     for route, difference_count in expected.items():
         reference_name = route.replace("ruta-", "ruta ")

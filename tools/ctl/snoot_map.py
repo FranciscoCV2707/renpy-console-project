@@ -1,0 +1,62 @@
+"""Tabla de equivalencia Snoot PS1 <-> Ren'Py (PLAN.md D17).
+
+Corre ``compile_all`` de ``snoot-ps1`` dentro de ``build/`` (sin modificar ese
+repo) y traduce ``text=<gid>`` al id de traduccion y ``who=<n>`` al nombre del
+hablante que usa Ren'Py.
+"""
+from __future__ import annotations
+
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+SNOOT_PS1 = Path(r"E:\Dev\snoot-ps1")
+MAP_PATH = REPO / "build" / "ctl" / "snoot-map.json"
+COMPILE_OUT = REPO / "build" / "ctl" / "snoot-ps1-data"
+
+
+def _run_compile_all(out: Path):
+    """compile.py importa el paquete tools de snoot-ps1: mientras corre se quita el de este repo de sys.modules."""
+    ours = {k: sys.modules.pop(k) for k in list(sys.modules) if k == "tools" or k.startswith("tools.")}
+    sys.path.insert(0, str(SNOOT_PS1))
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "snoot_compile", SNOOT_PS1 / "tools" / "script_compiler" / "compile.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.compile_all(out)
+    finally:
+        sys.path.remove(str(SNOOT_PS1))
+        sys.modules.update(ours)
+
+
+def build_map(out: Path) -> dict:
+    """Corre ``compile_all(out)`` y devuelve ``{"text": {gid: tid}, "speakers": {indice: nombre}}``."""
+    out.mkdir(parents=True, exist_ok=True)
+    _, _, result = _run_compile_all(out)
+    if result.errors:
+        raise ValueError("el compilador de snoot-ps1 fallo: " + "; ".join(result.errors))
+    meta_path = out / "meta.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    base_by_index = {ch["index"]: ch["text_base"] for ch in meta["chapters"]}
+
+    text_map: dict = {}
+    for idx, ir in result.irs.items():
+        base = base_by_index[idx]
+        for i, entry in enumerate(ir.strings):
+            text_map[base + i] = entry["id"]
+
+    speakers = {i: info.get("name", "") for i, info in enumerate(meta["speakers"])}
+    return {"text": text_map, "speakers": speakers}
+
+
+def load_map() -> dict:
+    """Lee ``build/ctl/snoot-map.json``; si falta, lo arma con el compilador (unos segundos) y lo guarda."""
+    if not MAP_PATH.exists():
+        MAP_PATH.parent.mkdir(parents=True, exist_ok=True)
+        MAP_PATH.write_text(json.dumps(build_map(COMPILE_OUT), ensure_ascii=False), encoding="utf-8")
+    raw = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+    # JSON guarda las claves como texto
+    return {name: {int(k): v for k, v in table.items()} for name, table in raw.items()}

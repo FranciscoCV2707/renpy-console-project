@@ -136,6 +136,31 @@ def compare_events(actual, reference, allowed_events=None, tolerance_frames=0) -
     )
 
 
+def normalize_engine(events, snoot_map) -> list:
+    """Traza del motor en la forma comun (PLAN.md D17): SAY con nombre del hablante e id de traduccion, y CHOICE.
+    Sin cuadros: entre motores no se comparan los tiempos."""
+    out = []
+    for e in events:
+        if e.ev == "SAY":
+            fields = {"who": snoot_map["speakers"][int(e.fields["who"])],
+                      "id": snoot_map["text"][int(e.fields["text"])]}
+            out.append(TraceEvent(seq=e.seq, frame=0, ev="SAY", fields=fields))
+        elif e.ev == "CHOICE":
+            out.append(TraceEvent(seq=e.seq, frame=0, ev="CHOICE", fields={"i": e.fields["i"]}))
+    return out
+
+
+def normalize_renpy(events) -> list:
+    """Traza de Ren'Py en la misma forma que normalize_engine."""
+    out = []
+    for e in events:
+        if e.ev == "SAY":
+            out.append(TraceEvent(seq=e.seq, frame=0, ev="SAY", fields={"who": e.fields["who"], "id": e.fields["id"]}))
+        elif e.ev == "CHOICE":
+            out.append(TraceEvent(seq=e.seq, frame=0, ev="CHOICE", fields={"i": e.fields["i"]}))
+    return out
+
+
 def compare_scenario(scenario, trace_path) -> CompareResult:
     ref_path = Path(scenario.reference)
     if not ref_path.is_absolute():
@@ -156,6 +181,12 @@ def compare_scenario(scenario, trace_path) -> CompareResult:
                 ref_path = cand
     ref_events = parse_file(ref_path)
     actual_events = parse_file(trace_path)
+    if scenario.compare.mode == "renpy":
+        from .snoot_map import load_map
+
+        result = compare_events(normalize_engine(actual_events, load_map()), normalize_renpy(ref_events))
+        result.scenario = scenario.id
+        return result
     allowed = scenario.compare.events
     tol_frames = scenario.compare.tolerance.get("frames", 0)
     result = compare_events(actual_events, ref_events, allowed, tol_frames)

@@ -1,0 +1,9 @@
+id: snoot-x3-ps1-vs-renpy
+reference: tests/reference/traces/snoot/chapter_x3.trace
+inputs: []
+expect: []
+compare:
+  mode: renpy
+  events: [SAY, CHOICE]
+limits:
+  max_seconds: 300

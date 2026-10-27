@@ -18,6 +18,7 @@ class ScenarioError(ValueError):
 class CompareSpec:
     events: list[str]
     tolerance: dict = field(default_factory=dict)
+    mode: str = "same"
 
 
 @dataclass
@@ -75,7 +76,10 @@ class Scenario:
         tolerance = cmp_data.get("tolerance", {})
         if not isinstance(tolerance, dict):
             raise ScenarioError("compare.tolerance", "must be a mapping")
-        compare = CompareSpec(events=events, tolerance=tolerance)
+        mode = cmp_data.get("mode", "same")
+        if mode not in ("same", "renpy"):
+            raise ScenarioError("compare.mode", "must be same or renpy")
+        compare = CompareSpec(events=events, tolerance=tolerance, mode=mode)
         lim_data = data["limits"]
         if not isinstance(lim_data, dict):
             raise ScenarioError("limits", "must be a mapping")

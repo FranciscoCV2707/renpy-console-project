@@ -274,9 +274,10 @@ void sdl_draw_texture(SDL_Texture *t, int layer, int x, int y, int w, int h, int
 	d.h = h * zoom / 64;
 	d.texture = t;
 	d.src = (SDL_Rect){sx, sy, sw, sh};
-	d.r = r;
-	d.g = g;
-	d.b = b;
+	/* SDL_SetTextureColorMod toma Uint8: el tinte normal de la PS1 (128) duplicado da 256, que se volvia 0 (negro) */
+	d.r = r > 255 ? 255 : r;
+	d.g = g > 255 ? 255 : g;
+	d.b = b > 255 ? 255 : b;
 	d.blend = blend;
 	d.flip = flip;
 	d.angle = (double)angle * 360.0 / 4096.0;

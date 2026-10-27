@@ -34,7 +34,7 @@ timeout_min = 180
 [agents.vibe]
 cmd = ["vibe", "--prompt", "{prompt}", "--max-turns", "300", "--output", "json", "--trust", "--auto-approve"]
 max_parallel = 1
-timeout_min = 90
+timeout_min = 150
 
 [agents.agy]
 # agy -p ya responde sin terminal en 1.4.7 (probado). Para tareas largas o de interfaz, mejor una terminal de Orca.

@@ -37,5 +37,7 @@ descomprime con el LZ4 del núcleo y se expande desde su paleta a textura RGBA; 
 se usan. Los recursos se guardan en RAM. El guardado alterna dos archivos en `build/ctl/pc/save/` con número,
 magic y checksum.
 
-SDL mantiene la API de audio y sus niveles/colas de estado; la salida queda en silencio hasta integrar el
-decodificador de T-403. FMV no se reproduce en este backend todavía.
+Los glifos usan la textura 4 bpp de `FONT.BIN` y se envían a la capa indicada por el núcleo. El mezclador SDL abre
+audio PCM 16 bits, estéreo, a 44.1 kHz. Lee `AUDIO.BIN` (AIX1), reproduce el carril XA indicado por `MUSIC.XA` con
+repetición y cola de pista, y decodifica archivos `S###.SPU` para efectos y ambientes. XA mono se remuestrea
+linealmente a 44.1 kHz; los efectos SPU conservan la frecuencia del índice. FMV no se reproduce en este backend.

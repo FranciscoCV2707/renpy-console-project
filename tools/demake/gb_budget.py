@@ -47,11 +47,6 @@ EFFECT_BYTES = 16  # estimado: pares de tono/duracion para los canales de onda c
 SAMPLE_SIZE = 20
 BG_SAMPLES = 3
 PORTRAIT_SAMPLES = 2
-LZ_WINDOW = 4096
-LZ_MIN_MATCH = 3
-LZ_MAX_MATCH = 18
-LZ_MAX_CHAIN = 128
-
 # Matriz de Bayer 4x4 para el tramado ordenado de 4 tonos (PLAN.md D19).
 BAYER4 = ((0, 8, 2, 10), (12, 4, 14, 6), (3, 11, 1, 9), (15, 7, 13, 5))
 

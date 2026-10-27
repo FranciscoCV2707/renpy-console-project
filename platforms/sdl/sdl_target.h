@@ -50,6 +50,7 @@
 #define SDL_TARGET_NEEDS_FAT_INIT       0
 #define SDL_TARGET_HAS_RENDER_GEOMETRY  1
 #define SDL_TARGET_MKDIR_WITH_MODE      0
+#define SDL_TARGET_RES_CACHE            512 /* cache de res.c; ~131 KB/imagen RGBA de media (706 medidas) */
 
 /* PSP */
 #elif defined(__PSP__)
@@ -73,6 +74,7 @@
 #define SDL_TARGET_VIEW_Y               0
 #define SDL_TARGET_VIEW_W               360
 #define SDL_TARGET_VIEW_H               272
+#define SDL_TARGET_RES_CACHE            24 /* 32 MB RAM / 2 MB VRAM: 24 imagenes ~ 3 MB de texturas */
 
 /* PS2 (ps2sdk) */
 #elif defined(_EE)
@@ -91,6 +93,7 @@
 #define SDL_TARGET_NEEDS_FAT_INIT       0
 #define SDL_TARGET_HAS_RENDER_GEOMETRY  1
 #define SDL_TARGET_MKDIR_WITH_MODE      1
+#define SDL_TARGET_RES_CACHE            24 /* 32 MB RAM / 4 MB GS: 24 imagenes ~ 3 MB de texturas */
 
 /* PS Vita */
 #elif defined(__vita__)
@@ -114,6 +117,7 @@
 #define SDL_TARGET_VIEW_Y               32
 #define SDL_TARGET_VIEW_W               640
 #define SDL_TARGET_VIEW_H               480
+#define SDL_TARGET_RES_CACHE            64 /* 512 MB RAM / 128 MB VRAM: 64 imagenes ~ 8 MB de texturas */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -171,6 +175,7 @@ static inline void vita_set_main_ready(void)
 #define SDL_TARGET_NEEDS_FAT_INIT       0
 #define SDL_TARGET_HAS_RENDER_GEOMETRY  1
 #define SDL_TARGET_MKDIR_WITH_MODE      1
+#define SDL_TARGET_RES_CACHE            32 /* 128/256 MB: 32 imagenes ~ 4 MB de texturas */
 
 /* Wii */
 #elif defined(__WII__)
@@ -190,6 +195,7 @@ static inline void vita_set_main_ready(void)
 #define SDL_TARGET_NEEDS_FAT_INIT       1
 #define SDL_TARGET_HAS_RENDER_GEOMETRY  1
 #define SDL_TARGET_MKDIR_WITH_MODE      1
+#define SDL_TARGET_RES_CACHE            32 /* 24+64 MB: 32 imagenes ~ 4 MB de texturas */
 
 /* Xbox clasica (nxdk) */
 #elif defined(NXDK)
@@ -209,6 +215,7 @@ static inline void vita_set_main_ready(void)
 #define SDL_TARGET_NEEDS_FAT_INIT       0
 #define SDL_TARGET_HAS_RENDER_GEOMETRY  0
 #define SDL_TARGET_MKDIR_WITH_MODE      0
+#define SDL_TARGET_RES_CACHE            32 /* 64 MB unificada: 32 imagenes ~ 4 MB de texturas */
 
 /* Nintendo Switch */
 #elif defined(__SWITCH__)
@@ -228,6 +235,7 @@ static inline void vita_set_main_ready(void)
 #define SDL_TARGET_NEEDS_FAT_INIT       0
 #define SDL_TARGET_HAS_RENDER_GEOMETRY  1
 #define SDL_TARGET_MKDIR_WITH_MODE      1
+#define SDL_TARGET_RES_CACHE            256 /* 4 GB: 256 imagenes ~ 33 MB de texturas */
 
 /* PS4 (OpenOrbis) */
 #elif defined(__ORBIS__)
@@ -251,6 +259,7 @@ static inline void vita_set_main_ready(void)
 #define SDL_TARGET_VIEW_Y               60
 #define SDL_TARGET_VIEW_W               1280
 #define SDL_TARGET_VIEW_H               960
+#define SDL_TARGET_RES_CACHE            256 /* 8 GB: 256 imagenes ~ 33 MB de texturas */
 
 /* PS3 (PSL1GHT) */
 #elif defined(__PSL1GHT__)
@@ -274,6 +283,7 @@ static inline void vita_set_main_ready(void)
 #define SDL_TARGET_VIEW_Y               240
 #define SDL_TARGET_VIEW_W               320
 #define SDL_TARGET_VIEW_H               240
+#define SDL_TARGET_RES_CACHE            64 /* 256 MB: 64 imagenes ~ 8 MB de texturas */
 
 #else
 #error                                                                                                                 \

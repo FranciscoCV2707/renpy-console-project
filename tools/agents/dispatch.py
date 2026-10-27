@@ -122,7 +122,9 @@ def allowed_files(task_text: str) -> list[str]:
     if "## Archivos permitidos" not in task_text:
         return []
     section = task_text.split("## Archivos permitidos", 1)[1].split("\n## ", 1)[0]
-    return [p for g in section.split("`")[1::2] if "/" in g or "." in g for p in expand_braces(g)]
+    # una carpeta (`tests/`) permite todo lo de adentro
+    return [p + "**" if p.endswith("/") else p
+            for g in section.split("`")[1::2] if "/" in g or "." in g for p in expand_braces(g)]
 
 
 def expand_braces(pattern: str) -> list[str]:

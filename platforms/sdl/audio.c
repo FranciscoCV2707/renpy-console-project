@@ -240,7 +240,11 @@ int audio_init(void)
 		if (cd_find("\\MUSIC.XA", &lba, &size) == 0) {
 			char path[600];
 			const char *root = getenv("VN_DATA_DIR");
+#ifdef __PSP__
+			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : "ms0:/PSP/GAME/SNOOT/DATA");
+#else
 			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : ".");
+#endif
 			music_file = fopen(path, "rb");
 		}
 	}

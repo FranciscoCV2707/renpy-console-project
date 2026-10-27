@@ -1,67 +1,89 @@
-# PSP — Toolchain Docker
+# PSP (T-501)
 
-## Imagen Docker
+## Cómo se compila (PSn00bSDK no aplica: aquí es pspsdk/pspdev, 2026-09)
+
+### Con Docker (lo que usa `platforms/psp/build.py`)
+
+```
+$ E:\Dev\renpy-console-project\.venv\Scripts\python.exe platforms\psp\build.py --trace
+E:\Dev\renpy-console-wt\T-501-kilo\build\psp\EBOOT.PBP
+```
 
 - Imagen: `pspdev/pspdev@sha256:54895e6f5afb71b8f4f6915ee6d5023e1e087ca7afdf2dcb1d7a694a5233e45f`
-- Etiqueta de origen: `pspdev/pspdev:latest`
-- Digest: `sha256:54895e6f5afb71b8f4f6915ee6d5023e1e087ca7afdf2dcb1d7a694a5233e45f`
-- Tamaño: ~790 MB
-- Comprobar localmente:
+  (pspdev/pspdev:latest, digest del 2026-08-08).
+- El repo se monta en `/src` y `make -f /src/platforms/psp/Makefile` compila `engine/core`, `engine/app`,
+  `engine/modules`, `games/snoot` y `platforms/sdl` con `psp-gcc` + SDL2 (`psp-pkg-config sdl2`), arma
+  `build/psp/generated/game_config.h` y deja el `EBOOT.PBP` en `build/psp/`. Con `--trace` añade `-DVN_TRACE`.
+- El `main` de la app es el del motor, así que no se enlaza `libSDL2main` (su `main` llamaría a `SDL_main`);
+  `platforms/sdl/backend_sdl.c` define `PSP_MODULE_INFO` y `sce_newlib_stack_kb_size` (1 MB de pila para
+  `user_main`, símbolo débil del `crt0` de pspsdk) bajo `#ifdef __PSP__`.
+- `platforms/sdl` solo difiere de PC bajo `#ifdef __PSP__`: ventana 480×272 con los 320×240 del motor escalados a
+  360×272 centrados, rutas por defecto `ms0:/PSP/GAME/SNOOT/DATA` (datos) y `.../SAVE` (partidas), `mkdir` POSIX,
+  flush de stdout y sin `SDL_GameController`.
 
-```sh
-docker pull pspdev/pspdev@sha256:54895e6f5afb71b8f4f6915ee6d5023e1e087ca7afdf2dcb1d7a694a5233e45f
-docker inspect --format "{{index .RepoDigests 0}}" pspdev/pspdev:latest
-```
-
-## Toolchain incluido
-
-- Compilador: `psp-gcc (GCC) 15.2.0` (`/usr/local/pspdev/bin/psp-gcc`).
-- SDK PSP: `psp-config --pspsdk-path` → `/usr/local/pspdev/psp/sdk`; `psp-config --pspdev-path` → `/usr/local/pspdev`.
-- SDL2 2.32.10 disponible vía `psp-pkg-config --cflags/--libs sdl2` (junto con `SDL2_image`, `SDL2_mixer`, `SDL2_ttf`).
-- Empaquetado: `pack-pbp`, `mksfoex`, `psp-fixup-imports`, `psp-strip` (reglas en `$(PSPSDK)/lib/build.mak`).
-- `make` incluido.
-
-## Compilación del hello
-
-Fuente: `platforms/psp/hello/` (`main.c` + `Makefile`).
-
-```sh
-docker run --rm -v "${PWD}:/src" -w /src/platforms/psp/hello \
-  pspdev/pspdev@sha256:54895e6f5afb71b8f4f6915ee6d5023e1e087ca7afdf2dcb1d7a694a5233e45f make
-```
-
-En Windows (PowerShell) usar rutas absolutas:
-
-```powershell
-docker run --rm -v "E:/Dev/renpy-console-project:/src" -w /src/platforms/psp/hello `
-  pspdev/pspdev@sha256:54895e6f5afb71b8f4f6915ee6d5023e1e087ca7afdf2dcb1d7a694a5233e45f make
-```
-
-## Salida esperada
-
-- `platforms/psp/hello/hello.elf` (intermedio).
-- `platforms/psp/hello/PARAM.SFO` (metadatos del EBOOT).
-- `platforms/psp/hello/EBOOT.PBP` (ejecutable final para PSP).
-
-Salida real del build (recortada):
+### El hola-mundo (referencia mínima)
 
 ```
-psp-gcc ... -c -o main.o main.c
-psp-gcc ... main.o ... -o hello.elf
-psp-fixup-imports hello.elf
-mksfoex -d MEMSIZE=2  'Hello SDL2' PARAM.SFO
-psp-strip hello.elf -o hello_strip.elf
-pack-pbp EBOOT.PBP PARAM.SFO NULL ... hello_strip.elf NULL
-[6]    1312900 bytes | hello_strip.elf
+$ MSYS_NO_PATHCONV=1 docker run --rm -v "E:/Dev/renpy-console-wt/T-501-kilo:/src" -w /src/platforms/psp/hello pspdev/pspdev@sha256:54895e6f5afb71b8f4f6915ee6d5023e1e087ca7afdf2dcb1d7a694a5233e45f make
 ```
 
-## Lo que se verificó
+(`MSYS_NO_PATHCONV=1` evita que Git Bash convierta `/src` en `C:/Program Files/Git/src`.)
 
-Solo se verificó que compila y enlaza en la imagen Docker indicada. No se ha ejecutado el `EBOOT.PBP` resultante en PPSSPP ni en hardware PSP.
+Sin Docker, el mismo Makefile vale con el toolchain local, añadiendo `$(PSPSDK)/lib/build.mak`.
 
-## Problemas encontrados
+## Herramientas
 
-- `EBOOT.PBP` y `PARAM.SFO` no estaban en `.gitignore` en el primer intento; ahora ambos están ignorados en `main` (Claude los agregó). No subir los binarios al repositorio.
-- El `main.c` usa `SDL_RENDERER_SOFTWARE`; en PSP SDL2 usa render por software.
-- `PSP_EBOOT_TITLE` se fija en el `Makefile` (`Hello SDL2`); cambiar el título requiere recompilar.
-- `all:` se define después del `include` de `build.mak` porque `$(PSP_EBOOT)` se define dentro de `build.mak` (ver comentario en el `Makefile`).
+- `pspdev/pspdev:latest`, GCC 15.2.0 + binutils 2.45 + Newlib 4.5.0 + gdb 17.1 + Python 3.12.13
+  (`psp-gcc --version`, `psp-ld --version`, `psp-gdb --version`, `python3 --version`, agosto de 2026).
+- SDL2 2.32.10 (`psp-pkg-config --modversion sdl2`, commit 67e1644). La biblioteca se deja precompilada en la
+  imagen: `ccache` no sirve porque `CMakeLists.txt:23` de SDL2 hace un `return()` si `SDL2_DISABLE_SDL2MAIN` está
+  activo y no permite rehacer solo los objetos. Además, `build.mak` define `PSPDEV=$(shell psp-config --pspdev-path)`
+  y sus reglas tienen `:=`, así que se les puede pasar `PSPDEV=/ruta/otra` por línea de comandos.
+- `psp-pkg-config --cflags --libs sdl2` y `include $(PSPSDK)/lib/build.mak` funcionan tal cual en una app nueva.
+
+## Cómo se prueba (Console Test Lab)
+
+```
+$ E:\Dev\renpy-console-project\.venv\Scripts\python.exe -m tools.ctl run --target psp --scenario tests/scenarios/snoot-route-chapter_x2.yaml
+```
+
+Requisito: los datos del disco de PS1 en `build/ctl/ps1/disc/` (los deja
+`python -m tools.ctl run --target ps1 --scenario tests/scenarios/snoot-smoke.yaml`).
+
+`tools/ctl/psp.py` arma `build/ctl/psp/ms/PSP/GAME/SNOOT/` con el `EBOOT.PBP`, los datos del disco en `DATA/` y el
+`AUTOTEST.BIN` del escenario, copia PPSSPP (`E:\snoot\ppsspp-1.20.4`) a `build/ctl/psp/ppsspp/`, corre el
+emulador y saca `build/ctl/psp/trace.txt` de `build/ctl/psp/log.txt`.
+
+### Opciones de PPSSPP usadas, con su fuente
+
+- **Arrancar un `EBOOT.PBP` directo**: la ruta va como argumento sin opción. Fuente: `UI/NativeApp.cpp` de
+  PPSSPP 1.20.4 ("This parameter should be a boot filename") y `Core/System.cpp` ("Booted %s..."); la guía
+  oficial da por hecho el archivo que arranca un frontend
+  (https://www.ppsspp.org/docs/reference/command-line, opción `--pause-menu-exit`).
+- **`--log=FILE` y `--loglevel=N`**: escriben el log en un archivo y fijan su nivel; `N=4` es `LogLevel::LINFO`
+  (`Common/Log.h`). Lo que el juego escribe por stdout/`printf` sale como `stdout: ...` porque `sceIoWrite` con
+  fd 1 lo manda al log (`Core/HLE/sceIo.cpp`, `INFO_LOG(Log::Printf, ...)`). Fuentes:
+  https://www.ppsspp.org/docs/reference/command-line y
+  https://www.ppsspp.org/docs/troubleshooting/getting-log-output/
+- **Carpeta como Memory Stick**: en 1.20.4 no existe `--memstick` (llega en 1.21; misma página de comandos). En
+  Windows la carpeta sale de `installed.txt` junto al ejecutable (una ruta por línea) o, si no existe, de
+  `<carpeta del ejecutable>/memstick` (código: `Windows/main.cpp`, `InitMemstickDirectory`; `ms0:` se monta sobre
+  esa carpeta en `Core/HLE/sceIo.cpp`, `__IoInit`). El adapter copia el emulador dentro de `build/` y escribe
+  `installed.txt` con la ruta de `build/ctl/psp/ms`.
+- **Cerrar al terminar**: `--pause-menu-exit` solo cambia "Exit to menu" por "Exit" en el menú de pausa
+  (`UI/PauseScreen.cpp`, `GamePauseScreen::OnExit`; la propia documentación avisa: "Before PPSSPP 1.21, only the
+  pause menu choice exited"). Cuando el juego llama a `sceKernelExitGame`, PPSSPP escribe `SELF-POWERDOWN!`
+  (`UI/EmuScreen.cpp`, `checkPowerDown`) y vuelve a su menú sin cerrar; el adapter espera esa marca y termina el
+  proceso con `taskkill /PID <pid> /T /F`.
+
+## Observaciones del puerto
+
+- `platforms/psp/hello/main.c` no define `PSP_MODULE_INFO`: lo aporta `libSDL2main`. Como aquí el `main` es el
+  del motor, `platforms/sdl/backend_sdl.c` lo define bajo `#ifdef __PSP__` y el Makefile filtra `-lSDL2main`.
+- `platforms/sdl/save.c` usa el `mkdir` de un argumento de MinGW; en PSP el de newlib es `mkdir(path, mode)`.
+- En una PSP real el cable USB es para la Memory Stick (`usb_device`); para los periféricos va `usbhost0:`
+  (`docs/psp/PR.md`, notas de limitaciones).
+- PR descubierto tarde (entregable D20 de PS2, no está en main): `platforms/psp/hello/main.c` compila un
+  `EBOOT.PBP` con SDL2 2.32.10 en la imagen de pspdev; ventana 480×272, fondo de color, botón para salir. Los
+  datos de PS1 con nombres de 8.3 van bien en `ms0:`, pero la imagen `MUSIC.XA` (unos 200 MB) no cabe entera en
+  la RAM de la PSP: hay que partirlo antes de meter música.

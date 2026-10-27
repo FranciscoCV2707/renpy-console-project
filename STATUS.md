@@ -35,8 +35,16 @@ Fase 3 (referencia Ren'Py, falta G3) y Fase 4 (PC con SDL) en paralelo (D20). G1
   rutas en PS1 y la regresión G1 están corriendo.
 - [ ] Fase 4 (D20, D21, D22): backend SDL en PC con los datos del disco de PS1: título, texto, audio XA/SPU; humo
   propio (`snoot-smoke-pc`). Falta: oír el audio contra los OGG originales.
-- [ ] Fase 5: PSP (T-501, Kilo, en curso) y PS2 (T-502: compila; se cuelga al arrancar en PCSX2; segunda ronda con
-  Kilo). Emuladores: PPSSPP 1.20.4 y PCSX2 2.8.2 portable con BIOS `scph39001`.
+- [ ] Fase 5: PSP hecha (T-501: chapter_x2 PASS en PPSSPP en 8 s). PS2 (T-502: compila; se cuelga al arrancar en
+  PCSX2; segunda ronda con Kilo).
+- [ ] Fase 6: Vita fusionada (T-601). 3DS, Wii, Xbox clásica y Switch compilan (T-602..T-605) y entran con T-407
+  (`sdl_target.h`, en curso). PS4 compila (T-606, `snoot.pkg`) y entra después de T-407. Adaptador de Vita3K
+  (T-608) en curso. Perfiles de recursos de las cinco (T-506).
+- [ ] Fase 7: GBA cabe en 32 MB (T-701) y su empaquetador está hecho (T-702, 24,8 MB); GB/GBC cabe en 8 MB (T-703);
+  empaquetador de GB/GBC en curso (T-704).
+- [x] Licencias y `CREDITS.md` (T-901), guía para jugadores `docs/instalar.md` (T-902), factibilidad del nivel R
+  (T-R01, D23: Xbox One/Series, PS4 y PS3 entran; PS5 y Xbox 360 fuera por ahora).
+- Emuladores en `E:\snoot` (ver `CLAUDE.md`); faltan MCPX y BIOS de Xbox y claves de Switch (del usuario).
 
 ## Pista de agentes
 - [x] Logins, Orca y Beam (usuario). Skills de Orca `orca-cli` y `orchestration` instaladas para todos.
@@ -53,7 +61,9 @@ Fase 3 (referencia Ren'Py, falta G3) y Fase 4 (PC con SDL) en paralelo (D20). G1
 - [x] Audio por duración (D18): PSP 108 MB y PS2 159 MB (antes 364 MB y 1.35 GB), deterministas.
 
 ## Pendientes
-- Fase 5: hay que bajar PPSSPP y PCSX2; PCSX2 necesita una BIOS de PS2 que tiene que poner el usuario.
+- Regenerar los guiones de snoot-ps1 (`build.py --solo-scripts`) cuando terminen las rutas de PS1: trae el arreglo de
+  "Trevor & Tana" (commit `bd822da` en snoot-ps1); luego chapter_x6 debería pasar en PS1 y PC.
+- Xbox One/Series al final (Visual Studio con UWP, más de 10 GB, y modo desarrollador: con permiso del usuario).
 - El repo mezcla CRLF (lo copiado de `ps1-base`) y LF. Propuesta: `.gitattributes` con `eol=lf` y renormalizar.
 - Agentes que lanzan PCSX-Redux para probar opciones dejan procesos colgados: revisar `tasklist` al terminar.
 

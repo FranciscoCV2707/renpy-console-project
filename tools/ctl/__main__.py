@@ -67,6 +67,8 @@ def main(argv=None) -> int:
             from .ps4 import run_scenario
         elif args.target == "ds":
             from .ds import run_scenario
+        elif args.target == "3ds":
+            from .n3ds import run_scenario
         else:
             print(f"error: unsupported target: {args.target}", file=sys.stderr)
             return 2

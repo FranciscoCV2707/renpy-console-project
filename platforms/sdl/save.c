@@ -4,7 +4,11 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#ifdef __WII__
+static char dir[512] = "sd:/apps/snoot/save";
+#else
 static char dir[512] = "build/pc/save";
+#endif
 static unsigned seq;
 static int last = -1;
 static unsigned checksum(const uint8_t *p)
@@ -89,7 +93,11 @@ SaveResult save_write(uint8_t *d)
 		char *slash = strrchr(folder, '/');
 		if (slash) {
 			*slash = 0;
+#ifdef __WII__
+			mkdir(folder, 0777);
+#else
 			mkdir(folder);
+#endif
 		}
 	}
 	f = fopen(p, "wb");

@@ -13,7 +13,7 @@
 | PS2 | A | 5 | 640×448 | 32 MB / 4 MB GS | ps2sdk + gsKit | `ps2dev/ps2dev` (verificar) | PCSX2 (flags batch: verificar) | log de EE | Pendiente (reemplaza a `snoot-ps2`) |
 | PS Vita | A | 6 | 960×544 | 512 MB / 128 MB | VitaSDK | `vitasdk/vitasdk` (verificar) | Vita3K | log de Vita3K | Pendiente |
 | 3DS | A | 6 | 400×240 + 320×240 | 128/256 MB | libctru + citro2d | `devkitpro/devkitarm` | Azahar | log de debug | Pendiente |
-| Wii | A | 6 | 640×480 | 24+64 MB | libogc | `devkitpro/devkitppc` | Dolphin (`-b -e <dol>`, verificar) | OSReport | Pendiente |
+| Wii | A | 6 | 640×480 | 24+64 MB | libogc | devkitpro/devkitppc (digest fijado) | Dolphin (-b -e <dol>, verificar) | OSReport | Compila en Docker (uild/wii/boot.dol); prueba en Dolphin pendiente |
 | Xbox clásica | A | 6 | 640×480 | 64 MB unificada | nxdk (trae SDL2) | WSL2 (verificar) | xemu | DbgPrint (verificar) | Pendiente |
 | Switch 1 | A | 6 | 1280×720 | 4 GB | libnx | `devkitpro/devkita64` | hardware propio | nxlink | Pendiente |
 | GBA | C | 7 | 240×160 | 32 KB IWRAM + 256 KB EWRAM / 96 KB; ROM ≤ 32 MB | Butano | `devkitpro/devkitarm` | mGBA (Lua) | registros de debug de mGBA | Pendiente |

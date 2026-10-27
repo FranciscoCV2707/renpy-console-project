@@ -13,6 +13,13 @@ int cd_init(void)
 	const char *p = getenv("VN_DATA_DIR");
 	if (p && *p)
 		snprintf(root, sizeof(root), "%s", p);
+	else {
+#ifdef __WII__
+		snprintf(root, sizeof(root), "%s", "sd:/apps/snoot/data");
+#else
+		snprintf(root, sizeof(root), "%s", ".");
+#endif
+	}
 	return 1;
 }
 static void make_path(const char *path)

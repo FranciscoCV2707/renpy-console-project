@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __WII__
+#include <fat.h>
+#endif
 
 extern SDL_Renderer *sdl_renderer(void);
 extern SDL_Texture *sdl_font_texture(void);
@@ -15,8 +18,14 @@ static uint32_t started;
 static FILE *open_file(const char *n)
 {
 	const char *root = getenv("VN_DATA_DIR");
+	const char *base;
 	char p[600];
-	snprintf(p, sizeof(p), "%s/%s", root && *root ? root : ".", n);
+#ifdef __WII__
+	base = root && *root ? root : "sd:/apps/snoot/data";
+#else
+	base = root && *root ? root : ".";
+#endif
+	snprintf(p, sizeof(p), "%s/%s", base, n);
 	return fopen(p, "rb");
 }
 static int file_size(const char *n)
@@ -102,6 +111,9 @@ static const VnPlatformOps ops = {.file_size = file_size,
                                   .sleep_ms = sleep_ms};
 const VnPlatformOps *vn_platform_default_ops(void)
 {
+#ifdef __WII__
+	(void)fatInitDefault();
+#endif
 	started = SDL_GetTicks();
 	return &ops;
 }

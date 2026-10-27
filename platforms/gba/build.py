@@ -133,6 +133,7 @@ def build(trace: bool = False, autotest_path: Path | None = None) -> Path:
         "source/save.c",
         "source/audio.c",
         "source/gbfs.c",
+        "source/sbrk_gba.c",
     ]
 
     compile_cmds: list[str] = [". /opt/devkitpro/devkitarm.sh", "mkdir -p build/obj"]

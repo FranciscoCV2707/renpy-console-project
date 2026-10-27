@@ -5,9 +5,6 @@
 
 uint16_t gba_backbuffer[GBA_SCREEN_W * GBA_SCREEN_H] __attribute__((section(".sbss")));
 
-int gba_in_dialog = 0;
-int gba_in_title = 0;
-
 static int frame_count = 0;
 static int vblank_count = 0;
 
@@ -133,23 +130,20 @@ void video_init(void)
 
 void video_rect(int layer, int x, int y, int w, int h, int r, int g, int b, int blend)
 {
-	if (layer == LAYER_BOX)
-		gba_in_dialog = 1;
 	gba_queue_rect(layer, x, y, w, h, r, g, b, blend);
 }
 
 void video_triangle_down(int layer, int x, int y, int w, int h, int r, int g, int b)
 {
-	/* Flecha hacia abajo del diálogo: un pequeño triángulo */
-	int sx = x * 3 / 4;
-	int sy = y * 2 / 3;
-	int sw = w * 3 / 4;
-	int sh = h * 2 / 3;
+	/* Flecha hacia abajo del diálogo: un pequeño triángulo; el escalado a 240x160
+	 * lo aplica render_cmd igual que al resto de los rectángulos */
+	int sw = w;
+	int sh = h;
 	if (sw < 1)
 		sw = 1;
 	if (sh < 1)
 		sh = 1;
-	gba_queue_rect(layer, sx, sy, sw, sh, r, g, b, 0);
+	gba_queue_rect(layer, x, y, sw, sh, r, g, b, 0);
 }
 
 void video_snapshot(int x, int y)
@@ -249,10 +243,6 @@ static void render_cmd(const GbaCmd *c)
 
 		int dx = c->u.glyph.x * 3 / 4;
 		int dy = c->u.glyph.y * 2 / 3;
-		if (gba_in_dialog && c->u.glyph.y >= 168) {
-			/* Posición del diálogo: nombre arriba, texto abajo */
-			dy = 112 + (c->u.glyph.y - 168) * 2 / 3;
-		}
 
 		int fr = c->u.glyph.r * 2 > 255 ? 255 : c->u.glyph.r * 2;
 		int fg = c->u.glyph.g * 2 > 255 ? 255 : c->u.glyph.g * 2;
@@ -329,6 +319,4 @@ void video_flip(void)
 	frame_count++;
 
 	cmd_count = 0;
-	gba_in_title = 0;
-	gba_in_dialog = 0;
 }

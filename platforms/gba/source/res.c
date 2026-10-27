@@ -60,17 +60,40 @@ void res_mark_drawn(const Image *img)
 	}
 }
 
-void res_evict_undrawn(void)
+int res_evict_undrawn(void)
 {
+	/* D25 con desalojo incremental: libera una imagen por llamada, la menos usada
+	 * recientemente. Desalojar todo de golpe hacia perder también lo que acababa de
+	 * cargarse (el fondo pedía memoria, desalojaba a los personajes, estos recargaban
+	 * desalojando al fondo y la escena nunca se estabilizaba). Primero se evitan las que
+	 * aún no se han dibujado en este cuadro; si no queda ninguna, se desaloja la menos
+	 * usada aunque esté protegida: recarga al cuadro siguiente y su memoria temporal
+	 * (la mitad del tamaño del fondo) sí cabe ya con el fondo residente. */
+	int victim = -1;
 	int now = video_frames();
+	uint32_t oldest = 0xFFFFFFFF;
+
 	for (int i = 0; i < RES_MAX; i++) {
-		if (cache[i].id && cache[i].last_draw != now) {
-			gba_free_texture(cache[i].image.vram_x);
-			cache[i].id = 0;
-			cache[i].last_used = 0;
-			cache[i].last_draw = 0;
+		if (cache[i].id && cache[i].last_draw != now && cache[i].last_used < oldest) {
+			oldest = cache[i].last_used;
+			victim = i;
 		}
 	}
+	if (victim < 0) {
+		for (int i = 0; i < RES_MAX; i++) {
+			if (cache[i].id && cache[i].last_used < oldest) {
+				oldest = cache[i].last_used;
+				victim = i;
+			}
+		}
+	}
+	if (victim < 0)
+		return 0;
+	gba_free_texture(cache[victim].image.vram_x);
+	cache[victim].id = 0;
+	cache[victim].last_used = 0;
+	cache[victim].last_draw = 0;
+	return 1;
 }
 
 const Image *res_get(int id)
@@ -117,9 +140,6 @@ const Image *res_get(int id)
 
 	if (img_load(&cache[slot].image, file_ptr, n, 0, 0, 0) != 0)
 		return NULL;
-
-	if (cache[slot].image.full_w > 240 || cache[slot].image.full_h > 160)
-		cache[slot].image.big = 1;
 
 	cache[slot].id = id + 1;
 	cache[slot].last_used = ++tick_counter;

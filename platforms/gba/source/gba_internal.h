@@ -10,8 +10,6 @@
 #define GBA_MAX_TEXTURES 16
 
 extern uint16_t gba_backbuffer[GBA_SCREEN_W * GBA_SCREEN_H];
-extern int gba_in_title;
-extern int gba_in_dialog;
 
 void gba_draw_glyph(int layer, int x, int y, int u, int v, int w, int h, int r, int g, int b);
 void gba_free_texture(int slot);
@@ -26,4 +24,4 @@ const void *cd_file_ptr(const char *path, int *size);
 void mgba_log(const char *msg);
 const uint8_t *gba_get_font_atlas(void);
 void res_mark_drawn(const Image *img);
-void res_evict_undrawn(void);
+int res_evict_undrawn(void);

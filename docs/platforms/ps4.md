@@ -72,16 +72,37 @@ Bloque `__ORBIS__` de `platforms/sdl/sdl_target.h` (sin `#ifdef` de consola en l
 
 ## Cómo ejecutar en emuladores
 
-### shadPS4
-1. **Línea de comandos:**
+### shadPS4 (0.20.0)
+1. **Línea de comandos** (opciones de `shadPS4.exe --help`):
    ```bash
-   shadps4.exe --game="build/ps4/eboot.bin" --log-level=info
+   shadps4.exe --game "build/ps4/eboot.bin" -f false
    ```
-2. **Instalación de PKG:**
-   ```bash
-   shadps4.exe --install-pkg="build/ps4/snoot.pkg"
-   ```
-3. Ubicar los datos del disco en la carpeta de datos simulada del emulador: `<directorio_usuario>/user/data/snoot/`.
+   - `-g, --game TEXT`: ruta del `eboot.bin` (o ID del juego). Si es una carpeta, usa su `eboot.bin`.
+   - `-f, --fullscreen TEXT`: `true|false`.
+   - `--override-root DIR`: raíz del juego (`/app0`) alternativa; `--mount origen,destino` monta rutas extra
+     y `-e, --env` pasa variables de entorno al guest; `--log-append` acumula el log en vez de truncarlo.
+   - `--add-game-folder DIR`: registra una carpeta de juegos (para arrancar por ID).
+2. **Dónde busca el juego sus datos:** `/app0` es la carpeta del `eboot.bin` (`src/emulator.cpp`: "Applications
+   expect to be run from /app0 so mount the file's parent path as app0") y `/data` es la subcarpeta `data` del
+   usuario del emulador (`mnt->Mount(GetUserPath(PathType::GameDataDir), "/data")`), es decir
+   `%APPDATA%\shadPS4\data\` en Windows. Los datos del disco van en `%APPDATA%\shadPS4\data\snoot\`.
+3. **Dónde queda lo que el juego escribe por `printf`:** stdout/stderr del guest van a
+   `Devices::Logger` (`src/core/file_sys/fs.cpp`, `CreateStdHandles`) y se registran con la clase `Tty` y el
+   prefijo `[stdout] ` (`src/core/file_sys/devices/logger.cpp`) en `log\shad_log.txt` (el arranque escribe
+   primero `log\shadps4.log` y `src/emulator.cpp` hace `Log::Switch` al cargar el juego; con `Log.separate`
+   activo en `config.json` sería `log\SNOT00001.log`).
+4. **Configuración:** `config.json` en `%APPDATA%\shadPS4\` (`src/core/emulator_settings.cpp`); el
+   `config.toml` antiguo se migra automáticamente. La sección `Log` (`enable`, `filter`, `separate`, `sync`,
+   `type`) controla el registro.
+5. **Cómo cerrar al terminar:** si el juego llama `exit()`, el HLE de `exit`
+   (`src/core/libraries/kernel/process.cpp`) termina el proceso con una aserción y vuelca el log; si el juego
+   no sale, la ventana queda abierta (`while (window->IsOpen())` en `src/emulator.cpp`) y hay que matar el
+   proceso (`taskkill /PID <pid> /T /F`).
+6. **Capturas:** `F12` guarda un PNG en `%APPDATA%\shadPS4\screenshots\`
+   (`{game_id}_{fecha}_{game|hud}_{seq}.png`); `LAlt+F12` la incluye con los overlays.
+7. **Diálogo de migración de partidas:** en el primer arranque shadPS4 muestra el diálogo modal "Save
+   Migration" siempre que falte `%APPDATA%\shadPS4\home\1000` (`src/core/user_manager.cpp`,
+   `CreateDefaultUsers`/`AskMigrationOption`); crear esa carpeta por adelantado evita que bloquee el arranque.
 
 ### fpPS4
 1. Ejecución directa:
@@ -89,13 +110,21 @@ Bloque `__ORBIS__` de `platforms/sdl/sdl_target.h` (sin `#ifdef` de consola en l
    fpps4.exe -e "build/ps4/eboot.bin"
    ```
 
-## Integración futura con Console Test Lab (`tools/ctl`)
+## Integración con Console Test Lab (`tools/ctl`)
 
-Para permitir la ejecución automatizada de pruebas y captura de trazas TRACE con `python -m tools.ctl run --target ps4 --scenario ...`, faltaría implementar en una tarea posterior:
-1. **Módulo adapter `tools/ctl/ps4.py`:**
-   - Orquestar la preparación de la carpeta de trabajo del emulador (`shadPS4` o `fpPS4`).
-   - Copiar `eboot.bin` y los datos del disco (`build/ctl/ps1/disc/`) junto con el `AUTOTEST.BIN` generado para el escenario en la ruta mapeada a `/data/snoot/`.
-2. **Ejecución y recolección de trazas:**
-   - Lanzar shadPS4 en modo headless (`--game=...`) redirigiendo la salida estándar a un archivo de registro.
-   - Extraer las líneas de traza con prefijo `T|` generadas por `VN_TRACE`.
-   - Monitorear la finalización del autotest y matar el proceso del emulador al concluir el escenario.
+```bash
+E:/Dev/renpy-console-project/.venv/Scripts/python.exe -m tools.ctl run --target ps4 --scenario tests/scenarios/snoot-route-chapter_x2.yaml
+```
+
+El adapter `tools/ctl/ps4.py` copia `build/ctl/ps1/disc/` y el `AUTOTEST.BIN` del escenario en
+`%APPDATA%\shadPS4\data\snoot\`, crea `%APPDATA%\shadPS4\home\1000\` (sin diálogo de migración), compila con
+`platforms/ps4/build.py --trace`, arranca shadPS4 con `--game build/ps4/eboot.bin -f false`, espera la salida
+del juego (o `limits.max_seconds`), mata el proceso si hace falta y extrae de `log\shad_log.txt` las líneas
+`T|` de la traza VN_TRACE (`build/ctl/ps4/trace.txt`) para el veredicto contra Ren'Py.
+
+**Bloqueo conocido (T-614):** el `libc.a` de OpenOrbis implementa `malloc`/`realloc` sobre
+`sceLibcMspace*` de `libSceLibcInternal` (`malloc.lo`, verificado con `llvm-nm` sobre la imagen
+`xfangfang/pacbrew`), pero shadPS4 0.20.0 solo tiene stubs de esos NIDs (`CommonStub` que devuelven 0). El
+heap del guest nunca se inicializa: la CRT reserva regiones flexibles de 2.5 GiB ("User Mem") en bucle hasta
+que shadPS4 muere con `address_space.cpp:294 MapRegion: Assertion Failed!`, antes de ningún evento TRACE ni
+de dibujar la pantalla de título. Ver `reports/T-614.md`.

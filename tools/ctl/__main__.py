@@ -56,6 +56,8 @@ def main(argv=None) -> int:
             from .psp import run_scenario
         elif args.target == "vita":
             from .vita import run_scenario
+        elif args.target == "ps4":
+            from .ps4 import run_scenario
         else:
             print(f"error: unsupported target: {args.target}", file=sys.stderr)
             return 2

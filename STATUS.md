@@ -3,7 +3,7 @@
 ## Fecha: 2026-10-27
 
 ## Fase actual
-Fases 4-7 en paralelo (D20). `chapter_x2` PASS contra Ren'Py en PS1, PC, PSP, PS2, Vita, Wii y PS4. 3DS y PS3 corren
+Fases 4-7 en paralelo (D20). `chapter_x2` PASS contra Ren'Py en PS1, PC, PSP, PS2, Vita, 3DS, Wii y PS4. PS3 corre
 el juego pero aún sin veredicto; DS arranca título y diálogo; GBA muestra un CG. G1, G2 y G3 cumplidas; G5 en medición
 (T-620).
 
@@ -45,7 +45,7 @@ el juego pero aún sin veredicto; DS arranca título y diálogo; GBA muestra un 
     el stack, traza por USB Gecko).
   - PS4: `chapter_x2` PASS en shadPS4 (T-614, T-616, T-618: dlmalloc propio con `MMAP_CLEARS=0`, traza `[stdin]`,
     Makefile con dependencias de headers y objetos por modo).
-  - 3DS: el juego corre en Azahar (T-610); falta la traza por `svcOutputDebugString` y la pantalla negra (T-619).
+  - 3DS: `chapter_x2` PASS en Azahar (T-610, T-619: traza por `svcOutputDebugString`, título visible).
   - PS3: SDL2 desde la fuente del port de ps3dev con audio funcional (T-615); en RPCS3 el renderer OpenGL truena y
     con el Null el juego espera el flip (T-621).
   - Xbox clásica y Switch compilan; esperan MCPX/BIOS y claves del usuario.

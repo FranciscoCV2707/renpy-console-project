@@ -349,6 +349,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-604 | 6 | beam | Xbox clásica con nxdk | T-405 |
 | T-605 | 6 | beam | Switch con el backend SDL (devkitA64) | T-405 |
 | T-606 | 6 | agy | PS4 con el backend SDL (OpenOrbis en Docker) | T-R01 |
+| T-608 | 6 | agy | `ctl run --target vita` con Vita3K | T-601 |
 | T-407 | 6 | beam | `sdl_target.h` y fusión de 3DS, Wii, Xbox y Switch | T-601..T-605 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |

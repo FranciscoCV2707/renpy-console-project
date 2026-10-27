@@ -121,3 +121,10 @@ def test_route_choices_follow_autoplay_without_quit():
 def test_choices_must_be_option_indexes():
     with pytest.raises(ScenarioError):
         scenario_steps(_scen([{"choices": [16]}]))
+
+
+def test_absolute_steps_like_the_vn_engine_harness():
+    steps = scenario_steps(_scen([{"steps": "60 press L1; 120 shot dev; 400 autoplay"}, {"choices": [2]}]))
+    assert steps == [(60, "press", "L1"), (120, "shot", "dev"), (400, "autoplay", ""), (400, "choice", "2")]
+    with pytest.raises(ScenarioError):
+        scenario_steps(_scen([{"steps": "60 press NOPE"}]))

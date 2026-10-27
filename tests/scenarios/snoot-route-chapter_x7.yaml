@@ -1,0 +1,20 @@
+id: snoot-route-chapter_x7
+reference: tests/reference/traces/snoot/chapter_x7.trace
+inputs:
+- steps: 60 press L1; 60 press R1; 60 press SELECT; 120 shot dev; 130 press DOWN;
+    140 press DOWN; 150 press DOWN; 160 press DOWN; 170 press DOWN; 180 press DOWN;
+    190 press DOWN; 200 press DOWN; 210 press DOWN; 220 press DOWN; 230 press DOWN;
+    240 press DOWN; 250 press DOWN; 260 press DOWN; 270 press DOWN; 280 press DOWN;
+    290 press DOWN; 300 press DOWN; 310 press DOWN; 320 press DOWN; 330 press DOWN;
+    340 press DOWN; 350 press DOWN; 360 press DOWN; 370 press DOWN; 380 press DOWN;
+    390 press DOWN; 400 press DOWN; 410 press DOWN; 420 press DOWN; 430 press DOWN;
+    440 press DOWN; 450 press DOWN; 460 press DOWN; 470 press DOWN; 480 press DOWN;
+    490 press DOWN; 520 press CROSS; 580 autoplay
+expect: []
+compare:
+  mode: renpy
+  events:
+  - SAY
+  - CHOICE
+limits:
+  max_seconds: 532

@@ -9,7 +9,7 @@ from tools.ctl.trace import (
     parse_trace,
     normalize_engine,
     normalize_renpy,
-    compare_cross,
+    compare_events,
 )
 from tools.ctl.scenario import load_scenario
 
@@ -40,7 +40,7 @@ def test_normalize_engine_and_renpy_match():
     assert eng[0].ev == "SAY"
     assert eng[0].fields == {"who": "", "id": "chapter_x3_93919e8e"}
     assert ref[1].fields == {"who": "Spears", "id": "chapter_x3_b0f49f92"}
-    result = compare_cross(eng, ref)
+    result = compare_events(eng, ref)
     assert result.equal is True
     assert result.verdict == "PASS"
 
@@ -56,7 +56,7 @@ def test_compare_cross_first_divergent():
     )
     eng = normalize_engine(parse_trace(engine_text), FAKE_MAP)
     ref = normalize_renpy(parse_trace(renpy_text))
-    result = compare_cross(eng, ref)
+    result = compare_events(eng, ref)
     assert result.equal is False
     assert result.verdict == "FAIL"
     assert result.index == 1
@@ -69,7 +69,7 @@ def test_compare_cross_length_mismatch():
     ref = normalize_renpy(parse_trace(
         "T|10|0|SAY|who=;id=chapter_x3_93919e8e;loc=x.rpy:1\n"
         "T|11|1|CHOICE|i=0\n"))
-    result = compare_cross(eng, ref)
+    result = compare_events(eng, ref)
     assert result.equal is False
     assert result.index == 1
 

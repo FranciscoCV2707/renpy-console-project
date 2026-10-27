@@ -77,8 +77,8 @@ class Scenario:
         if not isinstance(tolerance, dict):
             raise ScenarioError("compare.tolerance", "must be a mapping")
         mode = cmp_data.get("mode", "same")
-        if not isinstance(mode, str) or mode.strip() == "":
-            raise ScenarioError("compare.mode", "must be a non-empty string")
+        if mode not in ("same", "renpy"):
+            raise ScenarioError("compare.mode", "must be same or renpy")
         compare = CompareSpec(events=events, tolerance=tolerance, mode=mode)
         lim_data = data["limits"]
         if not isinstance(lim_data, dict):

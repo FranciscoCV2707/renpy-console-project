@@ -53,7 +53,7 @@ def main(argv=None) -> int:
             trace = run_scenario(scen, Path("build") / "ctl" / args.target)
             result = compare_scenario(scen, trace)
             write_report(args.target, result, scen)
-        except (ValueError, OSError, yaml.YAMLError, subprocess.CalledProcessError, RuntimeError) as e:
+        except (ValueError, OSError, yaml.YAMLError, subprocess.CalledProcessError) as e:
             print(f"error: {e}", file=sys.stderr)
             return 2
         print(result.message)
@@ -69,7 +69,7 @@ def main(argv=None) -> int:
             scen = load_scenario(args.scenario)
             result = compare_scenario(scen, args.trace)
             write_report(args.target, result, scen)
-        except (ValueError, OSError, yaml.YAMLError, RuntimeError) as e:
+        except (ValueError, OSError, yaml.YAMLError) as e:
             print(f"error: {e}", file=sys.stderr)
             return 2
         print(result.message)

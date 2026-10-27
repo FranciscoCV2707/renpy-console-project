@@ -144,11 +144,9 @@ def build_manifest(profile: str, game_dir, resources: Iterable, language: str | 
 
 def _probe_duration(path) -> float:
     """Duracion en segundos del audio con ffprobe (formato=duration)."""
-    result = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
-        capture_output=True, text=True, check=True,
-    )
-    return float(result.stdout.strip())
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
+                         capture_output=True, text=True, check=True).stdout
+    return float(out)
 
 
 def convert_resources(profile: dict, game_dir: Path, out_dir: Path, resources: Iterable,
@@ -161,44 +159,28 @@ def convert_resources(profile: dict, game_dir: Path, out_dir: Path, resources: I
             skipped.append({"source": rel.as_posix()})
             continue
         src = source_file(game_dir, rel, language)
+        if kind == "audio":
+            # D18: lo largo es musica (OGG Vorbis), lo corto efecto o UI (WAV PCM)
+            kind = "music" if _probe_duration(src) > profile["music_threshold"] else "sound"
+        out_rel = rel.with_suffix({"image": ".png", "music": ".ogg", "sound": ".wav"}.get(kind, rel.suffix))
+        dst = out_dir / out_rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        ffmpeg = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(src), "-map_metadata", "-1", "-bitexact"]
         if kind == "image":
-            out_rel = rel.with_suffix(".png")
-            dst = out_dir / out_rel
-            dst.parent.mkdir(parents=True, exist_ok=True)
             # thumbnail no agranda; sin info (metadatos) el PNG sale igual byte a byte
             with Image.open(src) as img:
                 img.thumbnail(profile["image_size"], Image.LANCZOS)
                 img.info.clear()
                 img.save(dst, format="PNG")
-            result_kind = kind
-        elif kind == "audio":
-            duration = _probe_duration(src)
-            if duration > profile["music_threshold"]:
-                out_rel = rel.with_suffix(".ogg")
-                dst = out_dir / out_rel
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(src),
-                                "-map_metadata", "-1", "-bitexact",
-                                "-ar", str(profile["music_rate"]), "-ac", str(profile["music_channels"]),
-                                "-c:a", "libvorbis", "-q:a", str(profile["music_quality"]), str(dst)],
-                                check=True)
-                result_kind = "music"
-            else:
-                out_rel = rel.with_suffix(".wav")
-                dst = out_dir / out_rel
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(src),
-                                "-map_metadata", "-1", "-bitexact",
-                                "-ar", str(profile["audio_rate"]), "-ac", str(profile["audio_channels"]),
-                                "-sample_fmt", "s16", str(dst)], check=True)
-                result_kind = "sound"
+        elif kind == "music":
+            subprocess.run([*ffmpeg, "-ar", str(profile["music_rate"]), "-ac", str(profile["music_channels"]),
+                            "-c:a", "libvorbis", "-q:a", str(profile["music_quality"]), str(dst)], check=True)
+        elif kind == "sound":
+            subprocess.run([*ffmpeg, "-ar", str(profile["audio_rate"]), "-ac", str(profile["audio_channels"]),
+                            "-sample_fmt", "s16", str(dst)], check=True)
         else:
-            out_rel = rel
-            dst = out_dir / out_rel
-            dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(src, dst)
-            result_kind = kind
-        entries.append({"path": out_rel.as_posix(), "source": rel.as_posix(), "kind": result_kind,
+        entries.append({"path": out_rel.as_posix(), "source": rel.as_posix(), "kind": kind,
                         "bytes": dst.stat().st_size, "sha256": sha256_file(dst)})
     return {"profile": profile["name"], "count": len(entries), "resources": entries, "skipped": skipped}
 

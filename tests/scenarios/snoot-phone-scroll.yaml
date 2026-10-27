@@ -4,13 +4,53 @@ inputs:
   - wait: 60
   - press: CROSS
   - wait: 60
-  - steps: 120 press L1; 150 press R1; 180 press SELECT; 210 press UP; 240 press DOWN; 270 press UP; 300 press DOWN; 330 press L1; 360 press R1; 390 press CROSS; 420 press CROSS; 450 press CROSS; 480 press CROSS; 510 press CROSS; 540 press CROSS; 570 press CROSS; 600 press CROSS; 630 press CROSS; 660 press CROSS; 690 press CROSS; 720 press CROSS; 750 press CROSS; 780 press CROSS; 810 press CROSS; 840 press CROSS; 870 press CROSS; 900 press CROSS; 930 press CROSS; 960 press CROSS; 990 press CROSS; 1020 press CROSS; 1050 press CROSS; 1080 press CROSS; 1110 press CROSS; 1140 press CROSS; 1170 press CROSS; 1200 press CROSS; 1230 press CROSS; 1260 press CROSS; 1290 press CROSS; 1320 press CROSS; 1350 press CROSS; 1380 press CROSS; 1410 press CROSS; 1440 press CROSS; 1470 press CROSS; 1500 press CROSS; 1530 press CROSS; 1560 press CROSS; 1590 press CROSS; 1620 press CROSS; 1650 press CROSS; 1680 press CROSS; 1710 press CROSS; 1740 press CROSS; 1770 press CROSS; 1800 press CROSS; 1830 press CROSS; 1860 press CROSS; 1890 press CROSS; 1920 press CROSS; 1950 press CROSS; 1980 press CROSS; 2010 press CROSS; 2040 press CROSS; 2070 press CROSS; 2100 press CROSS; 2130 press CROSS; 2160 press CROSS; 2190 press CROSS; 2220 press CROSS; 2250 press CROSS; 2280 press CROSS; 2310 press CROSS; 2340 press CROSS; 2370 press CROSS; 2400 press CROSS; 2430 press CROSS; 2460 press CROSS; 2490 press CROSS; 2520 press CROSS; 2550 press CROSS; 2580 press CROSS; 2610 press CROSS; 2640 press CROSS; 2670 press CROSS; 2700 press CROSS; 2730 press CROSS; 2760 press CROSS; 2790 press CROSS; 2820 press CROSS; 2850 press CROSS; 2880 press CROSS; 2910 press CROSS; 2940 press CROSS; 2970 press CROSS; 3000 press CROSS; 3030 press CROSS; 3060 press CROSS; 3090 press CROSS; 3120 press CROSS; 3150 press CROSS; 3180 press CROSS; 3210 press CROSS; 3240 press CROSS; 3270 press CROSS; 3300 press CROSS; 3330 press CROSS; 3360 press CROSS; 3390 press CROSS; 3420 press CROSS; 3450 press CROSS; 3480 press CROSS; 3510 press CROSS; 3540 press CROSS; 3570 press CROSS; 3600 press CROSS; 3630 press CROSS; 3660 press CROSS; 3690 press CROSS; 3720 press CROSS; 3750 press CROSS; 3780 press CROSS; 3810 press CROSS; 3840 press CROSS; 3870 press CROSS; 3900 press CROSS; 3930 press CROSS; 3960 press CROSS; 3990 press CROSS; 4020 press CROSS; 4050 press CROSS; 4080 press CROSS; 4110 press CROSS; 4140 press CROSS; 4170 press CROSS; 4200 press CROSS
+  - advance: 550
   - shot: phone_start
-  - steps: 4230 press UP; 4260 press UP; 4290 press UP; 4320 press UP; 4350 press UP; 4380 press UP; 4410 press UP; 4440 press UP; 4470 press UP; 4500 press UP; 4530 press UP; 4560 press UP; 4590 press UP; 4620 press UP; 4650 press UP; 4680 press UP; 4710 press UP; 4740 press UP; 4770 press UP; 4800 press UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
   - shot: phone_mid
-  - steps: 4830 press UP; 4860 press UP; 4890 press UP; 4920 press UP; 4950 press UP; 4980 press UP; 5010 press UP; 5040 press UP; 5070 press UP; 5100 press UP; 5130 press UP; 5160 press UP; 5190 press UP; 5220 press UP; 5250 press UP; 5280 press UP; 5310 press UP; 5340 press UP; 5370 press UP; 5400 press UP; 5430 press UP; 5460 press UP; 5490 press UP; 5520 press UP; 5550 press UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: UP
+  - press: L1
+  - press: R1
   - shot: phone_top
-  - steps: 5580 press CROSS
+  - press: CROSS
   - shot: phone_exit
   - quit: ""
 expect: []

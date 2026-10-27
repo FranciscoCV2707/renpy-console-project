@@ -11,6 +11,22 @@
  * telefono, que se lee de abajo hacia arriba como en el original. */
 static int strip_first, strip_count, strip_pos;
 
+/* Fallback debil para consolas que no implementan estas consultas (ej. PS1): no rompe el enlace. */
+__attribute__((weak)) int input_stick_x(void)
+{
+	return 0;
+}
+__attribute__((weak)) int input_stick_y(void)
+{
+	return 0;
+}
+__attribute__((weak)) int input_touch_down(int *x, int *y)
+{
+	(void)x;
+	(void)y;
+	return 0;
+}
+
 void strips_setup(int first, int count)
 {
 	strip_first = first;
@@ -28,44 +44,47 @@ static int strips_begin(void)
 static int strips_update(void)
 {
 	int max = strip_count * VIEW_H - VIEW_H;
-	int step = input_down(BTN_R1) ? 8 : 3;
 	int sy = input_stick_y();
+	int up = input_down(BTN_UP) || sy < 0;
+	int down = input_down(BTN_DOWN) || sy > 0;
+	int step = input_down(BTN_R1) ? 8 : 3;
+	static int hold = 0;
 
-	/* Aceleracion si se mantiene (D-pad o stick) */
-	if (input_down(BTN_UP) || sy < 0)
-		step = step < 12 ? 12 : step;
-	if (input_down(BTN_DOWN) || sy > 0)
-		step = step < 12 ? 12 : step;
+	if ((up && !down) || (down && !up))
+		hold++;
+	else
+		hold = 0;
+	if (hold > 12)
+		step = 12;
 
-	if (input_down(BTN_UP))
+	if (up && !down) {
 		strip_pos = strip_pos - step < 0 ? 0 : strip_pos - step;
-	if (input_down(BTN_DOWN))
+	} else if (down && !up) {
 		strip_pos = strip_pos + step > max ? max : strip_pos + step;
-	if (sy < 0)
-		strip_pos = strip_pos - (step > 6 ? step : 6) < 0 ? 0 : strip_pos - (step > 6 ? step : 6);
-	if (sy > 0)
-		strip_pos = strip_pos + (step > 6 ? step : 6) > max ? max : strip_pos + (step > 6 ? step : 6);
+	}
 
-	/* Saltos de pagina con L/R */
-	if (input_pressed(BTN_L1))
-		strip_pos = strip_pos - VIEW_H < 0 ? 0 : strip_pos - VIEW_H;
-	if (input_pressed(BTN_R1))
-		strip_pos = strip_pos + VIEW_H > max ? max : strip_pos + VIEW_H;
+	/* Saltos de pagina con L/R (solo si no se esta desplazando arriba/abajo) */
+	if (!up && !down) {
+		if (input_pressed(BTN_L1))
+			strip_pos = strip_pos - VIEW_H < 0 ? 0 : strip_pos - VIEW_H;
+		if (input_pressed(BTN_R1))
+			strip_pos = strip_pos + VIEW_H > max ? max : strip_pos + VIEW_H;
+	}
 
-	/* Tactil (arrastrar): basico si disponible */
+	/* Tactil: arrastrar para desplazar (si el backend lo soporta) */
 	{
 		int tx = 0, ty = 0;
 		static int last_y = -1;
 		if (input_touch_down(&tx, &ty)) {
 			if (last_y >= 0) {
 				int dy = last_y - ty;
-				if (dy > 2)
-					strip_pos =
-					    strip_pos - (dy > 12 ? 12 : dy) < 0 ? 0 : strip_pos - (dy > 12 ? 12 : dy);
-				else if (dy < -2)
-					strip_pos = strip_pos + (-dy > 12 ? 12 : -dy) > max
-					                ? max
-					                : strip_pos + (-dy > 12 ? 12 : -dy);
+				if (dy > 2) {
+					int d = dy > 12 ? 12 : dy;
+					strip_pos = strip_pos - d < 0 ? 0 : strip_pos - d;
+				} else if (dy < -2) {
+					int d = -dy > 12 ? 12 : -dy;
+					strip_pos = strip_pos + d > max ? max : strip_pos + d;
+				}
 			}
 			last_y = ty;
 		} else {

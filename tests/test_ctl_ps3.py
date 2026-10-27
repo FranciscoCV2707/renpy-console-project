@@ -1,4 +1,5 @@
 """Pruebas del adapter PS3/RPCS3 (T-613), sin emulador."""
+import os
 import sys
 from pathlib import Path
 
@@ -35,12 +36,31 @@ def test_stage_data(tmp_path):
     assert (data_dir / "AUTOTEST.BIN").read_bytes() == b"\x01\x00\x00\x00\xff\xff"
 
 
-def test_install_pkg_skips_when_eboot_exists(tmp_path, monkeypatch):
+def test_install_pkg_skips_when_eboot_is_newer(tmp_path, monkeypatch):
+    pkg = tmp_path / "snoot.pkg"
+    pkg.write_bytes(b"pkg")
     eboot = tmp_path / "EBOOT.BIN"
     eboot.write_bytes(b"bin")
+    os.utime(pkg, (1000, 1000))
     monkeypatch.setattr("tools.ctl.ps3.EBOOT", eboot)
     # si intentara instalar lanzaria el exe del emulador, que no existe en tmp_path
-    install_pkg(tmp_path / "snoot.pkg")
+    install_pkg(pkg)
+    assert eboot.is_file()
+
+
+def test_install_pkg_reinstalls_when_pkg_is_newer(tmp_path, monkeypatch):
+    eboot = tmp_path / "EBOOT.BIN"
+    eboot.write_bytes(b"old")
+    os.utime(eboot, (1000, 1000))
+    pkg = tmp_path / "snoot.pkg"
+    pkg.write_bytes(b"pkg")
+    monkeypatch.setattr("tools.ctl.ps3.EBOOT", eboot)
+    monkeypatch.setattr("tools.ctl.ps3.RPCS3_EXE", tmp_path / "rpcs3.exe")
+    try:
+        install_pkg(pkg)
+    except (FileNotFoundError, OSError, RuntimeError):
+        pass
+    assert not eboot.is_file()
 
 
 def test_install_pkg_requires_pkg(tmp_path, monkeypatch):

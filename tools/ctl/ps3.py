@@ -52,9 +52,10 @@ def install_firmware() -> None:
 
 
 def install_pkg(pkg: Path) -> None:
-    """Instala el ``snoot.pkg`` con ``--headless --installpkg`` si falta el EBOOT.BIN instalado."""
-    if EBOOT.is_file():
+    """Instala el ``snoot.pkg`` con ``--headless --installpkg`` si falta el EBOOT.BIN o es mas viejo que el paquete."""
+    if EBOOT.is_file() and pkg.is_file() and EBOOT.stat().st_mtime >= pkg.stat().st_mtime:
         return
+    EBOOT.unlink(missing_ok=True)
     if not pkg.is_file():
         raise FileNotFoundError(f"no existe el paquete {pkg}; ejecuta platforms/ps3/build.py --trace")
     # Ruta absoluta obligatoria: con ruta relativa RPCS3 reporta "PKG file not found". Mismo ruido de teardown
@@ -88,9 +89,10 @@ def run_scenario(scenario, out: Path) -> Path:
 
     TTY_LOG.parent.mkdir(exist_ok=True)
     TTY_LOG.unlink(missing_ok=True)
-    # --no-gui ejecuta el (S)ELF sin la ventana del emulador (rpcs3 --help); el juego termina con exit(0) del
-    # AUTOTEST, que detiene la emulacion. Si no sale, lo corta limits.max_seconds.
-    proc = subprocess.Popen([str(RPCS3_EXE), "--no-gui", str(EBOOT.resolve())],
+    # --headless corre el (S)ELF con el renderer Null (rpcs3 --help): el veredicto compara eventos, no pixeles, y el
+    # renderer OpenGL de RPCS3 truena con los blits chicos del renderer software de SDL. El juego termina con exit(0)
+    # del AUTOTEST, que detiene la emulacion. Si no sale, lo corta limits.max_seconds.
+    proc = subprocess.Popen([str(RPCS3_EXE), "--headless", str(EBOOT.resolve())],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     deadline = time.monotonic() + scenario.limits.max_seconds * TIMEOUT_FACTOR
     while proc.poll() is None and time.monotonic() < deadline:

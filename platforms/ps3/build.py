@@ -61,6 +61,9 @@ def build(trace: bool = False) -> Path:
         newline="\n",
     )
     ensure_sdl2()
+    # El Makefile no ve cambios de VN_TRACE ni de libSDL2.a: sin esto reusaba un ELF viejo sin traza
+    for stale in ("snoot.elf", "snoot.self", "snoot.fake.self", "snoot.pkg", "snoot.gnpdrm.pkg"):
+        (OUT / stale).unlink(missing_ok=True)
     make_cmd = "make -f /src/platforms/ps3/Makefile"
     if trace:
         make_cmd += " VN_TRACE=1"

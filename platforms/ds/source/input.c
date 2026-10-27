@@ -1,0 +1,111 @@
+#include "input.h"
+#include <nds.h>
+#include <string.h>
+
+volatile uint32_t autotest_autoplay, autotest_quit;
+static const uint8_t *script;
+static int count, choice_at, frame;
+static uint8_t done[2800];
+static uint16_t cur, prev;
+
+void input_init(int with_card)
+{
+	(void)with_card;
+	cur = prev = 0;
+	frame = 0;
+	choice_at = 0;
+	autotest_autoplay = 0;
+	autotest_quit = 0;
+}
+
+void input_set_script(const uint8_t *entries, int n)
+{
+	script = entries;
+	count = n;
+	choice_at = 0;
+	frame = 0;
+	memset(done, 0, sizeof(done));
+}
+
+void input_update(void)
+{
+	scanKeys();
+	uint32_t keys = keysHeld();
+	prev = cur;
+	cur = 0;
+
+	if (keys & KEY_A)
+		cur |= BTN_CROSS;
+	if (keys & KEY_B)
+		cur |= BTN_CIRCLE;
+	if (keys & KEY_X)
+		cur |= BTN_SQUARE;
+	if (keys & KEY_Y)
+		cur |= BTN_TRIANGLE;
+	if (keys & KEY_START)
+		cur |= BTN_START;
+	if (keys & KEY_SELECT)
+		cur |= BTN_SELECT;
+	if (keys & KEY_UP)
+		cur |= BTN_UP;
+	if (keys & KEY_DOWN)
+		cur |= BTN_DOWN;
+	if (keys & KEY_LEFT)
+		cur |= BTN_LEFT;
+	if (keys & KEY_RIGHT)
+		cur |= BTN_RIGHT;
+	if (keys & KEY_L)
+		cur |= BTN_L1;
+	if (keys & KEY_R)
+		cur |= BTN_R1;
+
+	for (int i = 0; i < count; i++) {
+		const uint8_t *p = script + 6 * i;
+		uint32_t at = p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+		uint16_t val = (uint16_t)(p[4] | (p[5] << 8));
+		if (frame < (int)at || done[i])
+			continue;
+		done[i] = 1;
+		if (val == 0xfffe) {
+			autotest_quit = 1;
+		} else if (val == 0xfffd) {
+			autotest_autoplay = 1;
+		} else if (val == 0xfffc) {
+			autotest_autoplay = 0;
+		} else if (val < 0xffe0) {
+			cur |= val;
+		}
+	}
+	frame++;
+
+	if (autotest_quit) {
+	}
+}
+
+int input_down(uint16_t mask)
+{
+	return (cur & mask) != 0;
+}
+
+int input_pressed(uint16_t mask)
+{
+	return (cur & ~prev & mask) != 0;
+}
+
+int input_raw_down(uint16_t mask)
+{
+	return input_down(mask);
+}
+
+int input_autotest_choice(void)
+{
+	for (; choice_at < count; choice_at++) {
+		const uint8_t *p = script + 6 * choice_at;
+		int v = p[4] | (p[5] << 8);
+		if (v >= 0xffe0 && v < 0xfff0) {
+			choice_at++;
+			return v - 0xffe0;
+		}
+	}
+	return -1;
+}

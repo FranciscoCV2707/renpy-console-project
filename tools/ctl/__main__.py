@@ -36,6 +36,9 @@ def main(argv=None) -> int:
         if args.target == "pc":
             result = subprocess.run([sys.executable, "platforms/sdl/build.py"], check=False)
             return result.returncode
+        if args.target == "ds":
+            result = subprocess.run([sys.executable, "platforms/ds/build.py"], check=False)
+            return result.returncode
         print(f"adapter pendiente: build for target {args.target}", file=sys.stderr)
         return 2
 
@@ -56,6 +59,8 @@ def main(argv=None) -> int:
             from .psp import run_scenario
         elif args.target == "vita":
             from .vita import run_scenario
+        elif args.target == "ds":
+            from .ds import run_scenario
         else:
             print(f"error: unsupported target: {args.target}", file=sys.stderr)
             return 2

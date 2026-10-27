@@ -12,14 +12,19 @@ static int count, choice_at, frame;
 static uint8_t done[2800];
 static uint16_t cur, prev;
 static int shot_pending;
-#if SDL_TARGET_HAS_GAME_CONTROLLER
+#if SDL_TARGET_HAS_JOYSTICK
+static SDL_Joystick *joystick;
+#elif SDL_TARGET_HAS_GAME_CONTROLLER
 static SDL_GameController *controller;
 #endif
 extern void sdl_shot_request(void);
 void input_init(int card)
 {
 	(void)card;
-#if SDL_TARGET_HAS_GAME_CONTROLLER
+#if SDL_TARGET_HAS_JOYSTICK
+	if (SDL_NumJoysticks() > 0)
+		joystick = SDL_JoystickOpen(0);
+#elif SDL_TARGET_HAS_GAME_CONTROLLER
 	if (SDL_NumJoysticks() > 0 && SDL_IsGameController(0))
 		controller = SDL_GameControllerOpen(0);
 #endif
@@ -66,7 +71,37 @@ void input_update(void)
 	KEY(SDLK_F1, BTN_START);
 	KEY(SDLK_F2, BTN_SELECT);
 #undef KEY
-#if SDL_TARGET_HAS_GAME_CONTROLLER
+#if SDL_TARGET_HAS_JOYSTICK
+	if (joystick) {
+		SDL_JoystickUpdate();
+#define JOY(button, bit)                                                                                               \
+	if (SDL_JoystickGetButton(joystick, button))                                                                   \
+	cur |= (bit)
+		JOY(0, BTN_CROSS);
+		JOY(1, BTN_CIRCLE);
+		JOY(2, BTN_SQUARE);
+		JOY(3, BTN_TRIANGLE);
+		JOY(4, BTN_L1);
+		JOY(5, BTN_R1);
+		JOY(9, BTN_START);
+		JOY(13, BTN_UP);
+		JOY(14, BTN_DOWN);
+		JOY(15, BTN_LEFT);
+		JOY(16, BTN_RIGHT);
+		JOY(17, BTN_SELECT);
+		JOY(18, BTN_L2);
+		JOY(19, BTN_R2);
+#undef JOY
+		if (SDL_JoystickGetAxis(joystick, 0) < -16000)
+			cur |= BTN_LEFT;
+		if (SDL_JoystickGetAxis(joystick, 0) > 16000)
+			cur |= BTN_RIGHT;
+		if (SDL_JoystickGetAxis(joystick, 1) < -16000)
+			cur |= BTN_UP;
+		if (SDL_JoystickGetAxis(joystick, 1) > 16000)
+			cur |= BTN_DOWN;
+	}
+#elif SDL_TARGET_HAS_GAME_CONTROLLER
 	if (controller) {
 		SDL_GameControllerUpdate();
 #define PAD(button, bit)                                                                                               \

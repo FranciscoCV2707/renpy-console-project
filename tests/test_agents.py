@@ -131,3 +131,8 @@ def test_alias_problems_flag_aliases_and_all_outside_init():
     assert problems == ["tools/x/lib.py:1: __all__ fuera de __init__.py; borralo",
                         "tools/x/lib.py:8: alias de scan; deja un solo nombre"]
     assert dispatch.alias_problems("tools/x/__init__.py", '__all__ = ["scan"]\n') == []
+
+
+def test_allowed_files_expand_braces():
+    task = "## Archivos permitidos\n- `platforms/{psp,vita}/**`, `docs/platforms/*.md`\n"
+    assert dispatch.allowed_files(task) == ["platforms/psp/**", "platforms/vita/**", "docs/platforms/*.md"]

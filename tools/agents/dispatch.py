@@ -120,7 +120,16 @@ def allowed_files(task_text: str) -> list[str]:
     if "## Archivos permitidos" not in task_text:
         return []
     section = task_text.split("## Archivos permitidos", 1)[1].split("\n## ", 1)[0]
-    return [p for p in section.split("`")[1::2] if "/" in p or "." in p]
+    return [p for g in section.split("`")[1::2] if "/" in g or "." in g for p in expand_braces(g)]
+
+
+def expand_braces(pattern: str) -> list[str]:
+    """`platforms/{psp,vita}/**` -> una ruta por opción (fnmatch no entiende llaves)."""
+    if "{" not in pattern:
+        return [pattern]
+    head, rest = pattern.split("{", 1)
+    options, tail = rest.split("}", 1)
+    return [p for option in options.split(",") for p in expand_braces(head + option + tail)]
 
 
 def alias_problems(name: str, source: str) -> list[str]:

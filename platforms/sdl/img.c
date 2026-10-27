@@ -88,6 +88,15 @@ int img_load(Image *img, const uint8_t *f, int n, int vx, int vy, int cy)
 	img->loaded = img->vram_x > 0;
 	return img->loaded ? 0 : -1;
 }
+void img_release(Image *img)
+{
+	if (img->vram_x > 0 && img->vram_x < 4096 && textures[img->vram_x]) {
+		SDL_DestroyTexture(textures[img->vram_x]);
+		textures[img->vram_x] = NULL;
+	}
+	img->vram_x = 0;
+	img->loaded = 0;
+}
 static SDL_Texture *tex(const Image *i)
 {
 	return i->vram_x < 4096 ? textures[i->vram_x] : NULL;

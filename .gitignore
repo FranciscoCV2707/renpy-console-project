@@ -30,6 +30,7 @@ Thumbs.db
 *.rpa
 *.rpyc
 *.rpy
+!tools/renpy_trace/*.rpy
 *.ogg
 *.webm
 *.png

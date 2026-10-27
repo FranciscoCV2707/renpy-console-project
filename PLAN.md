@@ -249,7 +249,7 @@ cargar, teclado, chat, créditos) **idéntico píxel a píxel** a la referencia 
 2. Trazas de todas las rutas y finales de Snoot, en español (D16), con el juego publicado → `tests/reference/traces/snoot/`.
 3. `ctl compare` de PS1 contra la referencia; las diferencias aceptadas se documentan.
 
-**[GATE G3]** Trazas de referencia de todas las rutas; PS1 coincide en eventos o cada diferencia está explicada.
+**[GATE G3]** `[cumplida 2026-10-27: PS1 y PC coinciden con Ren'Py en 13 de 14 rutas; chapter_x6 = "Trevor & Tana" sin traducir, corregido en el compilador de snoot-ps1 (bd822da)]` Trazas de referencia de todas las rutas; PS1 coincide en eventos o cada diferencia está explicada.
 
 ### Fase 4 — Backend SDL2 en PC (y arranque de la pista de agentes)
 1. `platforms/sdl` con SDL2 2.32 de MSYS2; perfil de recursos PC en `tools/assetpipe`.

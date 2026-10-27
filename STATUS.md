@@ -29,10 +29,10 @@ Fase 3 (referencia Ren'Py, falta G3) y Fase 4 (PC con SDL) en paralelo (D20). G1
 - [x] T-303/T-304 (D17): comparación entre motores por id de traducción y hablante (`compare.mode: renpy`, tabla
   armada con el compilador de snoot-ps1 en `build/`); 14 escenarios de ruta (`tests/scenarios/snoot-route-*.yaml`,
   autoplay + `choices`). chapter_x2 coincide 97/97 en PS1 y en PC.
-- [ ] G3: trazas de Ren'Py con id y nombres traducidos. La comparación mira lo que ve el jugador (hablante + texto en
-  español de `tl/es`). En PC pasan 13 de 14 rutas, las 4 principales completas (6.485 a 8.362 líneas). Diferencia
-  explicada: chapter_x6, "Trevor & Tana" sin traducir (error del compilador de snoot-ps1, también en la v1.0). Las 14
-  rutas en PS1 y la regresión G1 están corriendo.
+- [x] G3 (2026-10-27): las 14 rutas en PS1 y en PC contra Ren'Py: 13 PASS (las 4 principales completas, 7-9 min
+  cada una en PS1, segundos en PC). chapter_x6 difiere por "Trevor & Tana" sin traducir: corregido en el
+  compilador de snoot-ps1 (bd822da); falta regenerar sus guiones. Regresión G1 contra la v1.0 repetida: 25 de 25
+  capturas idénticas (contador final ±2 en los 3 escenarios largos, como el motor original).
 - [ ] Fase 4 (D20, D21, D22): backend SDL en PC con los datos del disco de PS1: título, texto, audio XA/SPU; humo
   propio (`snoot-smoke-pc`). Falta: oír el audio contra los OGG originales.
 - [ ] Fase 5: PSP hecha (T-501: chapter_x2 PASS en PPSSPP en 8 s). PS2 (T-502: compila; se cuelga al arrancar en

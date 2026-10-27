@@ -10,6 +10,7 @@
 #define GBA_MAX_TEXTURES 16
 
 extern uint16_t gba_backbuffer[GBA_SCREEN_W * GBA_SCREEN_H];
+extern int gba_backbuffer_scratched;
 
 void gba_draw_glyph(int layer, int x, int y, int u, int v, int w, int h, int r, int g, int b);
 void gba_free_texture(int slot);

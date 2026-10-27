@@ -5,6 +5,11 @@
 
 uint16_t gba_backbuffer[GBA_SCREEN_W * GBA_SCREEN_H] __attribute__((section(".sbss")));
 
+/* Lo activa img_load cuando decodifica sobre el backbuffer (véase img.c): en el próximo flip hay
+ * que limpiarlo antes de renderizar, porque los estados de menu (el titulo entre ellos) no
+ * repintan la pantalla entera cada cuadro y conservarían los restos. */
+int gba_backbuffer_scratched;
+
 static int frame_count = 0;
 static int vblank_count = 0;
 
@@ -297,6 +302,11 @@ static void render_cmd(const GbaCmd *c)
 
 void video_flip(void)
 {
+	if (gba_backbuffer_scratched) {
+		memset(gba_backbuffer, 0, sizeof(gba_backbuffer));
+		gba_backbuffer_scratched = 0;
+	}
+
 	/* Dibujar en orden de capas: de fondo (LAYER_COUNT - 1) a frente (0) */
 	for (int layer = LAYER_COUNT - 1; layer >= 0; layer--) {
 		for (int i = 0; i < cmd_count; i++) {

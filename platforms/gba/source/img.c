@@ -4,8 +4,6 @@
 #include "gba_internal.h"
 #include <tonc.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <malloc.h>
 #include <string.h>
 
 int img_brightness = 256;
@@ -104,24 +102,19 @@ int img_load(Image *img, const uint8_t *file, int file_size, int vram_x, int vra
 		gba_free_texture(slot);
 	}
 
-	uint8_t *indices = (uint8_t *)malloc(raw);
-	while (!indices && res_evict_undrawn())
-		indices = (uint8_t *)malloc(raw);
-	{
-		struct mallinfo mi = mallinfo();
-		char msg[110];
-		snprintf(msg, sizeof(msg), "DBG LOAD w%u h%u raw %lu ok %d arena %lu usado %lu libre %lu",
-		         img->w, img->h, (unsigned long)raw, indices ? 1 : 0, (unsigned long)mi.arena,
-		         (unsigned long)mi.uordblks, (unsigned long)mi.fordblks);
-		mgba_log(msg);
-	}
-	if (!indices)
+	uint8_t *indices;
+	if (raw > sizeof(gba_backbuffer))
 		return -1;
+	/* El temporal de decodificación (hasta 76,8 KB para una imagen 320x240) no cabe en el heap
+	 * (85,7 KB en total con el capítulo y el resto de la escena residentes), así que se decodifica
+	 * sobre el backbuffer. Solo se pisa entre flips: las cargas van en scene_sync o draw_scene y
+	 * video_flip reescribe la pantalla entera cada cuadro (video_snapshot es local y no guarda el
+	 * cuadro anterior). */
+	indices = (uint8_t *)gba_backbuffer;
+	gba_backbuffer_scratched = 1;
 
-	if (lz4_decode(file + 544, (int)comp, indices, (int)raw) != (int)raw) {
-		free(indices);
+	if (lz4_decode(file + 544, (int)comp, indices, (int)raw) != (int)raw)
 		return -1;
-	}
 
 	/* La pantalla de GBA es 3/4 del ancho y 2/3 del alto de los 320x240 del motor: la imagen se
 	 * guarda ya reducida con esa proporción (la misma que usa render_cmd) para que fondo y
@@ -231,9 +224,15 @@ int img_load(Image *img, const uint8_t *file, int file_size, int vram_x, int vra
 		stored = ((size_t)sw * sh + 1) / 2;
 	}
 
-	uint8_t *shrunk = (uint8_t *)realloc(indices, stored);
-	if (shrunk)
-		indices = shrunk;
+	/* La textura definitiva vive en el heap: si no cabe se desaloja una imagen no dibujada y
+	 * se reintenta (D25). */
+	uint8_t *stored_buf = (uint8_t *)malloc(stored);
+	while (!stored_buf && res_evict_undrawn())
+		stored_buf = (uint8_t *)malloc(stored);
+	if (!stored_buf)
+		return -1;
+	memcpy(stored_buf, indices, stored);
+	indices = stored_buf;
 
 	textures[slot].data = indices;
 	textures[slot].w = (uint16_t)sw;

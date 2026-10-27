@@ -32,7 +32,7 @@ max_parallel = 1
 timeout_min = 120
 
 [agents.vibe]
-cmd = ["vibe", "--prompt", "{prompt}", "--max-turns", "120", "--output", "json", "--trust", "--auto-approve"]
+cmd = ["vibe", "--prompt", "{prompt}", "--max-turns", "300", "--output", "json", "--trust", "--auto-approve"]
 max_parallel = 1
 timeout_min = 90
 

@@ -12,6 +12,12 @@
 #elif defined(_EE)
 #include <sbv_patches.h>
 #include <sifrpc.h>
+#elif defined(__3DS__)
+#include <3ds.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/iosupport.h>
 #endif
 
 #if defined(NXDK)
@@ -302,6 +308,62 @@ static inline void vita_set_main_ready(void)
 		sbv_patch_disable_prefix_check();                                                                      \
 	} while (0)
 /* El ELF termina con exit(0) pero PCSX2 no se cierra: tools/ctl/ps2.py ve esta marca en el log y lo cierra. */
+#define SDL_TARGET_QUIT_MARKER()                                                                                       \
+	do {                                                                                                           \
+		printf("VN_QUIT\n");                                                                                   \
+		fflush(stdout);                                                                                        \
+	} while (0)
+#elif defined(__3DS__)
+/* Canal de traza: Azahar solo recibe por log lo que el juego manda con svcOutputDebugString
+ * (Kernel::SVC::OutputDebugString lo escribe como Debug.Emulated; verificado en T-610) y libctru
+ * descarta stdout mientras no haya un consoleInit. Un devoptab propio de stdout manda cada linea
+ * ahi sin tocar la consola de la GPU. */
+static ssize_t ctr_svc_write(struct _reent *r, void *fd, const char *ptr, size_t len)
+{
+	const char *p = ptr;
+	const char *end = ptr + len;
+	(void)r;
+	(void)fd;
+	while (p < end) {
+		const char *nl = (const char *)memchr(p, '\n', (size_t)(end - p));
+		size_t n = nl ? (size_t)(nl - p) : (size_t)(end - p);
+		if (n)
+			svcOutputDebugString(p, (s32)n);
+		p = nl ? nl + 1 : end;
+	}
+	return (ssize_t)len;
+}
+static const devoptab_t ctr_svc_devoptab = {
+    .name = "stdout",
+    .write_r = ctr_svc_write,
+};
+/* Las capturas del AUTOTEST (paso "shot") van a la SD, igual que en Vita: sin VN_SHOT_DIR el
+ * video.c del backend no escribe nada, y en 3DS no hay forma de pasar variables de entorno. */
+extern int setenv(const char *name, const char *value, int overwrite);
+static inline void ctr_shot_env(void)
+{
+	FILE *f;
+	char names[256];
+	setenv("VN_SHOT_DIR", "sdmc:/3ds/snoot", 0);
+	f = fopen("sdmc:/3ds/snoot/shot_names.txt", "r");
+	if (f) {
+		if (fgets(names, sizeof(names), f)) {
+			size_t l = strlen(names);
+			if (l && names[l - 1] == '\n')
+				names[l - 1] = 0;
+			setenv("VN_SHOT_NAMES", names, 1);
+		}
+		fclose(f);
+	}
+}
+#define SDL_TARGET_PREPARE_IOP()                                                                                       \
+	do {                                                                                                           \
+		devoptab_list[STD_OUT] = &ctr_svc_devoptab;                                                            \
+		setvbuf(stdout, NULL, _IOLBF, 0);                                                                      \
+		ctr_shot_env();                                                                                        \
+	} while (0)
+/* Igual que en PS2/Wii: el exit(0) del AUTOTEST no cierra Azahar, tools/ctl/n3ds.py ve esta marca en el
+ * log (via svcOutputDebugString) y corta el proceso. */
 #define SDL_TARGET_QUIT_MARKER()                                                                                       \
 	do {                                                                                                           \
 		printf("VN_QUIT\n");                                                                                   \

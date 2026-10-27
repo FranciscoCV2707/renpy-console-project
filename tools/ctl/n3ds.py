@@ -6,11 +6,13 @@ Azahar), monta la SD virtual en ``user/sdmc/3ds/snoot/data`` con los archivos de
 disco de PS1 mas el ``AUTOTEST.BIN`` del escenario, arranca ``build/3ds/snoot.3dsx``
 y extrae la traza de ``user/log/azahar_log.txt``.
 
-Azahar solo recibe por log lo que el juego manda con ``svcOutputDebugString``
-(``Kernel::SVC::OutputDebugString`` lo escribe como ``Debug.Emulated``), y libctru
-descarta ``printf``/``puts`` mientras no haya un ``consoleInit``: el motor emite la
-traza con ``puts`` (``platforms/sdl/backend_sdl.c``), asi que hoy no llega traza y
-el adapter reporta el bloqueo exacto en vez de un falso FAIL.
+La traza llega por ``svcOutputDebugString``: el bloque de 3DS de
+``platforms/sdl/sdl_target.h`` instala un devoptab de stdout que manda cada
+linea ahi (T-619), y Azahar lo loguea como ``Debug.Emulated``; sin eso libctru
+descartaria el ``puts`` del motor hasta un ``consoleInit``. La marca de fin del
+juego (``VN_QUIT``, tambien por svc) cierra Azahar, y las capturas del
+AUTOTEST (paso ``shot``) caen en ``user/sdmc/3ds/snoot/*.bmp`` y se copian a
+``out/``.
 """
 from __future__ import annotations
 
@@ -66,12 +68,19 @@ def stage_emulator(out: Path) -> Path:
     return local / EXE
 
 
-def stage_sd(user: Path, disc: Path, autotest: bytes) -> Path:
-    """Copia el disco de PS1 en ``user/sdmc/3ds/snoot/data`` y escribe el AUTOTEST."""
+def stage_sd(user: Path, disc: Path, autotest: bytes, shot_names: str = "") -> Path:
+    """Copia el disco de PS1 en ``user/sdmc/3ds/snoot/data`` y escribe el AUTOTEST.
+
+    Con ``shot_names`` escribe tambien ``shot_names.txt`` al lado de ``data``:
+    el bloque de 3DS de ``sdl_target.h`` lo lee en el arranque para nombrar las
+    capturas (``VN_SHOT_DIR``/``VN_SHOT_NAMES``, igual que el de Vita).
+    """
     data = user / "sdmc" / GAME_DATA
     data.mkdir(parents=True, exist_ok=True)
     shutil.copytree(disc, data, dirs_exist_ok=True)
     (data / "AUTOTEST.BIN").write_bytes(autotest)
+    if shot_names:
+        (data.parent / "shot_names.txt").write_text(shot_names, encoding="utf-8")
     return data
 
 
@@ -123,7 +132,9 @@ def run_scenario(scenario, out: Path) -> Path:
 
     exe = stage_emulator(out)
     user = exe.parent / "user"
-    stage_sd(user, disc, autotest_bin(scenario_steps(scenario)))
+    steps = scenario_steps(scenario)
+    shot_names = ",".join(value for _, action, value in steps if action == "shot")
+    stage_sd(user, disc, autotest_bin(steps), shot_names)
     stage_config(user)
 
     log_path = user / "log" / "azahar_log.txt"
@@ -147,13 +158,13 @@ def run_scenario(scenario, out: Path) -> Path:
     if proc.poll() is None:
         subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True)
         proc.wait()
+    for bmp in (user / "sdmc" / "3ds" / "snoot").glob("*.bmp"):
+        shutil.copy2(bmp, out / bmp.name)
     log = log_path.read_text(encoding="utf-8", errors="replace") if log_path.exists() else ""
     trace_path = out / "trace.txt"
     trace_path.write_text(extract_trace(log), encoding="utf-8", newline="\n")
     if not trace_path.read_text(encoding="utf-8"):
-        raise ScenarioError("3ds", "sin traza: el motor escribe la traza con puts y libctru "
-                                   "descarta stdout sin consoleInit; Azahar solo recibe "
-                                   "svcOutputDebugString (Debug.Emulated). Falta enrutar "
-                                   "vn_ops->log a svcOutputDebugString en platforms/sdl "
-                                   "bajo __3DS__")
+        raise ScenarioError("3ds", "sin traza: el juego no escribio lineas T| por "
+                                   "svcOutputDebugString (revisa azahar_log.txt en "
+                                   "build/ctl/3ds/azahar/user/log/)")
     return trace_path

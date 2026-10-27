@@ -35,6 +35,16 @@ def test_stage_sd(tmp_path):
     assert data == tmp_path / "sdmc" / "3ds" / "snoot" / "data"
     assert (data / "C00.VNB").read_bytes() == b"vnb"
     assert (data / "AUTOTEST.BIN").read_bytes() == b"\x01\x00"
+    assert not (tmp_path / "sdmc" / "3ds" / "snoot" / "shot_names.txt").exists()
+
+
+def test_stage_sd_writes_shot_names(tmp_path):
+    disc = tmp_path / "disc"
+    disc.mkdir()
+    data = stage_sd(tmp_path, disc, b"\x00\x00", "dev")
+    names = tmp_path / "sdmc" / "3ds" / "snoot" / "shot_names.txt"
+    assert names.read_text(encoding="utf-8") == "dev"
+    assert data.parent == names.parent
 
 
 def test_stage_config_creates_ini(tmp_path):

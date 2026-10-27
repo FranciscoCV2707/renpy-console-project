@@ -30,14 +30,24 @@ void sdl_snapshot_to(const char *path);
 #define PSP_VIEW_X 60
 #define PSP_VIEW_W 360
 #define PSP_VIEW_H 272
+#elif defined(__vita__)
+#define VITA_OUT_W  960
+#define VITA_OUT_H  544
+#define VITA_VIEW_X 160
+#define VITA_VIEW_Y 32
+#define VITA_VIEW_W 640
+#define VITA_VIEW_H 480
 #endif
 
 /* En PSP los 320x240 del motor van a 360x272 centrados en la pantalla de 480x272; en PC, tal cual. */
 static void map_pos(int *mx, int *my, int x, int y)
 {
-#ifdef __PSP__
+#if defined(__PSP__)
 	*mx = PSP_VIEW_X + x * PSP_VIEW_W / SCREEN_W;
 	*my = y * PSP_VIEW_H / SCREEN_H;
+#elif defined(__vita__)
+	*mx = VITA_VIEW_X + x * VITA_VIEW_W / SCREEN_W;
+	*my = VITA_VIEW_Y + y * VITA_VIEW_H / SCREEN_H;
 #else
 	*mx = x;
 	*my = y;
@@ -101,6 +111,10 @@ void video_init(void)
 	SDL_SetMainReady();
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != 0)
 		return;
+#elif defined(__vita__)
+	SDL_SetMainReady();
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
+		return;
 #else
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
 		return;
@@ -117,6 +131,13 @@ void video_init(void)
 			renderer = SDL_CreateRenderer(window, -1, 0);
 		if (!renderer && window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+#elif defined(__vita__)
+		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, VITA_OUT_W,
+		                          VITA_OUT_H, SDL_WINDOW_SHOWN);
+		if (window)
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+		if (!renderer && window)
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 #else
 		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720,
 		                          SDL_WINDOW_SHOWN);
@@ -127,7 +148,7 @@ void video_init(void)
 #endif
 	}
 	if (renderer) {
-#ifndef __PSP__
+#if !defined(__PSP__) && !defined(__vita__)
 		SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);
 #endif
 		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);

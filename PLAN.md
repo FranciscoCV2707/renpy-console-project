@@ -364,6 +364,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-619 | 6 | vibe | 3DS: traza por `svcOutputDebugString`, pantalla visible; `chapter_x2` PASS en Azahar | T-610, T-617 |
 | T-620 | 5–6 | kilo | G5: las 14 rutas en PSP, PS2, Vita, Wii y PS4 (`docs/g5.md`) | T-612, T-617, T-618 |
 | T-621 | 6 | vibe | PS3: que el juego avance en RPCS3 (flip con renderer Null, crash del caché GL); `chapter_x2` PASS | T-615 |
+| T-622 | 5–6 | kilo | Backend SDL: caché de imágenes acotado y negativo; ruta-1 PASS en PSP | T-620 |
 | T-407 | 6 | beam | `sdl_target.h` y fusión de 3DS, Wii, Xbox y Switch | T-601..T-605 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |

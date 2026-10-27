@@ -105,3 +105,20 @@ int input_pressed(uint16_t mask)
 {
 	return ((cur & ~prev) & mask) != 0;
 }
+
+int input_stick_x(void)
+{
+	return 0;
+}
+
+int input_stick_y(void)
+{
+	return 0;
+}
+
+int input_touch_down(int *x, int *y)
+{
+	(void)x;
+	(void)y;
+	return 0;
+}

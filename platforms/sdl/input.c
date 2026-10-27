@@ -177,3 +177,100 @@ int input_autotest_choice(void)
 	}
 	return -1;
 }
+
+int input_stick_x(void)
+{
+#if SDL_TARGET_HAS_GAME_CONTROLLER
+	if (controller) {
+		SDL_GameControllerUpdate();
+		int v = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+		if (v < -8000)
+			return -127;
+		if (v > 8000)
+			return 127;
+		if (v < -4000)
+			return -64;
+		if (v > 4000)
+			return 64;
+		if (v < -2000)
+			return -32;
+		if (v > 2000)
+			return 32;
+	}
+#endif
+#if SDL_TARGET_HAS_JOYSTICK
+	if (joystick) {
+		SDL_JoystickUpdate();
+		int v = SDL_JoystickGetAxis(joystick, 0);
+		if (v < -16000)
+			return -127;
+		if (v > 16000)
+			return 127;
+		if (v < -8000)
+			return -64;
+		if (v > 8000)
+			return 64;
+		if (v < -4000)
+			return -32;
+		if (v > 4000)
+			return 32;
+	}
+#endif
+	return 0;
+}
+
+int input_stick_y(void)
+{
+#if SDL_TARGET_HAS_GAME_CONTROLLER
+	if (controller) {
+		SDL_GameControllerUpdate();
+		int v = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+		if (v < -8000)
+			return -127;
+		if (v > 8000)
+			return 127;
+		if (v < -4000)
+			return -64;
+		if (v > 4000)
+			return 64;
+		if (v < -2000)
+			return -32;
+		if (v > 2000)
+			return 32;
+	}
+#endif
+#if SDL_TARGET_HAS_JOYSTICK
+	if (joystick) {
+		SDL_JoystickUpdate();
+		int v = SDL_JoystickGetAxis(joystick, 1);
+		if (v < -16000)
+			return -127;
+		if (v > 16000)
+			return 127;
+		if (v < -8000)
+			return -64;
+		if (v > 8000)
+			return 64;
+		if (v < -4000)
+			return -32;
+		if (v > 4000)
+			return 32;
+	}
+#endif
+	return 0;
+}
+
+int input_touch_down(int *x, int *y)
+{
+	/* Intento basico con eventos de raton/tactil en SDL */
+	static int touching = 0;
+	static int lx = 0, ly = 0;
+	/* usamos variables estaticas simples; input_update ya se llamo antes */
+	(void)touching;
+	/* Por simplicidad, devolvemos 0 si no hay API especifica; los backends pueden implementar */
+	if (x)
+		*x = lx;
+	if (y)
+		*y = ly;
+	return 0;
+}

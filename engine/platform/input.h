@@ -28,6 +28,11 @@ void input_update(void);
 int input_down(uint16_t mask);       /* esta presionado ahora */
 int input_pressed(uint16_t mask);    /* se acaba de presionar en este cuadro */
 int input_raw_down(uint16_t mask);   /* presionado, leido directo del control (antes del bucle principal) */
+/* Stick analogo/tactil (opcional por plataforma): valores en [-127,127], 0 si no disponible */
+int input_stick_x(void);
+int input_stick_y(void);
+/* Tactil: 1 si esta presionado, coords en espacio de vista (0,0)-(SCREEN_W,SCREEN_H) aproximado */
+int input_touch_down(int *x, int *y);
 /* Prueba automatica: botones fijos por cuadro (AUTOTEST.BIN del disco, ver tools/engine/emutest.py) */
 void input_set_script(const uint8_t *entries, int count);
 /* Siguiente decision que fija el guion para el recorrido (en orden), o -1 si no quedan: autoplay sigue una ruta */

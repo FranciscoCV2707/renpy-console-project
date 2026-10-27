@@ -74,3 +74,33 @@ No hace falta hoy, pero por orden de ahorro:
   sobra de sobra.
 - El tramado Floyd-Steinberg sobre ruido fino reduce la compresión LZ77 (~66 % del original);
   sin tramado los fotogramas comprimirían mejor, pero D19 lo exige.
+
+## Formato del paquete (T-702)
+
+`python -m tools.demake.gba_pack --game <game> --out <directorio>` genera un archivo por
+imagen o pista, `text.bin` y `manifest.json`. Los nombres de salida se derivan del SHA-256
+del id de origen para evitar colisiones y no dependen de la ruta absoluta del juego.
+
+- `bg/<hash>.bin`: flujo LZ77 tipo 0x10 con fotograma de modo 4 (240×160, un índice de 8
+  bits por píxel), alineado con ceros a 4 bytes, seguido de 256 colores BGR555 little-endian.
+  El destino de `LZ77UnCompVram` debe estar alineado a media palabra y la fuente a 4 bytes;
+  por eso se conserva ese relleno. [GBATEK, compresión BIOS](https://mgba-emu.github.io/gbatek/#bios-decompression-functions),
+  [modo 4](https://mgba-emu.github.io/gbatek/#lcd-vram-bitmap-bg-modes),
+  [paletas](https://mgba-emu.github.io/gbatek/#lcd-color-palettes).
+- `spr/<hash>.bin`: ancho y alto visibles como `u16` little-endian, datos de tiles 8×8 a
+  4 bpp comprimidos con LZ77 y alineados a 4 bytes, y 16 colores BGR555. Las filas se
+  rellenan con índice 0 hasta completar el tile. [GBATEK, tiles de caracteres](https://mgba-emu.github.io/gbatek/#lcd-vram-character-data).
+- `snd/<hash>.bin`: PCM con signo de 8 bits, mono, 8000 Hz, sin cabecera; las pistas de más
+  de 10 s se limitan a 20 s y los efectos se convierten completos. La frecuencia y el corte
+  siguen D19; la GBA reproduce muestras PCM mediante FIFO de sonido. [GBATEK, sonido](https://mgba-emu.github.io/gbatek/#sound).
+- `text.bin`: `u32` little-endian con el número de entradas, seguido por pares de `u32`
+  (offset del id, offset del texto), relativos al comienzo del archivo; el pool UTF-8 NUL
+  terminado sigue a la tabla. Se incluyen los ids `translate es` y las cadenas Ren'Py
+  `old`/`new`, con ids estables derivados de la ruta y el texto original.
+- `manifest.json`: lista ordenada por id con ruta original, tipo, bytes y SHA-256 del
+  contenido convertido. `categories` y `text_bin` informan el tamaño de los archivos
+  generados; el JSON usa claves ordenadas, UTF-8 y salto final de línea.
+
+El compresor aplica el formato BIOS LZ77 0x10: referencias de distancia 1–4096 y longitud
+3–18. El descodificador valida cabecera, truncamientos y referencias que apunten antes del
+inicio. Sus vectores de ida y vuelta están en `tests/test_gba_pack.py`.

@@ -24,6 +24,7 @@ from pathlib import Path
 
 from PIL import Image
 
+from tools.demake.lz77 import bios_lz77, pack_4bpp
 from tools.assetpipe.manifest import classify_kind, inventory, source_file
 
 CART_BYTES = 32 * 1024 * 1024
@@ -37,10 +38,6 @@ SPRITE_CHAR_HEIGHT = 160
 MUSIC_THRESHOLD_S = 10.0  # mismo criterio musica/efecto que assetpipe (perfiles, D18)
 MUSIC_LOOP_S = 20.0
 PCM_RATE = 8000
-LZ77_WINDOW = 4096
-LZ77_MIN_MATCH = 3
-LZ77_MAX_MATCH = 18
-LZ77_MAX_CHAIN = 128
 SAMPLE_SIZE = 20
 PNG_SAMPLES = 3
 
@@ -63,86 +60,6 @@ SPRITE_FOLDERS = frozenset(
         "trishfam",
     }
 )
-
-
-def bios_lz77(data: bytes) -> bytes:
-    """Comprime ``data`` en el formato LZ77 de la BIOS de GBA (GBATEK, tipo 0x10).
-
-    Cabecera: byte 0x10 mas el tamano sin comprimir en 24 bits little-endian.
-    Bloques: byte de flags seguido de 8 unidades; bit a 1 (MSB primero) = byte
-    literal, bit a 0 = par de bytes con (longitud-3) en el nibble alto y
-    (desplazamiento-1) en 12 bits, big-endian. Ventana de 4096, longitudes de
-    3 a 18. Busca la coincidencia mas larga con cadenas de hash de 3 bytes.
-    """
-    size = len(data)
-    if size > 0xFFFFFF:
-        raise ValueError(f"LZ77 de la BIOS: maximo 16 MiB, recibe {size} bytes")
-    out = bytearray((0x10, size & 0xFF, (size >> 8) & 0xFF, (size >> 16) & 0xFF))
-    head: dict[int, int] = {}
-    prev = [-1] * size
-    n = size
-    i = 0
-    while i < n:
-        flags = 0
-        block = bytearray()
-        for bit in range(7, -1, -1):
-            if i >= n:
-                break
-            length, disp = _longest_match(data, i, n, head, prev)
-            if length >= LZ77_MIN_MATCH:
-                block.append(((length - LZ77_MIN_MATCH) << 4) | ((disp - 1) >> 8))
-                block.append((disp - 1) & 0xFF)
-                for pos in range(i, min(i + length, n - LZ77_MIN_MATCH + 1)):
-                    _insert(data, head, prev, pos)
-                i += length
-            else:
-                flags |= 1 << bit
-                block.append(data[i])
-                if i + LZ77_MIN_MATCH <= n:
-                    _insert(data, head, prev, i)
-                i += 1
-        out.append(flags)
-        out += block
-    return bytes(out)
-
-
-def _insert(data: bytes, head: dict[int, int], prev: list[int], pos: int) -> None:
-    key = (data[pos] << 16) | (data[pos + 1] << 8) | data[pos + 2]
-    prev[pos] = head.get(key, -1)
-    head[key] = pos
-
-
-def _longest_match(data: bytes, i: int, n: int, head: dict[int, int], prev: list[int]) -> tuple[int, int]:
-    """La coincidencia mas larga en la ventana de 4096 bytes desde ``i``: (longitud, desplazamiento)."""
-    if i + LZ77_MIN_MATCH > n:
-        return 0, 0
-    max_len = min(LZ77_MAX_MATCH, n - i)
-    best_len, best_disp = 0, 0
-    pos = head.get((data[i] << 16) | (data[i + 1] << 8) | data[i + 2], -1)
-    low = i - LZ77_WINDOW
-    chain = 0
-    while pos >= 0 and pos >= low and chain < LZ77_MAX_CHAIN:
-        length = LZ77_MIN_MATCH
-        while length < max_len and data[pos + length] == data[i + length]:
-            length += 1
-        if length > best_len:
-            best_len, best_disp = length, i - pos
-            if length >= max_len:
-                break
-        pos = prev[pos]
-        chain += 1
-    return best_len, best_disp
-
-
-def pack_4bpp(indices: bytes) -> bytes:
-    """Empaqueta indices de paleta (un byte por pixel) a 4 bpp, como los tiles de GBA
-    (GBATEK: el nibble bajo es el pixel izquierdo). Rellena con 0 si la cuenta es impar."""
-    out = bytearray((len(indices) + 1) // 2)
-    for i in range(0, len(indices), 2):
-        left = indices[i]
-        right = indices[i + 1] if i + 1 < len(indices) else 0
-        out[i // 2] = (right << 4) | left
-    return bytes(out)
 
 
 def _fit_frame(img: Image.Image) -> Image.Image:

@@ -11,7 +11,7 @@
 | **PS1** | B | 1 | 320×240 | 2 MB / 1 MB (+512 KB SPU) | PSn00bSDK | MSYS2 (instalado) | PCSX-Redux (`-stdout`, sin interfaz), DuckStation | TTY | v1.0 publicada; núcleo nuevo compila |
 | PSP / PSP Go | A | 5 | 480×272 | 32/64 MB / 2 MB | pspsdk | `pspdev/pspdev` (verificar) | PPSSPP / PPSSPPHeadless | stdout en headless | Pendiente |
 | PS2 | A | 5 | 640×448 | 32 MB / 4 MB GS | ps2sdk + gsKit | `ps2dev/ps2dev` (verificar) | PCSX2 (flags batch: verificar) | log de EE | Pendiente (reemplaza a `snoot-ps2`) |
-| PS Vita | A | 6 | 960×544 | 512 MB / 128 MB | VitaSDK | `vitasdk/vitasdk` (verificar) | Vita3K | log de Vita3K | Pendiente |
+| PS Vita | A | 6 | 960×544 | 512 MB / 128 MB | VitaSDK | `vitasdk/vitasdk@sha256:8227da1b596d981f4513cd9b36bda1e43857f6dae5bcf4312c1cd40167f7d9bb` | Vita3K | log de Vita3K | Compila con backend SDL (T-601); paquete `build/vita/snoot.vpk` |
 | 3DS | A | 6 | 400×240 + 320×240 | 128/256 MB | libctru + citro2d | `devkitpro/devkitarm` | Azahar | log de debug | Pendiente |
 | Wii | A | 6 | 640×480 | 24+64 MB | libogc | `devkitpro/devkitppc` | Dolphin (`-b -e <dol>`, verificar) | OSReport | Pendiente |
 | Xbox clásica | A | 6 | 640×480 | 64 MB unificada | nxdk (trae SDL2) | WSL2 (verificar) | xemu | DbgPrint (verificar) | Pendiente |

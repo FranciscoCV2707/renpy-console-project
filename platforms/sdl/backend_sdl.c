@@ -25,6 +25,8 @@ static FILE *open_file(const char *n)
 	const char *root = getenv("VN_DATA_DIR");
 #ifdef __PSP__
 	const char *base = root && *root ? root : "ms0:/PSP/GAME/SNOOT/DATA";
+#elif defined(__vita__)
+	const char *base = root && *root ? root : "ux0:data/snoot";
 #else
 	const char *base = root && *root ? root : ".";
 #endif
@@ -94,7 +96,7 @@ static void glyphs_end(int l)
 static void log_line(const char *s)
 {
 	puts(s);
-#ifdef __PSP__
+#if defined(__PSP__) || defined(__vita__)
 	fflush(stdout);
 #endif
 }

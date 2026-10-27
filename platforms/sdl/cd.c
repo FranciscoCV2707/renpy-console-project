@@ -7,6 +7,8 @@
 
 #ifdef __PSP__
 static char root[512] = "ms0:/PSP/GAME/SNOOT/DATA";
+#elif defined(__vita__)
+static char root[512] = "ux0:data/snoot";
 #else
 static char root[512] = ".";
 #endif

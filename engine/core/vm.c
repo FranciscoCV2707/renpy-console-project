@@ -9,6 +9,7 @@
 #include "vn_platform.h"
 
 static unsigned long trace_seq;
+static int trace_speaker; /* un SAYX (extend) sigue con el hablante del SAY anterior, como en Ren'Py */
 
 /* Una linea del protocolo TRACE (PLAN.md 4.1) por vn_ops->log; frame es el reloj del anfitrion (vm->now) */
 static void trace(const Vm *vm, const char *ev, const char *fields)
@@ -354,7 +355,8 @@ VmEvent vm_run(Vm *vm)
 			vm->ev_text = a[1];
 			vm->ev_gid = (int)(vm->ch.text_base + a[1]);
 			vm->ev_extend = (op == OP_SAYX);
-			TRACE(vm, "SAY", "who=%d;text=%d", vm->ev_speaker, vm->ev_gid);
+			TRACE(vm, "SAY", "who=%d;text=%d", op == OP_SAYX ? trace_speaker : (trace_speaker = vm->ev_speaker),
+			      vm->ev_gid);
 			if (vm->host->notify)
 				vm->host->notify(vm->host->user, op, a, info->nfields);
 			return VM_EV_SAY;

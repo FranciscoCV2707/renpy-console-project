@@ -8,6 +8,7 @@
 - ruta — motivo
 
 ## Verificación (salida REAL, recortada a lo relevante)
+Si la tarea pide una captura, ábrela y di con palabras qué se ve (una captura sin mirar no cuenta).
 ```
 $ comando
 salida

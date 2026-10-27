@@ -54,14 +54,28 @@ init -999 python:
             _rcp_emit("ERROR", msg=str(e))
             return []
 
+    # La musica sale de las ordenes play/stop del guion, no del canal: con "stop music fadeout 3" get_playing sigue
+    # devolviendo la pista mientras se desvanece y, con el avance automatico, eso son varias lineas de mas.
+    _rcp_music_cmd = [None]
+    _rcp_orig_play = renpy.music.play
+    _rcp_orig_stop = renpy.music.stop
+
+    def _rcp_play(filenames, channel="music", *args, **kwargs):
+        if channel == "music":
+            names = [filenames] if isinstance(filenames, str) else list(filenames or [])
+            _rcp_music_cmd[0] = names[0] if names else None
+        return _rcp_orig_play(filenames, channel, *args, **kwargs)
+
+    def _rcp_stop(channel="music", *args, **kwargs):
+        if channel == "music":
+            _rcp_music_cmd[0] = None
+        return _rcp_orig_stop(channel, *args, **kwargs)
+
+    renpy.music.play = _rcp_play
+    renpy.music.stop = _rcp_stop
+
     def _rcp_music():
-        music = None
-        try:
-            music = renpy.music.get_playing("music")
-        except Exception as e:
-            _rcp_emit("ERROR", msg=str(e))
-            music = None
-        return music
+        return _rcp_music_cmd[0]
 
     def _rcp_get_who():
         if renpy.store._last_say_who is None:

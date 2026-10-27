@@ -362,6 +362,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-703 | 7 | vibe | Presupuesto del demake de GB/GBC (ROM MBC5 de 8 MB) | T-701 |
 | T-704 | 7 | codex | Empaquetador de recursos de GB/GBC (tiles 2bpp, paletas GBC) | T-702, T-703 |
 | T-705 | 7 | beam | Motor mínimo de GBA: fondo y una línea en mGBA | T-702 |
+| T-706 | 7 | kilo | Motor mínimo de DS: fondo arriba y texto abajo en melonDS | — |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 | T-902 | — | vibe | Guía de instalación para jugadores, por consola | — |
 

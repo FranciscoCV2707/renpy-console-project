@@ -23,8 +23,8 @@ Fase 3 — Referencia Ren'Py. Fases 1 y 2 terminadas: G1 y G2 cumplidas el 2026-
 - [x] Fase 2: T-201 TRACE en el motor (`VN_TRACE`), T-203 adapter PS1, T-204 escenarios a `AUTOTEST.BIN`.
   G2: `python -m tools.ctl run --target ps1 --scenario tests/scenarios/snoot-smoke.yaml` → PASS en 47 s (la
   referencia es una traza del propio motor en PS1).
-- [ ] T-302: trazas de Ren'Py de las 14 rutas (11 grabadas; rutas 1-3 grabándose tras saltar el teléfono de
-  `textscroll`). Rama `agent/beam/T-302` sin fusionar.
+- [x] T-302: trazas de Ren'Py de las 14 rutas en `tests/reference/traces/snoot/` (2.9 MB), con
+  `python -m tools.renpy_trace.record`. Rutas 1-4: 11-26 min cada una; capítulos extra: menos de 1 min.
 - [ ] Fase 3 (T-303): comparar PS1 contra Ren'Py. Falta un id común en las dos trazas: Ren'Py da `who=nombre;
   loc=archivo:línea` y el motor `who=id;text=id`; LABEL solo sale de Ren'Py (el VNB no guarda nombres).
 

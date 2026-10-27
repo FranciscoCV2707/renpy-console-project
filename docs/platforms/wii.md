@@ -56,24 +56,44 @@ código fuente de dolphin-emu en GitHub, rama master):
 - `Config/Dolphin.ini`: `[Analytics] PermissionAsked = True` evita el diálogo "Allow Usage
   Statistics Reporting" que bloquea el arranque en batch; `[Interface] ConfirmStop = False` evita
   la confirmación al detener.
-- Logging por overrides `-C Logger.Options.WriteToFile=True`, `-C Logger.Options.Verbosity=6` y
-  `-C Logger.Logs.OSREPORT=True` (claves de `Common/Logging/LogManager.cpp`: `LOGGER_WRITE_TO_FILE`
-  en sección `Options` y por tipo en sección `Logs`). Manda el OSReport del juego (`printf` de
-  libogc) a `<user>/Logs/dolphin.log`, de donde `tools/ctl/wii.py` extrae las líneas `T|`. El file
-  listener escribe con `std::flush` por línea, pero el arranque puede no producir OSReport si el
-  juego crashea antes de imprimir.
+- Logging por overrides `-C Logger.*`: descartado (T-617). En libogc 3.2.1 `printf`/`puts` van a la
+  consola GX (`__console_write` de `libogc/console.c`), no a OSReport, asi que `dolphin.log` sale
+  vacio y esa via no puede transportar las lineas `T|`.
+
+## Traza por el USB Gecko (T-617)
+
+El stdout del juego viaja por el USB Gecko emulado y `tools/ctl/wii.py` lo lee por TCP:
+
+- `-C Dolphin.Core.SerialPort2=7`: adjunta el dispositivo gecko (`EXIDeviceType::Gecko` = 7 en
+  `EXI_Device.h`) al canal EXI 2 (`EXI.cpp`: `Slot::SP2` mapea al canal 2, device 0).
+- Dolphin abre un servidor TCP en 0xd6ec = 55020 (`EXI_DeviceGecko.cpp`, `GeckoConnectionWaiter`:
+  "USBGecko: Listening on TCP {}", probando 55020+ si esta ocupado) y reenvia al primer cliente lo
+  que el gecko manda por `CMD_SEND`.
+- El bloque de Wii de `platforms/sdl/sdl_target.h` instala un devoptab propio de stdout que escribe
+  con `usb_sendbuffer(2, ...)`: el canal 2 funciona sin sondeo porque `libogc/exi.c` responde
+  "Always succeed for EXI2 as it has no probe line" (`__exi_probe`), mientras que `CON_EnableGecko`
+  solo acepta 0/1 y el bit de insercion EXT de `EXI_STATUS` que Dolphin expone en esos canales solo
+  se pone con un dispositivo en el device 1, asi que esa API siempre desactiva el gecko en Dolphin.
+- `VN_QUIT` (macro `SDL_TARGET_QUIT_MARKER`, igual que PS2): el `exit(0)` del AUTOTEST no cierra el
+  batch de Dolphin; `wii.py` ve la marca en el TCP, corta el emulador y escribe `trace.txt` con las
+  lineas `T|`.
+
+## Bloqueo de arranque arreglado (T-617)
+
+- SDL2-Wii sondea `KEYBOARD_GetEvent` en cada vuelta del pump (`SDL_ogckeyboard.c`) sin llamar nunca
+  a `KEYBOARD_Init`: la cola estatica de libwiikeyboard queda a cero y `__lwp_queue_get` lee
+  0x00000000 (Invalid read al primer `SDL_PumpEvents`). El bloque de Wii llama `KEYBOARD_Init(NULL)`
+  en `SDL_TARGET_PREPARE_IOP`.
+- `res_get` (`platforms/sdl/res.c`) ponia 180 KB en el stack y el hilo principal de libogc tiene
+  128 KB (`s_mainStack`): el primer `SCENE` (carga de `I0001.IMG`) desbordaba sobre los stacks de
+  BSS y crasheaba en `KTickTaskStop` con un puntero corrupto. El buffer es estatico.
 
 ## Pendientes de la plataforma
 
-- **`boot.dol` crashea en Dolphin al arrancar** (T-611): "Invalid read from 0x00000000,
-  PC = 0x800c5ed0. The game probably would have crashed on real hardware." (diálogo Warning,
-  leído con UI Automation). `tools/ctl/wii.py` detecta ese diálogo, corta el emulador y reporta el
-  texto; no se puede obtener veredicto hasta arreglar el cruce de puntero nulo en el backend SDL
-  (`platforms/sdl/**` con `__WII__`).
-- Verificar el render y el audio de SDL2 en Dolphin; hoy solo se ha comprobado que compila,
-  enlaza y arranca hasta el crasheo.
+- Verificar el audio de SDL2 en Dolphin (sin `MUSIC.XA` en el disco de pruebas no hay musica XA; los
+  efectos SPU se decodifican igual que en PC).
 - Confirmar el mapeo de botones del Wiimote/Classic Controller a `BTN_*`; hoy se reutiliza el
-  mapeo genérico de SDL2.
-- Las capturas `shot` del protocolo TRACE no salen por el backend Wii (no fija `VN_SHOT_DIR`,
-  a diferencia de Vita en `platforms/sdl/sdl_target.h`); hay que usar capturas de la ventana de
+  mapeo generico de SDL2.
+- Las capturas `shot` del protocolo TRACE no salen por el backend Wii (no fija `VN_SHOT_DIR`, a
+  diferencia de Vita en `platforms/sdl/sdl_target.h`); hay que usar capturas de la ventana de
   render de Dolphin.

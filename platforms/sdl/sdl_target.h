@@ -6,6 +6,9 @@
 #include <pspkernel.h>
 #elif defined(__WII__)
 #include <fat.h>
+#include <ogc/usbgecko.h>
+#include <sys/iosupport.h>
+#include <wiikeyboard/keyboard.h>
 #elif defined(_EE)
 #include <sbv_patches.h>
 #include <sifrpc.h>
@@ -299,6 +302,38 @@ static inline void vita_set_main_ready(void)
 		sbv_patch_disable_prefix_check();                                                                      \
 	} while (0)
 /* El ELF termina con exit(0) pero PCSX2 no se cierra: tools/ctl/ps2.py ve esta marca en el log y lo cierra. */
+#define SDL_TARGET_QUIT_MARKER()                                                                                       \
+	do {                                                                                                           \
+		printf("VN_QUIT\n");                                                                                   \
+		fflush(stdout);                                                                                        \
+	} while (0)
+#elif defined(__WII__)
+/* El canal de traza: stdout hacia el USB Gecko del EXI 2. El puerto serie 2 de Dolphin expone el
+ * gecko en ese canal y libogc no lo sondea (exi.c: el canal 2 "has no probe line"), mientras que
+ * CON_EnableGecko solo acepta los canales 0/1, cuyo bit de insercion (EXT de EXI_STATUS) Dolphin
+ * solo reporta con un dispositivo en el device 1: con el gecko en un slot siempre falla. Un
+ * devoptab propio de stdout manda cada linea por usb_sendbuffer(2). */
+static ssize_t wii_gecko_write(struct _reent *r, void *fd, const char *ptr, size_t len)
+{
+	(void)r;
+	(void)fd;
+	return usb_sendbuffer(2, ptr, (int)len) == (int)len ? (ssize_t)len : -1;
+}
+static const devoptab_t wii_gecko_devoptab = {
+    .name = "stdout",
+    .write_r = wii_gecko_write,
+};
+/* El pump de eventos de SDL2-Wii (SDL_ogckeyboard.c) llama KEYBOARD_GetEvent en cada vuelta pero
+ * nunca KEYBOARD_Init: sin init la cola estatica de libwiikeyboard queda a cero y __lwp_queue_get
+ * lee 0x00000000 (crash "Invalid read" antes de pintar nada). */
+#define SDL_TARGET_PREPARE_IOP()                                                                                       \
+	do {                                                                                                           \
+		devoptab_list[STD_OUT] = &wii_gecko_devoptab;                                                          \
+		setvbuf(stdout, NULL, _IOLBF, 0);                                                                      \
+		(void)KEYBOARD_Init(NULL);                                                                             \
+	} while (0)
+/* Igual que en PS2: el exit(0) del AUTOTEST no cierra el batch de Dolphin, tools/ctl/wii.py ve esta
+ * marca en el TCP del gecko y lo cierra. */
 #define SDL_TARGET_QUIT_MARKER()                                                                                       \
 	do {                                                                                                           \
 		printf("VN_QUIT\n");                                                                                   \

@@ -7,7 +7,6 @@ el resultado cacheado en build/3ds/sdl2.
 from __future__ import annotations
 
 import argparse
-import shutil
 import subprocess
 from pathlib import Path
 

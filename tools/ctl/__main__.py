@@ -58,6 +58,8 @@ def main(argv=None) -> int:
             from .ps3 import run_scenario
         elif args.target == "vita":
             from .vita import run_scenario
+        elif args.target == "wii":
+            from .wii import run_scenario
         elif args.target == "ps4":
             from .ps4 import run_scenario
         else:

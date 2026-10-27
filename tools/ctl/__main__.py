@@ -33,6 +33,9 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "build":
+        if args.target == "pc":
+            result = subprocess.run([sys.executable, "platforms/sdl/build.py"], check=False)
+            return result.returncode
         print(f"adapter pendiente: build for target {args.target}", file=sys.stderr)
         return 2
 
@@ -43,7 +46,13 @@ def main(argv=None) -> int:
         if not args.scenario:
             print("error: --scenario is required", file=sys.stderr)
             return 2
-        from .ps1 import run_scenario
+        if args.target == "ps1":
+            from .ps1 import run_scenario
+        elif args.target == "pc":
+            from .pc import run_scenario
+        else:
+            print(f"error: unsupported target: {args.target}", file=sys.stderr)
+            return 2
         from .report import write_report
         from .scenario import load_scenario
         from .trace import compare_scenario
@@ -53,7 +62,7 @@ def main(argv=None) -> int:
             trace = run_scenario(scen, Path("build") / "ctl" / args.target)
             result = compare_scenario(scen, trace)
             write_report(args.target, result, scen)
-        except (ValueError, OSError, yaml.YAMLError, subprocess.CalledProcessError) as e:
+        except (ValueError, OSError, yaml.YAMLError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
             print(f"error: {e}", file=sys.stderr)
             return 2
         print(result.message)

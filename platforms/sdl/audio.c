@@ -242,6 +242,8 @@ int audio_init(void)
 			const char *root = getenv("VN_DATA_DIR");
 #ifdef __PSP__
 			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : "ms0:/PSP/GAME/SNOOT/DATA");
+#elif defined(__ORBIS__)
+			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : "/data/snoot");
 #else
 			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : ".");
 #endif

@@ -7,6 +7,8 @@
 
 #ifdef __PSP__
 static char root[512] = "ms0:/PSP/GAME/SNOOT/DATA";
+#elif defined(__ORBIS__)
+static char root[512] = "/data/snoot";
 #else
 static char root[512] = ".";
 #endif

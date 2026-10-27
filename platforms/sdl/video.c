@@ -30,6 +30,13 @@ void sdl_snapshot_to(const char *path);
 #define PSP_VIEW_X 60
 #define PSP_VIEW_W 360
 #define PSP_VIEW_H 272
+#elif defined(__ORBIS__)
+#define PS4_OUT_W  1920
+#define PS4_OUT_H  1080
+#define PS4_VIEW_X 320
+#define PS4_VIEW_Y 60
+#define PS4_VIEW_W 1280
+#define PS4_VIEW_H 960
 #endif
 
 /* En PSP los 320x240 del motor van a 360x272 centrados en la pantalla de 480x272; en PC, tal cual. */
@@ -38,6 +45,9 @@ static void map_pos(int *mx, int *my, int x, int y)
 #ifdef __PSP__
 	*mx = PSP_VIEW_X + x * PSP_VIEW_W / SCREEN_W;
 	*my = y * PSP_VIEW_H / SCREEN_H;
+#elif defined(__ORBIS__)
+	*mx = PS4_VIEW_X + x * PS4_VIEW_W / SCREEN_W;
+	*my = PS4_VIEW_Y + y * PS4_VIEW_H / SCREEN_H;
 #else
 	*mx = x;
 	*my = y;
@@ -97,9 +107,9 @@ static void rect(int layer, int x, int y, int w, int h, int r, int g, int b, int
 }
 void video_init(void)
 {
-#ifdef __PSP__
+#if defined(__PSP__) || defined(__ORBIS__)
 	SDL_SetMainReady();
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != 0)
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) != 0)
 		return;
 #else
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
@@ -117,6 +127,13 @@ void video_init(void)
 			renderer = SDL_CreateRenderer(window, -1, 0);
 		if (!renderer && window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+#elif defined(__ORBIS__)
+		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, PS4_OUT_W,
+		                          PS4_OUT_H, SDL_WINDOW_SHOWN);
+		if (window)
+			renderer = SDL_CreateRenderer(window, -1, 0);
+		if (!renderer && window)
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 #else
 		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720,
 		                          SDL_WINDOW_SHOWN);
@@ -127,7 +144,7 @@ void video_init(void)
 #endif
 	}
 	if (renderer) {
-#ifndef __PSP__
+#if !defined(__PSP__) && !defined(__ORBIS__)
 		SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);
 #endif
 		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);

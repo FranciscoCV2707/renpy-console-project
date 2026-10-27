@@ -6,6 +6,8 @@
 
 #ifdef __PSP__
 static char dir[512] = "ms0:/PSP/GAME/SNOOT/SAVE";
+#elif defined(__ORBIS__)
+static char dir[512] = "/data/snoot/save";
 #else
 static char dir[512] = "build/pc/save";
 #endif
@@ -93,7 +95,7 @@ SaveResult save_write(uint8_t *d)
 		char *slash = strrchr(folder, '/');
 		if (slash) {
 			*slash = 0;
-#ifdef __PSP__
+#if defined(__PSP__) || defined(__ORBIS__)
 			mkdir(folder, 0777);
 #else
 			mkdir(folder);

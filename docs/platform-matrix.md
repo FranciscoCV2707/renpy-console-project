@@ -20,7 +20,7 @@
 | DS | C | 7 | 2× 256×192 | 4 MB / 656 KB | BlocksDS | imagen de BlocksDS (verificar) | melonDS | consola de debug | Pendiente |
 | GB / GBC | D | 7 | 160×144 | 8/32 KB WRAM; ROM ≤ 8 MB (MBC5) | GBDK-2020 | release Windows | SameBoy / BizHawk / Mesen 2 | debug del emulador | Pendiente |
 | PS3 | R | — | — | — | PSL1GHT | — | RPCS3 | — | Investigación |
-| PS4 | R | — | — | — | OpenOrbis | — | shadPS4 | — | Investigación |
+| PS4 | A | 6 | 1920×1080 | 8 GB GDDR5 | OpenOrbis (SDL2) | `xfangfang/pacbrew` | shadPS4 / fpPS4 | stdout / log | Paquete FPKG y eboot.bin compilan (T-606) |
 | PS5 | R | — | — | — | PS5SDK experimental | — | sin emulador general | — | Investigación |
 | Xbox 360 | R | — | — | — | libxenon (bare-metal) | — | Xenia | — | Investigación |
 | Xbox One / Series S/X | R | — | — | — | UWP / GDK autorizado | Visual Studio | Developer Mode | — | Investigación |

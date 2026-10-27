@@ -59,11 +59,17 @@ El adapter `tools/ctl/vita.py` automatiza la configuración de Vita3K y la ejecu
 - **Cierre automático:** `--frontend sdl` ejecuta la aplicación en ventana independiente y finaliza con ella (`Vita3K.exe --help`).
 - **Captura de traza/printf:** `-l 0` (nivel TRACE en CLI y `log-level: 0` en YAML) registra los accesos a terminal en `|T| [write_file]: *** TTY: <texto>` (`Vita3K.exe --help` e implementación de `write_file` en `iofilemgr.cpp`).
 
-### Bloqueo conocido en emulación sin `libshacccg.suprx`
+### Renderizado GXM sin `libshacccg.suprx` (T-612)
 
-El backend SDL2 de VitaSDK enlaza contra `vitaGL` (`-lvitaGL -lvitashark -lSceShaccCgExt`). Al inicializarse, `vitaGL` intenta cargar dinámicamente el compilador de shaders en tiempo de ejecución desde `ur0:data/libshacccg.suprx`. Este archivo es propietario de Sony (procedente del runtime de PlayStation Mobile) y no está incluido en las actualizaciones de firmware oficiales (`PSVUPDAT.PUP` ni `PSP2UPDAT-preinst.PUP`).
+El paquete `sdl2` preinstalado en la imagen Docker (`vdpm/vitasdk-packages`) viene compilado con `-DHAVE_VITAGL=ON`, lo que obliga a enlazar con `vitaGL` (`-lvitaGL -lvitashark -lSceShaccCgExt`) y a requerir el compilador de shaders dinámico propietario `ur0:data/libshacccg.suprx`.
 
-Al no encontrar `libshacccg.suprx`, `vitaGL` invoca un cuadro de diálogo del sistema mediante `sceCommonDialog`, cuya rutina `sceCommonDialogUpdate` no está implementada en Vita3K, deteniendo la ejecución antes de iniciar el bucle principal de la VM. Para solventarlo se requiere contar con `libshacccg.suprx` en `ur0:data/` o usar shaders precompilados (GXP) estáticos en el backend gráfico.
+Para eliminar esta dependencia por completo:
+- Se compila SDL2 2.32.10 (`release-2.32.10`) desde su fuente oficial dentro del contenedor usando `vita.toolchain.cmake` con destino en `build/vita/sdl2/`.
+- El renderer oficial `VITA gxm` de SDL2 (`src/render/vitagxm/SDL_render_vita_gxm.c`) utiliza shaders precompilados en formato GXP (`SDL_render_vita_gxm_shaders.h`), operando directamente sobre la API nativa SceGxm de Sony sin runtime shader compiler.
+- `platforms/vita/Makefile` enlaza directamente contra `$(OUT)/sdl2/lib/pkgconfig/sdl2.pc`, eliminando `-lvitaGL`, `-lvitashark`, `-lSceShaccCgExt` y `-ltaihen_stub`.
+- `platforms/sdl/sdl_target.h` define `SDL_SetHint(SDL_HINT_RENDER_DRIVER, "VITA gxm")` en `SDL_SetMainReady()`.
+- Se añade `vita_flush()` sobre `__getreent()->_stdout` para vaciar los buffers stdio de newlib en entornos multihilo, y `SDL_QuitSubSystem(SDL_INIT_AUDIO)` en `atexit` para cerrar el hilo de audio antes del desmontaje de memoria, evitando fallos de acceso en emuladores como Vita3K.
+- Con esta configuración, `build/vita/snoot.vpk` arranca tanto en emulación (Vita3K) como en hardware real sin necesidad de `libshacccg.suprx`, pasando los escenarios de regresión con `verdict: PASS`.
 
 ## Observaciones
 

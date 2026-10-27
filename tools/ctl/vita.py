@@ -23,18 +23,36 @@ APPDATA_VITA = Path.home() / "AppData" / "Roaming" / "Vita3K" / "Vita3K"
 BLOCK_MARKER = b"Failed to read module file ur0:/data/libshacccg.suprx"
 
 
+def _is_incomplete(line: str) -> bool:
+    if line.count("|") < 3:
+        return True
+    parts = line.split("|", 4)
+    if len(parts) < 4:
+        return True
+    fields = parts[4] if len(parts) > 4 else ""
+    if not fields:
+        return False
+    last_item = fields.split(";")[-1]
+    return "=" not in last_item
+
+
 def extract_trace(log: str) -> str:
     """Extrae las lineas ``T|`` escritas por el juego (write_file *** TTY: o stdout directo)."""
-    lines = []
+    lines: list[str] = []
     for raw_line in log.splitlines():
         line = raw_line.strip()
         if "*** TTY: " in line:
             _, _, rest = line.partition("*** TTY: ")
+            rest = rest.strip()
             if rest.startswith("T|"):
                 lines.append(rest)
+            elif lines and _is_incomplete(lines[-1]):
+                lines[-1] = lines[-1] + rest
         elif line.startswith("T|"):
             lines.append(line)
-    return "".join(f"{line}\n" for line in lines)
+        elif lines and _is_incomplete(lines[-1]) and not line.startswith("[") and not line.startswith("|"):
+            lines[-1] = lines[-1] + line
+    return "".join(f"{line}\n" for line in lines if not _is_incomplete(line))
 
 
 def stage_firmware(pref: Path) -> None:
@@ -83,13 +101,15 @@ def stage_config(out: Path, pref: Path) -> Path:
     return cfg_file
 
 
-def stage_game_data(pref: Path, disc: Path, autotest: bytes) -> Path:
+def stage_game_data(pref: Path, disc: Path, autotest: bytes, shot_names: str = "") -> Path:
     """Copia los archivos de disco y el AUTOTEST.BIN a ux0:data/snoot."""
     data_dir = pref / "ux0" / "data" / "snoot"
     data_dir.mkdir(parents=True, exist_ok=True)
     shutil.copytree(disc, data_dir, dirs_exist_ok=True)
     (data_dir / "AUTOTEST.BIN").write_bytes(autotest)
     (data_dir / "save").mkdir(exist_ok=True)
+    if shot_names:
+        (data_dir / "shot_names.txt").write_text(shot_names, encoding="utf-8")
     return data_dir
 
 
@@ -112,7 +132,9 @@ def run_scenario(scenario, out: Path) -> Path:
     pref.mkdir(parents=True, exist_ok=True)
     stage_firmware(pref)
     cfg_path = stage_config(out, pref)
-    stage_game_data(pref, disc, autotest_bin(scenario_steps(scenario)))
+    steps = scenario_steps(scenario)
+    shot_names = ",".join(value for _, action, value in steps if action == "shot")
+    data_dir = stage_game_data(pref, disc, autotest_bin(steps), shot_names)
 
     log_path = out / "log.txt"
     log_path.unlink(missing_ok=True)
@@ -142,6 +164,9 @@ def run_scenario(scenario, out: Path) -> Path:
         if proc.poll() is None:
             subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, check=False)
             proc.wait()
+
+    for bmp in data_dir.glob("*.bmp"):
+        shutil.copy2(bmp, out / bmp.name)
 
     log = log_path.read_text(encoding="utf-8", errors="replace") if log_path.is_file() else ""
     trace_path = out / "trace.txt"

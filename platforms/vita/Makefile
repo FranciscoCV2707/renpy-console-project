@@ -7,6 +7,7 @@ STRIP := arm-vita-eabi-strip
 
 SRC := /src
 OUT := /src/build/vita
+SDL2_PC := $(OUT)/sdl2/lib/pkgconfig/sdl2.pc
 
 SRCS := $(wildcard $(SRC)/engine/core/*.c) \
         $(wildcard $(SRC)/engine/app/*.c) \
@@ -20,9 +21,10 @@ CFLAGS := -std=c99 -Wall -Wextra -Wno-unused-parameter -pedantic -O2 -Wl,-q
 CFLAGS += -I$(SRC)/engine/core -I$(SRC)/engine/platform -I$(SRC)/engine/app \
           -I$(SRC)/engine/modules -I$(SRC)/games/snoot -I$(SRC)/platforms/sdl \
           -I$(OUT)/generated
-CFLAGS += $(shell arm-vita-eabi-pkg-config --cflags sdl2)
+CFLAGS += $(shell pkg-config $(SDL2_PC) --cflags)
 
-LIBS := $(shell arm-vita-eabi-pkg-config --libs sdl2) -lSceShaccCgExt -ltaihen_stub -lstdc++
+LDFLAGS := -Wl,-q -Wl,--defsym,__sce_headroom=0x10000
+LIBS := $(shell pkg-config $(SDL2_PC) --libs)
 
 ifeq ($(VN_TRACE),1)
 CFLAGS += -DVN_TRACE
@@ -52,7 +54,7 @@ $(OUT)/snoot.velf: $(OUT)/snoot.elf
 	vita-elf-create $(OUT)/snoot.elf $(OUT)/snoot.velf
 
 $(OUT)/snoot.elf: $(OBJS)
-	$(CC) -Wl,-q $(OBJS) $(LIBS) -o $(OUT)/snoot.elf
+	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $(OUT)/snoot.elf
 
 $(OUT)/obj/%.o: $(SRC)/%.c
 	@mkdir -p $(dir $@)

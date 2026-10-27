@@ -25,6 +25,15 @@ def test_extract_trace_direct_stdout():
     assert extract_trace(log) == "T|1|0|SAY|who=1\nT|2|1|SHOW|tag=2\n"
 
 
+def test_extract_trace_multiline_chunk():
+    log = (
+        "[00:00:02.000] |T| [write_file]: *** TTY: T|1|0|SAY|who\n"
+        "[00:00:02.001] |T| [write_file]: *** TTY: =1\n"
+        "[00:00:03.000] |T| [write_file]: *** TTY: T|2|1|CHOICE|i=2\n"
+    )
+    assert extract_trace(log) == "T|1|0|SAY|who=1\nT|2|1|CHOICE|i=2\n"
+
+
 def test_extract_trace_ignores_logs_without_trace():
     assert extract_trace("x\ny\n") == ""
     assert extract_trace("[00:00:01.000] |T| [write_file]: *** TTY: hola mundo\n") == ""

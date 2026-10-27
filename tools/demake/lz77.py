@@ -24,14 +24,14 @@ def bios_lz77(data: bytes) -> bytes:
             if i >= size:
                 break
             length, disp = _longest_match(data, i, size, head, prev)
-            if length >= LZ77_MIN_MATCH:
+            if length >= LZ77_MIN_MATCH:  # GBATEK: bit en 1 = bloque comprimido, en 0 = byte literal
+                flags |= 1 << bit
                 block.append(((length - LZ77_MIN_MATCH) << 4) | ((disp - 1) >> 8))
                 block.append((disp - 1) & 0xFF)
                 for pos in range(i, min(i + length, size - LZ77_MIN_MATCH + 1)):
                     _insert(data, head, prev, pos)
                 i += length
             else:
-                flags |= 1 << bit
                 block.append(data[i])
                 if i + LZ77_MIN_MATCH <= size:
                     _insert(data, head, prev, i)
@@ -56,7 +56,7 @@ def bios_lz77_decompress(data: bytes) -> bytes:
         for bit in range(7, -1, -1):
             if len(out) >= size:
                 break
-            if flags & (1 << bit):
+            if not flags & (1 << bit):
                 if pos >= len(data):
                     raise ValueError("literal LZ77 truncado")
                 out.append(data[pos])
@@ -105,6 +105,9 @@ def _longest_match(
     low = i - LZ77_WINDOW
     chain = 0
     while candidate >= 0 and candidate >= low and chain < LZ77_MAX_CHAIN:
+        if i - candidate < 2:  # LZ77UnCompVram escribe de 16 en 16 bits: distancia 1 no sirve (GBATEK)
+            candidate = prev[candidate]
+            continue
         length = LZ77_MIN_MATCH
         while length < max_len and data[candidate + length] == data[i + length]:
             length += 1

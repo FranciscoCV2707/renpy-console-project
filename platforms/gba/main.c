@@ -22,7 +22,11 @@ static void draw_text(int x, int y, const char *text, u8 color)
 			unsigned char bits = glyph[row];
 			for (int col = 0; col < 8; ++col) {
 				if (bits & (unsigned char)(0x80 >> col)) {
-					((volatile u8 *)vid_mem)[(y + row) * 240 + (x + col)] = color;
+					/* la VRAM no acepta escrituras de 8 bits: se reescribe el par de píxeles */
+					int pos = (y + row) * 240 + (x + col);
+					volatile u16 *pair = (volatile u16 *)vid_mem + pos / 2;
+					*pair = (pos & 1) ? (u16)((*pair & 0x00FF) | (color << 8))
+					                  : (u16)((*pair & 0xFF00) | color);
 				}
 			}
 		}

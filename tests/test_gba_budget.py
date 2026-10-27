@@ -19,7 +19,7 @@ def _lz77_decode(data: bytes) -> bytes:
         for bit in range(7, -1, -1):
             if len(out) >= size:
                 break
-            if flags & (1 << bit):
+            if not flags & (1 << bit):  # bit en 0 = byte literal
                 out.append(data[i])
                 i += 1
             else:
@@ -28,7 +28,7 @@ def _lz77_decode(data: bytes) -> bytes:
                 length = (token >> 12) + 3
                 disp = (token & 0xFFF) + 1
                 assert 3 <= length <= 18, "longitud fuera de rango"
-                assert 1 <= disp <= 4096, "desplazamiento fuera de la ventana"
+                assert 2 <= disp <= 4096, "desplazamiento fuera de la ventana (1 no sirve en VRAM)"
                 assert disp <= len(out), "referencia anterior al inicio"
                 for _ in range(length):
                     out.append(out[-disp])
@@ -46,8 +46,10 @@ def test_bios_lz77_roundtrip():
 
 
 def test_bios_lz77_known_vector():
-    # 'a' literal + retroreferencia de longitud 3 y desplazamiento 1.
-    assert gba_budget.bios_lz77(b"aaaa") == bytes([0x10, 0x04, 0x00, 0x00, 0x80, 0x61, 0x00, 0x00])
+    # Distancia 1 no sirve en VRAM: 'aaaa' va como 4 literales (flags en 0).
+    assert gba_budget.bios_lz77(b"aaaa") == bytes([0x10, 0x04, 0x00, 0x00, 0x00]) + b"aaaa"
+    # 'ab' literales + retroreferencia de longitud 4 y desplazamiento 2 (bit 5 en 1 = comprimido).
+    assert gba_budget.bios_lz77(b"ababab") == bytes([0x10, 0x06, 0x00, 0x00, 0x20, 0x61, 0x62, 0x10, 0x01])
 
 
 def test_bios_lz77_empty():

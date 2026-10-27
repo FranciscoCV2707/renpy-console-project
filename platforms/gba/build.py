@@ -58,7 +58,7 @@ def generate_background_header(assets: Path) -> None:
         "#pragma once",
         "#include <stdint.h>",
         f"#define GBA_BG_ASSET_LEN {len(data)}",
-        "static const uint8_t gba_bg_asset[] = {",
+        "static const uint8_t gba_bg_asset[] __attribute__((aligned(4))) = {",
     ]
     for offset in range(0, len(data), 12):
         chunk = data[offset : offset + 12]

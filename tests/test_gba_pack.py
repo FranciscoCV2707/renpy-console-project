@@ -21,7 +21,7 @@ def test_lz77_roundtrip_determinista():
 
 
 def test_lz77_vector_y_errores():
-    assert bios_lz77(b"aaaa") == bytes([0x10, 4, 0, 0, 0x80, 0x61, 0, 0])
+    assert bios_lz77(b"aaaa") == bytes([0x10, 4, 0, 0, 0]) + b"aaaa"
     assert bios_lz77_decompress(bios_lz77(b"")) == b""
     for invalid in (b"", b"\x11\x00\x00\x00", b"\x10\x03\x00\x00\x00"):
         try:

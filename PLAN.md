@@ -341,6 +341,13 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-503 | 5 | antigravity | Adapters `ctl` PPSSPP y PCSX2 | T-202 |
 | T-504 | 5 | beam | Perfiles de recursos PSP y PS2 | T-402 |
 | T-505 | 5 | beam | Audio de los perfiles por duración (D18) | T-504 |
+| T-506 | 6 | codex | Perfiles de recursos de Vita, 3DS, Wii, Xbox clásica y Switch | T-505 |
+| T-601 | 6 | beam | PS Vita con el backend SDL (VitaSDK en Docker) | T-405 |
+| T-602 | 6 | beam | 3DS con el backend SDL (devkitARM) | T-405 |
+| T-603 | 6 | beam | Wii con el backend SDL (devkitPPC) | T-405 |
+| T-604 | 6 | beam | Xbox clásica con nxdk | T-405 |
+| T-605 | 6 | beam | Switch con el backend SDL (devkitA64) | T-405 |
+| T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 
 **Primera oleada de Beam (5 en paralelo, tras la prueba de humo):** T-101, T-202, T-205, T-301, T-402; T-206 entra

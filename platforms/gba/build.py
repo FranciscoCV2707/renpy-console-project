@@ -195,7 +195,7 @@ def build(trace: bool = False, autotest_path: Path | None = None) -> Path:
     OUT.write_bytes(combined)
 
     # Corregir la cabecera GBA con gbafix
-    fix_script = f"/opt/devkitpro/tools/bin/gbafix /src/build/gba/snoot.gba -tSNOOT -c0000 -m00"
+    fix_script = "/opt/devkitpro/tools/bin/gbafix /src/build/gba/snoot.gba -tSNOOT -c0000 -m00"
     docker_sh(fix_script)
 
     return OUT

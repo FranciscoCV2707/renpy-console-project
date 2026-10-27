@@ -239,8 +239,9 @@ static void render_cmd(const GbaCmd *c)
 			}
 		}
 	} else if (c->type == CMD_IMG) {
-		gba_render_img(c->u.img.img, c->u.img.screen_x, c->u.img.screen_y, c->u.img.flip, c->u.img.zoom, c->u.img.r,
-		               c->u.img.g, c->u.img.b, c->u.img.angle, c->u.img.brightness, c->u.img.is_title);
+		gba_render_img(c->u.img.img, c->u.img.screen_x, c->u.img.screen_y, c->u.img.flip, c->u.img.zoom,
+		               c->u.img.r, c->u.img.g, c->u.img.b, c->u.img.angle, c->u.img.brightness,
+		               c->u.img.is_title);
 	} else if (c->type == CMD_GLYPH) {
 		const uint8_t *atlas = gba_get_font_atlas();
 		if (!atlas)

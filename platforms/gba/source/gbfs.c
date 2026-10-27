@@ -2,8 +2,7 @@
 #include <ctype.h>
 #include <string.h>
 
-static const char GBFS_MAGIC[16] = {'P', 'i', 'n', 'E', 'i', 'g', 'h', 't',
-                                     'G', 'B', 'F', 'S', '\r', '\n', 0x1a, '\n'};
+static const char GBFS_MAGIC[16] = {'P', 'i', 'n', 'E', 'i', 'g', 'h', 't', 'G', 'B', 'F', 'S', '\r', '\n', 0x1a, '\n'};
 
 const GbfsHeader *gbfs_find(const void *start)
 {

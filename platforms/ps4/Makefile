@@ -20,11 +20,12 @@ SRCS = $(wildcard $(SRC)/engine/core/*.c) \
        $(wildcard $(SRC)/games/snoot/*.c) \
        $(wildcard $(SRC)/platforms/ps4/*.c) \
        $(wildcard $(SRC)/platforms/sdl/*.c)
-OBJS = $(patsubst $(SRC)/%.c,$(OUT)/obj/%.o,$(SRCS))
+OBJDIR = $(OUT)/obj$(if $(filter 1,$(VN_TRACE)),-trace)
+OBJS = $(patsubst $(SRC)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
 # dlmalloc 2.8.6 (dominio publico): en Orbis no hay sbrk, el heap sale de mmap; FOOTERS detecta
 # desbordes/doble free al liberar (T-616: el juego murio con un puntero corrupto en shadPS4)
-DLMALLOC_OBJ = $(OUT)/obj/platforms/ps4/dlmalloc-2.8.6.o
+DLMALLOC_OBJ = $(OBJDIR)/platforms/ps4/dlmalloc-2.8.6.o
 $(DLMALLOC_OBJ): CFLAGS += -DHAVE_MORECORE=0 -DUSE_LOCKS=1 -DFOOTERS=1
 
 ARCH = --target=x86_64-pc-freebsd12-elf
@@ -53,9 +54,12 @@ $(OUT)/$(TARGET).elf: $(OBJS)
 	@mkdir -p $(dir $@)
 	$(LD) $(OBJS) -o $@ $(LDFLAGS)
 
-$(OUT)/obj/%.o: $(SRC)/%.c
+$(OBJDIR)/%.o: $(SRC)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
+
+# Recompila cuando cambia un header (sdl_target.h, vm.h...), no solo el .c
+-include $(OBJS:.o=.d)
 
 $(OUT)/sce_sys/param.sfo:
 	@mkdir -p $(OUT)/sce_sys
@@ -79,4 +83,4 @@ $(OUT)/$(CONTENT_ID).pkg: $(OUT)/pkg.gp4
 	cp $(OUT)/$(CONTENT_ID).pkg $(OUT)/snoot.pkg
 
 clean:
-	rm -rf $(OUT)/obj $(OUT)/$(TARGET).elf $(OUT)/$(TARGET).oelf $(OUT)/eboot.bin $(OUT)/pkg.gp4 $(OUT)/$(CONTENT_ID).pkg $(OUT)/snoot.pkg $(OUT)/sce_sys
+	rm -rf $(OUT)/obj $(OUT)/obj-trace $(OUT)/$(TARGET).elf $(OUT)/$(TARGET).oelf $(OUT)/eboot.bin $(OUT)/pkg.gp4 $(OUT)/$(CONTENT_ID).pkg $(OUT)/snoot.pkg $(OUT)/sce_sys

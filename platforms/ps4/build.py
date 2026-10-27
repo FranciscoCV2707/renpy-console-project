@@ -13,12 +13,17 @@ def build(trace: bool = False) -> Path:
     out = ROOT / "build" / "ps4"
     generated = out / "generated"
     generated.mkdir(parents=True, exist_ok=True)
-    (generated / "game_config.h").write_text(
+    config = generated / "game_config.h"
+    text = (
         '#pragma once\n#define VN_SEEN_BYTES 2048\n#define VN_SAVE_TITLE "SNOOT GAME"\n'
-        '#define VN_SAVE_PREFIX "BASLUS-99999SNOOT"\n#define VN_SAVE_MAGIC "SNS1"\n',
-        encoding="utf-8",
-        newline="\n",
+        '#define VN_SAVE_PREFIX "BASLUS-99999SNOOT"\n#define VN_SAVE_MAGIC "SNS1"\n'
     )
+    # Solo si cambia: con dependencias de headers, reescribirlo recompilaria todo en cada build
+    if not config.is_file() or config.read_text(encoding="utf-8") != text:
+        config.write_text(text, encoding="utf-8", newline="\n")
+    # Los objetos van por modo (obj/ u obj-trace/); el ELF se reenlaza siempre para no mezclar modos
+    for stale in ("snoot.elf", "snoot.oelf", "eboot.bin", "pkg.gp4", "snoot.pkg"):
+        (out / stale).unlink(missing_ok=True)
     make_cmd = "make -f /src/platforms/ps4/Makefile"
     if trace:
         make_cmd += " VN_TRACE=1"

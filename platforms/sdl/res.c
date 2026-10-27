@@ -1,9 +1,10 @@
 #include "res.h"
 #include "cd.h"
-#include "img_release.h"
 #include "sdl_target.h"
 #include <stdio.h>
 #include <string.h>
+
+extern void img_release(Image *img);
 
 /* Cache de imagenes acotado (SDL_TARGET_RES_CACHE) con desalojo por escena, como el res.c de platforms/ps1: lo que
  * se toco en la escena actual (res_touch) no se desaloja; si hace falta sitio para dibujar tambien sirve lo que no

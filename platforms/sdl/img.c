@@ -1,5 +1,4 @@
 #include "img.h"
-#include "img_release.h"
 #include "sdl_target.h"
 #include "video.h"
 

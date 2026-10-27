@@ -354,6 +354,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-607 | 6 | beam | PS3 con el backend SDL (PSL1GHT) | T-407 |
 | T-610 | 6 | beam | `ctl run --target 3ds` con Azahar | T-602 |
 | T-611 | 6 | beam | `ctl run --target wii` con Dolphin | T-603 |
+| T-612 | 6 | agy | Vita sin `libshacccg.suprx` (renderer GXM de SDL2) | T-608 |
 | T-407 | 6 | beam | `sdl_target.h` y fusión de 3DS, Wii, Xbox y Switch | T-601..T-605 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |

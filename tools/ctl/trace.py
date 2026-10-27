@@ -136,6 +136,110 @@ def compare_events(actual, reference, allowed_events=None, tolerance_frames=0) -
     )
 
 
+def _lookup_speaker(snoot_map, index):
+    speakers = (snoot_map or {}).get("speakers", {})
+    if index in speakers:
+        return speakers[index]
+    try:
+        i = int(index)
+    except (TypeError, ValueError):
+        return ""
+    if i in speakers:
+        return speakers[i]
+    if str(i) in speakers:
+        return speakers[str(i)]
+    return ""
+
+
+def _lookup_text(snoot_map, gid):
+    text_map = (snoot_map or {}).get("text", {})
+    if gid in text_map:
+        return text_map[gid]
+    try:
+        i = int(gid)
+    except (TypeError, ValueError):
+        return None
+    if i in text_map:
+        return text_map[i]
+    if str(i) in text_map:
+        return text_map[str(i)]
+    return None
+
+
+def normalize_engine(events, snoot_map) -> list:
+    """Traduce una traza del motor a la forma comun (SAY who=<nombre>;id=<tid>, CHOICE i=<n>)."""
+    out: list = []
+    for e in events:
+        if e.ev == "SAY":
+            who_raw = e.fields.get("who", "")
+            try:
+                who_idx = int(who_raw) if who_raw not in ("", None) else 0
+            except (TypeError, ValueError):
+                who_idx = 0
+            name = _lookup_speaker(snoot_map, who_idx)
+            tid = _lookup_text(snoot_map, e.fields.get("text"))
+            if tid is None:
+                tid = ""
+            out.append(TraceEvent(seq=e.seq, frame=e.frame, ev="SAY",
+                                 fields={"who": name, "id": tid}))
+        elif e.ev == "CHOICE":
+            out.append(TraceEvent(seq=e.seq, frame=e.frame, ev="CHOICE",
+                                 fields={"i": e.fields.get("i", "")}))
+    return out
+
+
+def normalize_renpy(events) -> list:
+    """Deja solo SAY (who, id) y CHOICE (i) de una traza de Ren'Py."""
+    out: list = []
+    for e in events:
+        if e.ev == "SAY":
+            out.append(TraceEvent(seq=e.seq, frame=e.frame, ev="SAY",
+                                 fields={"who": e.fields.get("who", ""),
+                                         "id": e.fields.get("id", "")}))
+        elif e.ev == "CHOICE":
+            out.append(TraceEvent(seq=e.seq, frame=e.frame, ev="CHOICE",
+                                 fields={"i": e.fields.get("i", "")}))
+    return out
+
+
+def compare_cross(actual, reference) -> CompareResult:
+    """Alinea dos secuencias ya normalizadas y reporta el primer evento divergente."""
+    fa = list(actual)
+    fr = list(reference)
+    n = min(len(fa), len(fr))
+    for i in range(n):
+        a, b = fa[i], fr[i]
+        if a.ev != b.ev or a.fields != b.fields:
+            return CompareResult(
+                equal=False,
+                index=i,
+                actual=a,
+                reference=b,
+                message=f"first divergent at index {i}: actual {a.ev} vs reference {b.ev}",
+                verdict="FAIL",
+            )
+    if len(fa) != len(fr):
+        i = n
+        a = fa[i] if i < len(fa) else None
+        r = fr[i] if i < len(fr) else None
+        return CompareResult(
+            equal=False,
+            index=i,
+            actual=a,
+            reference=r,
+            message=f"length mismatch: actual {len(fa)} vs reference {len(fr)} events",
+            verdict="FAIL",
+        )
+    return CompareResult(
+        equal=True,
+        index=None,
+        actual=None,
+        reference=None,
+        message="traces match",
+        verdict="PASS",
+    )
+
+
 def compare_scenario(scenario, trace_path) -> CompareResult:
     ref_path = Path(scenario.reference)
     if not ref_path.is_absolute():
@@ -156,6 +260,18 @@ def compare_scenario(scenario, trace_path) -> CompareResult:
                 ref_path = cand
     ref_events = parse_file(ref_path)
     actual_events = parse_file(trace_path)
+    mode = getattr(scenario.compare, "mode", "same")
+    if mode == "renpy":
+        try:
+            from .snoot_map import load_map
+            snoot_map = load_map()
+        except (RuntimeError, OSError, ValueError, ImportError):
+            snoot_map = None
+        norm_actual = normalize_engine(actual_events, snoot_map)
+        norm_ref = normalize_renpy(ref_events)
+        result = compare_cross(norm_actual, norm_ref)
+        result.scenario = scenario.id
+        return result
     allowed = scenario.compare.events
     tol_frames = scenario.compare.tolerance.get("frames", 0)
     result = compare_events(actual_events, ref_events, allowed, tol_frames)

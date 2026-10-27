@@ -63,7 +63,7 @@ def test_shot():
 
 
 def test_autoplay():
-    assert scenario_steps(_scen([{"autoplay": True}])) == [(0, "autoplay", ""), (60, "quit", "")]
+    assert scenario_steps(_scen([{"autoplay": True}])) == [(0, "autoplay", "")]
 
 
 def test_quit_no_final():
@@ -109,3 +109,15 @@ def test_snoot_smoke_compiles():
 def test_buttons_constants():
     assert BUTTONS["CROSS"] == (1 << 14)
     assert (SHOT, QUIT, AUTOPLAY) == (0xFFFF, 0xFFFE, 0xFFFD)
+
+
+def test_route_choices_follow_autoplay_without_quit():
+    steps = scenario_steps(_scen([{"wait": 60}, {"press": "CROSS"}, {"autoplay": True}, {"choices": [1, 0]}]))
+    assert steps == [(60, "press", "CROSS"), (90, "autoplay", ""), (90, "choice", "1"), (90, "choice", "0")]
+    data = autotest_bin(steps)
+    assert data[-2:] == (0xFFE0).to_bytes(2, "little") and data[-8:-6] == (0xFFE1).to_bytes(2, "little")
+
+
+def test_choices_must_be_option_indexes():
+    with pytest.raises(ScenarioError):
+        scenario_steps(_scen([{"choices": [16]}]))

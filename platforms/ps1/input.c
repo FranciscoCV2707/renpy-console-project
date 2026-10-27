@@ -12,9 +12,11 @@ static int script_count;
 #define SCRIPT_SHOT 0xFFFF
 #define SCRIPT_QUIT 0xFFFE
 #define SCRIPT_AUTOPLAY 0xFFFD
+#define SCRIPT_CHOICE 0xFFE0          /* 0xFFE0 + i: la siguiente decision del recorrido elige la opcion i */
 volatile uint32_t autotest_shot, autotest_quit, autotest_autoplay;
 static uint8_t script_done[2800];
 static int script_base = -1;
+static int choice_at;                 /* siguiente entrada del guion donde buscar una decision */
 
 void input_init(int with_card)
 {
@@ -67,9 +69,23 @@ void input_update(void)
 			autotest_quit = 1;
 		else if (buttons == SCRIPT_AUTOPLAY)
 			autotest_autoplay = 1;
-		else
+		else if (buttons < SCRIPT_CHOICE)   /* las decisiones no son botones: las lee input_autotest_choice */
 			cur |= (uint16_t)buttons;
 	}
+}
+
+int input_autotest_choice(void)
+{
+	for (; choice_at < script_count; choice_at++) {
+		const uint8_t *e = script + 6 * choice_at;
+		int value = e[4] | (e[5] << 8);
+
+		if (value >= SCRIPT_CHOICE && value < SCRIPT_CHOICE + 16) {
+			choice_at++;
+			return value - SCRIPT_CHOICE;
+		}
+	}
+	return -1;
 }
 
 /* Estado del control sin pasar por input_update (antes del bucle principal; no arranca el guion de prueba) */

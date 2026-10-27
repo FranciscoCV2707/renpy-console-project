@@ -1973,7 +1973,8 @@ static void finish_game(void)
 }
 
 /* Prueba de recorrido (AUTOTEST con autoplay): avanza solo, sin saltar, para que se cargue todo como al jugar. Las
- * decisiones van rotando para pasar por ramas distintas; al volver al titulo o ante un error pide cerrar el emulador. */
+ * decisiones siguen las del guion (una ruta) y, si no hay, van rotando para pasar por ramas distintas; al volver al
+ * titulo o ante un error pide cerrar el emulador. */
 static int autoplay_started, autoplay_menus;
 
 static void autoplay_step(void)
@@ -1996,10 +1997,14 @@ static void autoplay_step(void)
 		if (!res_prefetch_busy() && !audio_loading())
 			state = ST_RUN;
 		break;
-	case ST_MENU:
-		vm.choice = menu_order[autoplay_menus++ % vm.menu_n];
+	case ST_MENU: {
+		/* la ruta del guion manda (indice de la opcion en la VM; fuera de rango la VM avisa el error); sin ruta, rota */
+		int c = input_autotest_choice();
+
+		vm.choice = c >= 0 ? c : menu_order[autoplay_menus++ % vm.menu_n];
 		state = ST_RUN;
 		break;
+	}
 	case ST_TRANS:
 		if (!res_prefetch_busy() && !audio_loading())
 			end_transition();

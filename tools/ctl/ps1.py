@@ -62,7 +62,9 @@ def run_scenario(scenario, out: Path) -> Path:
         "state": sym["state"], "vm": sym["vm"], "watch": ", ".join(f"{n} = {sym[n]}" for n in et.WATCH if n in sym),
         "failog": sym.get("res_fail_log", "nil"), "stalllog": sym.get("stall_log", "nil"),
         "synclog": sym.get("res_sync_log", "nil"), "triggers": et.parse_triggers(None),
-        "max_frames": max(f for f, _, _ in steps) + 3000}, encoding="utf-8")
+        # un recorrido con autoplay dura lo que dure la ruta: lo corta limits.max_seconds
+        "max_frames": 60 * 60 * 60 * 24 if any(a == "autoplay" for _, a, _ in steps)
+        else max(f for f, _, _ in steps) + 3000}, encoding="utf-8")
     (out / "final.txt").unlink(missing_ok=True)
     tty = out / "tty.txt"
     # -stdout no sirve: pcsx-redux.exe es un lanzador que no pasa la salida de pcsx-redux.main; -logfile sí

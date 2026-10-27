@@ -17,7 +17,11 @@ docker inspect --format "{{index .RepoDigests 0}}" hldtux/ps3dev-sdl2:latest
 - Compilador: `powerpc64-ps3-elf-gcc` / `ppu-gcc` (PSL1GHT v2, `/usr/local/ps3dev`).
 - `make` ya está en la imagen; no hace falta instalarlo.
 - Macro de plataforma: `-D__PSL1GHT__` (la define el build de PS3 en `platforms/ps3/Makefile`; `platforms/sdl/sdl_target.h` la usa con `#elif defined(__PSL1GHT__)`). SDL2 para PSL1GHT solo expone `__PSL1GHT__` cuando se define esta macro.
-- SDL2 2.31.0 para PSL1GHT: en `/usr/local/ps3dev/portlibs/ppu` (`sdl2-config`, `sdl2.pc`, `libSDL2.a`).
+- SDL2 2.0.13 desde la fuente del port oficial de ps3dev (`shagkur/SDL_PSL1GHT`), fijado por commit
+  `b81fbad4489918f5ed9c9c052238d7a25da9bab9` ("fix API change"): `platforms/ps3/build.py` la clona y compila en
+  Docker a `build/ps3/sdl2` (cacheada). La `libSDL2.a` de la imagen (`/usr/local/ps3dev/portlibs/ppu`, SDL 2.31)
+  mezcla su núcleo con un driver de audio compilado con la firma antigua de `OpenDevice` y truena en
+  `audio_init` (reports/T-613.md); el port fuente trae núcleo y drivers con la misma firma.
 - Empaquetado: `make_self`, `make_self_npdrm`, `fself`, `pkg.py`, `sfo.py` (en `/usr/local/ps3dev/bin`).
 
 ## Cómo se compila
@@ -26,7 +30,7 @@ docker inspect --format "{{index .RepoDigests 0}}" hldtux/ps3dev-sdl2:latest
 E:/Dev/renpy-console-project/.venv/Scripts/python.exe platforms/ps3/build.py --trace
 ```
 
-Genera `build/ps3/snoot.self` y `build/ps3/snoot.pkg`. Con `--trace` define `VN_TRACE`. El backend SDL se ajusta para PS3 bajo `#ifdef __PSL1GHT__`: ventana 1280×720, área de juego 960×720 centrada (320×240 ×3), rutas por defecto `/dev_hdd0/game/SNOT00001/USRDIR/data` (lectura) y `/dev_hdd0/game/SNOT00001/USRDIR/save` (partidas), `mkdir` con modo POSIX y salida estándar con `fflush`.
+Genera `build/ps3/snoot.self` y `build/ps3/snoot.pkg`. Con `--trace` define `VN_TRACE`. El backend SDL se ajusta para PS3 bajo `#ifdef __PSL1GHT__`: ventana 1280×720, área de juego 320×240 centrada a escala 1:1, rutas por defecto `/dev_hdd0/game/SNOT00001/USRDIR/data` (lectura) y `/dev_hdd0/game/SNOT00001/USRDIR/save` (partidas), `mkdir` con modo POSIX y salida estándar con `fflush`. El área va a ×1 (antes ×3 en 960×720) porque el único renderer del port de SDL2 para PSL1GHT es software: el escalado por píxel de 960×720 corría el juego a ~1.5 fps en RPCS3 y a ×1 llega a ~30 fps; en hardware se puede volver a ×3 cuando haya renderer acelerado.
 
 ## Cómo se instala (consola o RPCS3)
 
@@ -53,19 +57,29 @@ E:/Dev/renpy-console-project/.venv/Scripts/python.exe -m tools.ctl run --target 
 de PS1 (`build/ctl/ps1/disc`, prerrequisito de `ctl run --target ps1`) con el `AUTOTEST.BIN` del escenario a
 `dev_hdd0/game/SNOT00001/USRDIR/data`, corre con `--no-gui` y extrae las líneas `T|` de `log/TTY.log`.
 
-**Bloqueo conocido (2026-10-27):** el juego arranca en RPCS3 (video SDL2/RSX OK, lee `USRDIR/data`) y se congela
-en `audio_init`: el driver de audio de SDL2-PSL1GHT (`SDL_psl1ghtaudio.o` de la imagen Docker) imprime
-`PSL1GHT_AUD_OpenDevice(%08X.%08X, %s, %d)` pasando como `%s` un registro que el llamador de SDL2 2.31 no
-inicializa (firma de `OpenDevice` antigua); en RPCS3 ese registro vale `0x1` y el `vfprintf` de newlib lo
-desreferencia: `VM: Access violation reading location 0x1` y "Emulation has been frozen" antes de escribir
-cualquier evento de traza. Reproduce igual con el decodificador PPU en intérprete. No es arreglable desde este
-repo (haría falta parchear `libSDL2.a` de la imagen o saltar el audio en el backend, ambos fuera de los archivos
-permitidos de T-613); propuesto como tarea nueva.
+**Bloqueo resuelto (T-615):** el crash de `audio_init` (reports/T-613.md) venía de la `libSDL2.a` de la imagen
+Docker (núcleo 2.31 con el driver `SDL_psl1ghtaudio` compilado contra la firma antigua de `OpenDevice`: el
+llamador pasa 4 argumentos y el driver leía `devname` de un registro sin inicializar, que en RPCS3 valía `0x1`
+→ `vfprintf` desreferenciaba → `VM: Access violation reading location 0x1`). Se compila SDL2 desde la fuente
+del port (commit `b81fbad`, arriba), donde núcleo y driver usan la misma firma; con eso `audio_init` pasa en
+RPCS3 (TTY.log: `PSL1GHT_AUD_OpenDevice(..., (null), 0)`, `audioPortOpen: 0`, `audioPortStart: 0`), el juego
+arranca con el puerto de audio activo y consume el `AUTOTEST.BIN` (navegó el menú de capítulos del guion en
+corridas manuales de RPCS3 a ~4-30 fps).
+
+**Bloqueo actual (2026-10-27):** desde media sesión de T-615, todo lanzamiento de RPCS3 sobre el juego (por
+`tools.ctl`, por línea de comandos, con OpenGL o con config custom de Vulkan) muere a los ~5 s de emulación:
+`RSX SIG: Thread terminated due to fatal error: Verification failed (object: 0x0)` en
+`GLTextureCache.h:729 create_new_texture` ("No se puede encontrar el módulo especificado") →
+"Emulation has been frozen" antes del primer evento de traza; con el mismo `EBOOT.BIN` y los mismos datos el
+juego corrió bien a primera hora (30 fps en el título, menú navegable). Es un fallo del renderer de RPCS3 en
+este host (su sensor de CPU también reporta "The required API is not initialized"), no del repo: el veredicto
+de `snoot-route-chapter_x2` quedó pendiente de una corrida sana del emulador.
 
 ## Lo que falta para la automatización con `tools/ctl`
 
-- Resolver el bloqueo del driver de audio SDL2-PSL1GHT (arriba) para obtener traza y veredicto del escenario.
-- Verificar en RPCS3 que el render acelerado y el audio de SDL2 funcionan; hoy solo se ha comprobado que compila,
-  enlaza y que el video inicializa (RSX y `USRDIR/data` montados) en el emulador.
+- Verificar en una PS3 real: hoy solo se ha verificado en RPCS3 (build 0.0.43-20410, firmware 4.93) que compila,
+  enlaza, inicializa audio y video, lee `USRDIR/data` y navega el menú con el `AUTOTEST.BIN`.
+- Obtener el veredicto de `snoot-route-chapter_x2` en RPCS3 cuando el renderer del emulador vuelva a correr
+  (ver "Bloqueo actual" arriba).
 - Confirmar el mapeo de botones del DualShock 3 a `BTN_*`; hoy se reutiliza el mapeo genérico de SDL2.
 - El firmware de PS3 no se descarga desde este repo (ver `docs/what-to-download.md`).

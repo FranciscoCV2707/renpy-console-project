@@ -258,12 +258,13 @@ static inline void vita_set_main_ready(void)
 #define SDL_TARGET_FLUSH_STDOUT_ENABLED 1
 #define SDL_TARGET_PSP_MODULE_INFO      0
 #define SDL_TARGET_NEEDS_FAT_INIT       0
-#define SDL_TARGET_HAS_RENDER_GEOMETRY  1
+/* SDL 2.0.13 del port PSL1GHT no tiene SDL_RenderGeometry (llego en 2.0.18): fallback a SDL_RenderFillRect. */
+#define SDL_TARGET_HAS_RENDER_GEOMETRY  0
 #define SDL_TARGET_MKDIR_WITH_MODE      1
-#define SDL_TARGET_VIEW_X               160
-#define SDL_TARGET_VIEW_Y               0
-#define SDL_TARGET_VIEW_W               960
-#define SDL_TARGET_VIEW_H               720
+#define SDL_TARGET_VIEW_X               480
+#define SDL_TARGET_VIEW_Y               240
+#define SDL_TARGET_VIEW_W               320
+#define SDL_TARGET_VIEW_H               240
 
 #else
 #error                                                                                                                 \

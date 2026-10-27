@@ -366,6 +366,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-705 | 7 | beam | Motor mínimo de GBA: fondo y una línea en mGBA | T-702 |
 | T-706 | 7 | kilo | Motor mínimo de DS: fondo arriba y texto abajo en melonDS | — |
 | T-707 | 7 | codex | Empaquetador de recursos de DS (NitroFS, LZ77, IMA-ADPCM 22 kHz) | T-702, T-706 |
+| T-708 | 7 | agy | DS corre el guion con el núcleo compartido (datos de PS1 en NitroFS) | T-706, T-707 |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 | T-902 | — | vibe | Guía de instalación para jugadores, por consola | — |
 

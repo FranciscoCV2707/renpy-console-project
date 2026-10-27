@@ -51,9 +51,3 @@ Esta tarea no usa emulador: Switch necesita claves y firmware del usuario. La pr
 
 - Compilación y enlace limpios (cero advertencias) con la imagen fijada por digest: `build/switch/snoot.nro` de 6889528 bytes.
 - No se ejecutó en hardware ni en emulador.
-```
-
-Need maybe package size exact 6,889,528 bytes. Good.
-
-Now run ruff and pytest. First ruff.<|end|><|start|> assistants to=shell<|channel|>analysis <|constrain|>xml<|message|><rfl:parameter name="command">
-E:/Dev/renpy-console-project/.venv/Scripts/python.exe -m ruff check tools tests

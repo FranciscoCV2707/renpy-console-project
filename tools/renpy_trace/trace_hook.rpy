@@ -7,6 +7,7 @@ init -999 python:
     _rcp_seq = [0]
     _rcp_frame = [0]
     _rcp_prev_tags = [None]
+    _rcp_prev_attrs = [{}]
     _rcp_prev_music = [None]
     _rcp_pending_say = [None]
 
@@ -96,8 +97,13 @@ init -999 python:
             for tag in sorted(removed):
                 if not (prev and removed == prev):
                     _rcp_emit("HIDE", tag=tag)
-            for tag in sorted(added):
-                _rcp_emit("SHOW", tag=tag, attrs=" ".join(renpy.get_attributes(tag)))
+            # SHOW tambien cuando un tag ya visible cambia de expresion (antes solo al aparecer)
+            attrs = {}
+            for tag in sorted(curr_tags):
+                attrs[tag] = " ".join(renpy.get_attributes(tag) or ())
+                if tag in added or attrs[tag] != _rcp_prev_attrs[0].get(tag):
+                    _rcp_emit("SHOW", tag=tag, attrs=attrs[tag])
+            _rcp_prev_attrs[0] = attrs
             _rcp_prev_tags[0] = curr_tags
 
             curr_music = _rcp_music()

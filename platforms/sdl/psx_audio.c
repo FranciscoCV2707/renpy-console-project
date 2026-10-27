@@ -1,184 +1,91 @@
-/* Decodificadores de audio de PS1 (SPU-ADPCM y XA-ADPCM) a PCM 16 bits.
- * Algoritmo tomado de psx-spx (nocash), secciones "SPU ADPCM Samples" y
- * "CDROM XA Audio ADPCM Compression": tablas de filtro y formula de predictor. */
+/* Decodificadores de audio de PS1 a PCM 16 bits: SPU-ADPCM (efectos y
+ * ambientes, S###.SPU) y XA-ADPCM (MUSIC.XA). Algoritmo de psx-spx (nocash):
+ * "SPU ADPCM Samples" y "CDROM XA Audio ADPCM Compression". */
 #include "psx_audio.h"
 
-/* Tablas de filtro de psx-spx, seccion "Pos/neg Tables":
- *   pos_xa_adpcm_table[0..4] = (0, +60, +115, +98, +122)
- *   neg_xa_adpcm_table[0..4] = (0, 0, -52, -55, -60) */
-static const int psx_filter_pos[5] = { 0, 60, 115, 98, 122 };
-static const int psx_filter_neg[5] = { 0, 0, -52, -55, -60 };
+/* psx-spx, "SPU ADPCM Pos/Neg Tables": coeficientes de los filtros 0-4 (XA usa
+ * 0-3) */
+static const int filter_pos[5] = {0, 60, 115, 98, 122};
+static const int filter_neg[5] = {0, 0, -52, -55, -60};
 
-static int clamp16(int v)
+/* Una unidad de 28 muestras. `header`: bits 0-3 shift, bits 4-6 filtro. `raw`:
+ * muestras ya extendidas a 16 bits (4 bits SHL 12 u 8 bits SHL 8, como en
+ * psx-spx). */
+static void decode_unit(int header, const int32_t raw[28], int16_t *out, int32_t hist[2])
 {
-    if (v > 32767)
-        return 32767;
-    if (v < -32768)
-        return -32768;
-    return v;
+	int shift = header & 0x0F;
+	int filter = (header >> 4) & 0x07;
+	int i;
+
+	if (shift > 12)
+		shift = 9; /* psx-spx: los shift 13-15 se comportan como 9 */
+	if (filter > 4)
+		filter = 4;
+	for (i = 0; i < 28; i++) {
+		/* raw SAR shift + (old * pos + older * neg + 32) SAR 6; los SAR son
+     * aritmeticos (gcc) como en psx-spx */
+		int32_t s =
+		    (raw[i] >> shift) + ((hist[0] * filter_pos[filter] + hist[1] * filter_neg[filter] + 32) >> 6);
+
+		if (s > 32767)
+			s = 32767;
+		if (s < -32768)
+			s = -32768;
+		out[i] = (int16_t)s;
+		hist[1] = hist[0];
+		hist[0] = s;
+	}
+}
+
+static int32_t nibble_sample(int byte, int high)
+{
+	int t = high ? byte >> 4 : byte & 0x0F;
+
+	return (t >= 8 ? t - 16 : t) * 4096;
 }
 
 int psx_spu_decode(const uint8_t *adpcm, int blocks, int16_t *out, int32_t hist[2])
 {
-    int32_t old = 0, older = 0;
-    int samples = 0;
-    int b;
+	int32_t raw[28];
+	int b, i;
 
-    if (adpcm == 0 || out == 0 || blocks <= 0)
-        return 0;
-    if (hist != 0) {
-        old = hist[0];
-        older = hist[1];
-    }
+	/* bloque de 16 bytes: byte 0 shift/filtro, byte 1 flags (fin, bucle), bytes
+   * 2-15 las 28 muestras, la baja primero */
+	for (b = 0; b < blocks; b++) {
+		const uint8_t *block = adpcm + 16 * b;
 
-    for (b = 0; b < blocks; b++) {
-        const uint8_t *blk = adpcm + b * 16;
-        int shift_val = blk[0] & 0x0F;
-        int shift;
-        int filter = blk[0] >> 4;
-        int f0, f1;
-        int i;
-
-        if (shift_val >= 13)
-            shift = 9;
-        else
-            shift = 12 - shift_val;
-        if (filter > 4)
-            filter = 4;
-        f0 = psx_filter_pos[filter];
-        f1 = psx_filter_neg[filter];
-
-        for (i = 0; i < 28; i++) {
-            int byte = blk[2 + i / 2];
-            int nibble = (i & 1) ? (byte >> 4) & 0x0F : byte & 0x0F;
-            int t = (nibble >= 8) ? (nibble - 16) : nibble;
-            int s = (t << shift) + (old * f0 + older * f1 + 32) / 64;
-
-            s = clamp16(s);
-            out[samples++] = (int16_t)s;
-            older = old;
-            old = s;
-        }
-    }
-
-    if (hist != 0) {
-        hist[0] = old;
-        hist[1] = older;
-    }
-    return samples;
+		for (i = 0; i < 28; i++)
+			raw[i] = nibble_sample(block[2 + i / 2], i & 1);
+		decode_unit(block[0], raw, out + 28 * b, hist);
+	}
+	return 28 * blocks;
 }
 
-static void xa_decode_28(const uint8_t *src, int blk, int nibble, int bits8,
-                         int32_t *old, int32_t *older,
-                         int16_t *dst, int *count)
+int psx_xa_decode_sector(const uint8_t *data, int stereo, int bits8, int16_t *left, int16_t *right, int32_t hist[4])
 {
-    int header;
-    int shift_val;
-    int shift;
-    int filter;
-    int f0, f1;
-    int j;
+	int units = bits8 ? 4 : 8;
+	int32_t raw[28];
+	int g, u, j, nl = 0, nr = 0;
 
-    if (bits8) {
-        header = src[4 + blk];
-    } else {
-        header = src[4 + blk * 2 + nibble];
-    }
-    shift_val = header & 0x0F;
-    if (shift_val >= 13)
-        shift = 9;
-    else
-        shift = 12 - shift_val;
-    filter = (header & 0x30) >> 4;
-    if (filter > 4)
-        filter = 4;
-    f0 = psx_filter_pos[filter];
-    f1 = psx_filter_neg[filter];
+	/* 18 grupos de 128 bytes: 16 de cabeceras (la de la unidad u en 4 + u) y 28
+   * palabras de 4 bytes; la muestra j de la unidad u esta en la palabra j, byte
+   * u (8 bits) o byte u/2, mitad u&1 (4 bits) */
+	for (g = 0; g < 18; g++) {
+		const uint8_t *group = data + 128 * g;
 
-    for (j = 0; j < 28; j++) {
-        int t;
-        int s;
-        int byte = src[16 + blk + j * 4];
-
-        if (bits8) {
-            t = (signed char)byte;
-        } else {
-            int n = (byte >> (nibble * 4)) & 0x0F;
-            t = (n >= 8) ? (n - 16) : n;
-        }
-        s = (t << shift) + ((*old) * f0 + (*older) * f1 + 32) / 64;
-        s = clamp16(s);
-        dst[(*count)++] = (int16_t)s;
-        *older = *old;
-        *old = s;
-    }
-}
-
-int psx_xa_decode_sector(const uint8_t *data, int stereo, int bits8, int16_t *left,
-                          int16_t *right, int32_t hist[4])
-{
-    int32_t oldL = 0, olderL = 0;
-    int32_t oldR = 0, olderR = 0;
-    int countL = 0;
-    int countR = 0;
-    const uint8_t *src;
-    int i;
-
-    if (data == 0 || left == 0 || right == 0)
-        return 0;
-    if (hist != 0) {
-        oldL = hist[0];
-        olderL = hist[1];
-        oldR = hist[2];
-        olderR = hist[3];
-    }
-
-    src = data;
-    for (i = 0; i < 0x12; i++) {
-        int blk;
-        if (bits8) {
-            if (stereo) {
-                for (blk = 0; blk < 2; blk++) {
-                    xa_decode_28(src, blk, 0, bits8,
-                                 &oldL, &olderL, left, &countL);
-                }
-                for (blk = 2; blk < 4; blk++) {
-                    xa_decode_28(src, blk, 0, bits8,
-                                 &oldR, &olderR, right, &countR);
-                }
-            } else {
-                for (blk = 0; blk < 4; blk++) {
-                    xa_decode_28(src, blk, 0, bits8,
-                                 &oldL, &olderL, left, &countL);
-                }
-            }
-        } else {
-            if (stereo) {
-                for (blk = 0; blk < 4; blk++) {
-                    xa_decode_28(src, blk, 0, bits8,
-                                 &oldL, &olderL, left, &countL);
-                    xa_decode_28(src, blk, 1, bits8,
-                                 &oldR, &olderR, right, &countR);
-                }
-            } else {
-                for (blk = 0; blk < 4; blk++) {
-                    xa_decode_28(src, blk, 0, bits8,
-                                 &oldL, &olderL, left, &countL);
-                    xa_decode_28(src, blk, 1, bits8,
-                                 &oldL, &olderL, left, &countL);
-                }
-            }
-        }
-        src += 128;
-    }
-
-    if (hist != 0) {
-        hist[0] = oldL;
-        hist[1] = olderL;
-        if (stereo) {
-            hist[2] = oldR;
-            hist[3] = olderR;
-        }
-    }
-    return stereo ? countR : countL;
+		for (u = 0; u < units; u++) {
+			for (j = 0; j < 28; j++)
+				raw[j] = bits8 ? (int8_t)group[16 + 4 * j + u] * 256
+				               : nibble_sample(group[16 + 4 * j + u / 2], u & 1);
+			/* estereo: unidades pares a la izquierda, impares a la derecha */
+			if (stereo && (u & 1)) {
+				decode_unit(group[4 + u], raw, right + nr, hist + 2);
+				nr += 28;
+			} else {
+				decode_unit(group[4 + u], raw, left + nl, hist);
+				nl += 28;
+			}
+		}
+	}
+	return nl;
 }

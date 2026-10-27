@@ -110,9 +110,11 @@ def build_cmd(agent_cfg: dict, prompt: str, wt: Path) -> list[str]:
 
 
 def escaped_worktree(task: str, main_head: str, root: Path = ROOT) -> bool:
-    """El agente trabajó en el repo principal: commit en main con `Refs: <task>` o su reporte escrito ahí."""
+    """El agente trabajó en el repo principal: commit en main con `Refs: <task>`, su reporte escrito ahí o cambios
+    preparados en el índice de main (Claude no deja nada preparado: commitea al momento; pasó en T-609)."""
     bodies = git("log", "--format=%B", f"{main_head}..HEAD", cwd=root, check=False).stdout
-    return f"Refs: {task}" in bodies or (root / "reports" / f"{task}.md").exists()
+    staged = git("diff", "--cached", "--name-only", cwd=root, check=False).stdout.strip()
+    return f"Refs: {task}" in bodies or (root / "reports" / f"{task}.md").exists() or bool(staged)
 
 
 def allowed_files(task_text: str) -> list[str]:

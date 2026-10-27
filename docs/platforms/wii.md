@@ -39,4 +39,3 @@ Genera `build/wii/boot.dol` y `build/wii/meta.xml`. Con `--trace` define `VN_TRA
 - Adapter `ctl` para Wii (no implementado en esta tarea): empaquetar `boot.dol` + `meta.xml` + datos de `build/ctl/ps1/disc/` en la estructura `sd:/apps/snoot/`, arrancar Dolphin y capturar la traza (OSReport / stdout) de `build/ctl/wii/trace.txt`.
 - Verificar en Dolphin que el render por software/accelerated y el audio de SDL2 funcionan; hoy solo se ha comprobado que compila y enlaza.
 - Confirmar el mapeo de botones del Wiimote/Classic Controller a `BTN_*`; hoy se reutiliza el mapeo genérico de SDL2.
-PY

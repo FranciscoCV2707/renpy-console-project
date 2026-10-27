@@ -3,6 +3,9 @@ import subprocess
 
 import pytest
 
+# Compilan en Docker (minutos): solo con `pytest -m consoles`
+pytestmark = pytest.mark.consoles
+
 from platforms.wii.build import build
 
 

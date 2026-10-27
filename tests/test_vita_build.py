@@ -2,6 +2,9 @@ import shutil
 
 import pytest
 
+# Compilan en Docker (minutos): solo con `pytest -m consoles`
+pytestmark = pytest.mark.consoles
+
 from platforms.vita.build import build
 
 

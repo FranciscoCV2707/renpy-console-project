@@ -5,6 +5,9 @@ from pathlib import Path
 
 import pytest
 
+# Compilan en Docker (minutos): solo con `pytest -m consoles`
+pytestmark = pytest.mark.consoles
+
 
 def test_3ds_build_package():
     if not shutil.which("docker"):

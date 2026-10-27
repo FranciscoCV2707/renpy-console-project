@@ -13,7 +13,9 @@ PCSX2 = Path(r"E:\snoot\pcsx2-2.8.2\pcsx2-qt.exe")
 
 
 def extract_trace(text: str) -> str:
-    return "".join(f"{line}\n" for line in text.splitlines() if line.startswith("T|"))
+    # PCSX2 antepone la hora a cada linea de la consola del EE: "[    1.1670] T|0|0|..."
+    lines = (line.split("] ", 1)[1] if line.startswith("[") and "] " in line else line for line in text.splitlines())
+    return "".join(f"{line}\n" for line in lines if line.startswith("T|"))
 
 
 def run_scenario(scenario, out: Path) -> Path:

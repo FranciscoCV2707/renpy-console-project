@@ -9,3 +9,9 @@ def test_extract_trace_mixed_output():
 
 def test_extract_trace_empty_output():
     assert extract_trace("PCSX2 started\n") == ""
+
+
+def test_extract_trace_strips_pcsx2_timestamps():
+    from tools.ctl.ps2 import extract_trace
+
+    assert extract_trace("[    1.1670] T|0|0|SCENE|img=1\n[    1.2] otra cosa\n") == "T|0|0|SCENE|img=1\n"

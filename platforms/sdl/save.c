@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#ifdef _WIN32
+#include <direct.h>
+#define make_dir(path) _mkdir(path)
+#else
+#define make_dir(path) mkdir(path, 0777)
+#endif
 
 static char dir[512] = "build/pc/save";
 static unsigned seq;
@@ -89,7 +95,7 @@ SaveResult save_write(uint8_t *d)
 		char *slash = strrchr(folder, '/');
 		if (slash) {
 			*slash = 0;
-			mkdir(folder);
+			make_dir(folder);
 		}
 	}
 	f = fopen(p, "wb");

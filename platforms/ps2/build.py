@@ -39,7 +39,8 @@ def prepare_sources(out: Path, trace: bool) -> Path:
 
 def makefile(sources: list[str], trace: bool) -> str:
     flags = "-DVN_TRACE" if trace else ""
-    includes = " ".join(f"-I/src/{path}" for path in INCLUDE_DIRS)
+    # -iquote: nuestros "input.h" y compania antes que los del SDK (ps2sdk trae su propio input.h en ee/include)
+    includes = " ".join(f"-iquote /src/{path}" for path in INCLUDE_DIRS)
     includes += " -Igenerated -I$(PS2SDK)/ports/include"
     objects = " ".join(path.removesuffix(".c") + ".o" for path in sources)
     return (

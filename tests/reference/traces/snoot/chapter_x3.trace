@@ -11,9 +11,9 @@ T|10|1|LABEL|name=_splashscreen
 T|11|1|LABEL|name=_kit_capture_start
 T|12|1|LABEL|name=chapter_x3
 T|13|2|HIDE|tag=config.gl_test_image
-T|14|3|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:8
+T|14|3|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:7
 T|15|6|PLAY|music=audio/OST/Dragging on and on....ogg
-T|16|6|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:13
+T|16|6|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:13
 T|17|8|SCENE
 T|18|8|SHOW|tag=auditorium;attrs=
 T|19|8|SHOW|tag=carldelewski;attrs=
@@ -22,63 +22,63 @@ T|21|8|SHOW|tag=farnsworth;attrs=
 T|22|8|SHOW|tag=jin;attrs=
 T|23|8|SHOW|tag=jingo;attrs=
 T|24|8|SHOW|tag=spears;attrs=neutral
-T|25|9|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:33
-T|26|11|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:35
-T|27|12|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:37
-T|28|14|SAY|who=Mr. Tsuki;loc=game/script/x3-PTA-meeting.rpy:47
-T|29|17|SAY|who=Mr. Carldewskii;loc=game/script/x3-PTA-meeting.rpy:62
-T|30|19|SAY|who=Dr. Fernsworth;loc=game/script/x3-PTA-meeting.rpy:70
-T|31|22|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:83
-T|32|25|SAY|who=Dr. Fernsworth;loc=game/script/x3-PTA-meeting.rpy:89
-T|33|27|SAY|who=Dr. Fernsworth;loc=game/script/x3-PTA-meeting.rpy:93
-T|34|30|SAY|who=Mr. Jingo;loc=game/script/x3-PTA-meeting.rpy:107
-T|35|33|SAY|who=Fang’s mom;loc=game/script/x3-PTA-meeting.rpy:113
-T|36|36|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:121
-T|37|39|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:127
-T|38|42|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:130
-T|39|44|SAY|who=(???);loc=game/script/x3-PTA-meeting.rpy:133
-T|40|45|SAY|who=(???);loc=game/script/x3-PTA-meeting.rpy:135
-T|41|46|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:138
-T|42|48|SAY|who=(???);loc=game/script/x3-PTA-meeting.rpy:140
-T|43|50|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:143
-T|44|51|SAY|who=Fang’s mom;loc=game/script/x3-PTA-meeting.rpy:146
-T|45|53|SAY|who=Fang’s mom;loc=game/script/x3-PTA-meeting.rpy:148
-T|46|54|SAY|who=Fang’s mom;loc=game/script/x3-PTA-meeting.rpy:152
+T|25|9|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:19
+T|26|11|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:25
+T|27|12|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:31
+T|28|14|SAY|who=Mr. Tsuki;loc=game/tl/es/script/x3-PTA-meeting.rpy:37
+T|29|17|SAY|who=Mr. Carldewskii;loc=game/tl/es/script/x3-PTA-meeting.rpy:43
+T|30|19|SAY|who=Dr. Fernsworth;loc=game/tl/es/script/x3-PTA-meeting.rpy:49
+T|31|22|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:55
+T|32|25|SAY|who=Dr. Fernsworth;loc=game/tl/es/script/x3-PTA-meeting.rpy:61
+T|33|27|SAY|who=Dr. Fernsworth;loc=game/tl/es/script/x3-PTA-meeting.rpy:67
+T|34|30|SAY|who=Mr. Jingo;loc=game/tl/es/script/x3-PTA-meeting.rpy:73
+T|35|33|SAY|who=Fang’s mom;loc=game/tl/es/script/x3-PTA-meeting.rpy:79
+T|36|36|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:85
+T|37|39|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:91
+T|38|42|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:97
+T|39|44|SAY|who=(???);loc=game/tl/es/script/x3-PTA-meeting.rpy:103
+T|40|45|SAY|who=(???);loc=game/tl/es/script/x3-PTA-meeting.rpy:109
+T|41|46|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:115
+T|42|48|SAY|who=(???);loc=game/tl/es/script/x3-PTA-meeting.rpy:121
+T|43|50|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:127
+T|44|51|SAY|who=Fang’s mom;loc=game/tl/es/script/x3-PTA-meeting.rpy:133
+T|45|53|SAY|who=Fang’s mom;loc=game/tl/es/script/x3-PTA-meeting.rpy:139
+T|46|54|SAY|who=Fang’s mom;loc=game/tl/es/script/x3-PTA-meeting.rpy:145
 T|47|55|PLAY|music=audio/OST/Summertime Synth.ogg
-T|48|57|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:155
-T|49|58|SAY|who=Mr. Carldewskii;loc=game/script/x3-PTA-meeting.rpy:158
-T|50|61|SAY|who=(???);loc=game/script/x3-PTA-meeting.rpy:161
-T|51|62|SAY|who=(???);loc=game/script/x3-PTA-meeting.rpy:163
-T|52|63|SAY|who=(???);loc=game/script/x3-PTA-meeting.rpy:165
-T|53|64|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:168
-T|54|66|SAY|who=Fang’s mom;loc=game/script/x3-PTA-meeting.rpy:170
-T|55|67|SAY|who=(???);loc=game/script/x3-PTA-meeting.rpy:172
-T|56|69|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:175
+T|48|57|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:151
+T|49|58|SAY|who=Mr. Carldewskii;loc=game/tl/es/script/x3-PTA-meeting.rpy:157
+T|50|61|SAY|who=(???);loc=game/tl/es/script/x3-PTA-meeting.rpy:163
+T|51|62|SAY|who=(???);loc=game/tl/es/script/x3-PTA-meeting.rpy:169
+T|52|63|SAY|who=(???);loc=game/tl/es/script/x3-PTA-meeting.rpy:175
+T|53|64|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:181
+T|54|66|SAY|who=Fang’s mom;loc=game/tl/es/script/x3-PTA-meeting.rpy:187
+T|55|67|SAY|who=(???);loc=game/tl/es/script/x3-PTA-meeting.rpy:193
+T|56|69|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:199
 T|57|71|SHOW|tag=white;attrs=
-T|58|71|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:200
-T|59|74|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:204
-T|60|75|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:207
-T|61|77|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:212
-T|62|78|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:214
-T|63|79|PLAY|music=audio/OST/Those Other Two Weirdos.ogg
-T|64|80|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:217
-T|65|82|SAY|who=Fang’s mom;loc=game/script/x3-PTA-meeting.rpy:220
-T|66|84|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:222
-T|67|85|SAY|who=Fang’s mom;loc=game/script/x3-PTA-meeting.rpy:226
-T|68|88|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:229
-T|69|89|SAY|who=Mr. Carldewskii;loc=game/script/x3-PTA-meeting.rpy:231
-T|70|91|SAY|who=Mr. Carldewskii;loc=game/script/x3-PTA-meeting.rpy:233
-T|71|93|SAY|who=Mr. Jingo;loc=game/script/x3-PTA-meeting.rpy:236
-T|72|94|SAY|who=Dr. Fernsworth;loc=game/script/x3-PTA-meeting.rpy:242
-T|73|97|SAY|who=Spears;loc=game/script/x3-PTA-meeting.rpy:245
-T|74|99|SAY|who=Mr. Tsuki;loc=game/script/x3-PTA-meeting.rpy:248
+T|58|71|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:205
+T|59|74|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:211
+T|60|75|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:217
+T|61|77|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:223
+T|62|78|PLAY|music=audio/OST/Those Other Two Weirdos.ogg
+T|63|78|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:229
+T|64|80|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:235
+T|65|82|SAY|who=Fang’s mom;loc=game/tl/es/script/x3-PTA-meeting.rpy:241
+T|66|84|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:247
+T|67|85|SAY|who=Fang’s mom;loc=game/tl/es/script/x3-PTA-meeting.rpy:253
+T|68|88|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:259
+T|69|89|SAY|who=Mr. Carldewskii;loc=game/tl/es/script/x3-PTA-meeting.rpy:265
+T|70|91|SAY|who=Mr. Carldewskii;loc=game/tl/es/script/x3-PTA-meeting.rpy:271
+T|71|93|SAY|who=Mr. Jingo;loc=game/tl/es/script/x3-PTA-meeting.rpy:277
+T|72|94|SAY|who=Dr. Fernsworth;loc=game/tl/es/script/x3-PTA-meeting.rpy:283
+T|73|97|SAY|who=Spears;loc=game/tl/es/script/x3-PTA-meeting.rpy:289
+T|74|99|SAY|who=Mr. Tsuki;loc=game/tl/es/script/x3-PTA-meeting.rpy:295
 T|75|102|HIDE|tag=jin
 T|76|102|SHOW|tag=jinflip;attrs=
-T|77|103|SAY|who=Mr. Tsuki;loc=game/script/x3-PTA-meeting.rpy:277
-T|78|106|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:280
-T|79|108|SAY|who=;loc=game/script/x3-PTA-meeting.rpy:285
-T|80|111|SAY|who=Mr. Carldewskii;loc=game/script/x3-PTA-meeting.rpy:292
-T|81|113|SAY|who=Mr. Tsuki;loc=game/script/x3-PTA-meeting.rpy:297
+T|77|103|SAY|who=Mr. Tsuki;loc=game/tl/es/script/x3-PTA-meeting.rpy:301
+T|78|106|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:307
+T|79|108|SAY|who=;loc=game/tl/es/script/x3-PTA-meeting.rpy:313
+T|80|111|SAY|who=Mr. Carldewskii;loc=game/tl/es/script/x3-PTA-meeting.rpy:319
+T|81|113|SAY|who=Mr. Tsuki;loc=game/tl/es/script/x3-PTA-meeting.rpy:325
 T|82|116|SCENE
 T|83|116|SHOW|tag=black;attrs=
 T|84|116|LABEL|name=_kit_capture_end

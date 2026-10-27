@@ -28,6 +28,11 @@ void input_update(void);
 int input_down(uint16_t mask);       /* esta presionado ahora */
 int input_pressed(uint16_t mask);    /* se acaba de presionar en este cuadro */
 int input_raw_down(uint16_t mask);   /* presionado, leido directo del control (antes del bucle principal) */
+/* Pantalla tactil: 1 si se acaba de tocar en este cuadro; escribe la posicion en x e y, en coordenadas del
+ * guion (320x240, las mismas en las que se dibuja). La consulta es de una sola lectura: el teclado en
+ * pantalla (modules/keyboard.c) la usa para escribir la tecla tocada. Los backends sin pantalla tactil
+ * (PS1, GBA) no la definen: el teclado lleva un simbolo debil que devuelve 0. */
+int input_touch(int *x, int *y);
 /* Prueba automatica: botones fijos por cuadro (AUTOTEST.BIN del disco, ver tools/engine/emutest.py) */
 void input_set_script(const uint8_t *entries, int count);
 /* Siguiente decision que fija el guion para el recorrido (en orden), o -1 si no quedan: autoplay sigue una ruta */

@@ -12,12 +12,37 @@ static int count, choice_at, frame;
 static uint8_t done[2800];
 static uint16_t cur, prev;
 static int shot_pending;
+static int touch_x, touch_y, touch_hit;
 #if SDL_TARGET_HAS_JOYSTICK
 static SDL_Joystick *joystick;
 #elif SDL_TARGET_HAS_GAME_CONTROLLER
 static SDL_GameController *controller;
 #endif
 extern void sdl_shot_request(void);
+
+/* Tactil (Vita, 3DS, Switch): SDL_FINGERDOWN da la posicion normalizada a la ventana. Se convierte a
+ * coordenadas del guion (320x240) con el mapeo inverso del que usa video.c para dibujar: en las consolas
+ * con escala manual (PSP, Vita, PS3, PS4) la vista es VIEW_X/Y/W/H; en las de tamano logico (PC, 3DS, Wii,
+ * Xbox, Switch, PS2) SDL encaja 320x240 en la ventana manteniendo el aspecto. */
+static void touch_finger(float fx, float fy)
+{
+	int wx = (int)(fx * SDL_TARGET_WINDOW_W);
+	int wy = (int)(fy * SDL_TARGET_WINDOW_H);
+
+#if SDL_TARGET_MANUAL_SCALE
+	touch_x = (wx - SDL_TARGET_VIEW_X) * SCREEN_W / SDL_TARGET_VIEW_W;
+	touch_y = (wy - SDL_TARGET_VIEW_Y) * SCREEN_H / SDL_TARGET_VIEW_H;
+#else
+	float sx = (float)SDL_TARGET_WINDOW_W / SCREEN_W;
+	float sy = (float)SDL_TARGET_WINDOW_H / SCREEN_H;
+	float s = sx < sy ? sx : sy;
+
+	touch_x = (int)((wx - (SDL_TARGET_WINDOW_W - SCREEN_W * s) / 2) / s);
+	touch_y = (int)((wy - (SDL_TARGET_WINDOW_H - SCREEN_H * s) / 2) / s);
+#endif
+	touch_hit = 1;
+}
+
 void input_init(int card)
 {
 	(void)card;
@@ -44,9 +69,12 @@ void input_update(void)
 	int i;
 	prev = cur;
 	cur = 0;
-	while (SDL_PollEvent(&e))
+	while (SDL_PollEvent(&e)) {
 		if (e.type == SDL_QUIT)
 			autotest_quit = 1;
+		if (e.type == SDL_FINGERDOWN)
+			touch_finger(e.tfinger.x, e.tfinger.y);
+	}
 	k = SDL_GetKeyboardState(NULL);
 #define KEY(key, bit)                                                                                                  \
 	if (k[SDL_GetScancodeFromKey(key)])                                                                            \
@@ -124,6 +152,15 @@ void input_update(void)
 			cur |= BTN_L2;
 		if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 16000)
 			cur |= BTN_R2;
+		/* el stick izquierdo mueve igual que la cruceta (teclado en pantalla, menus) */
+		if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) < -16000)
+			cur |= BTN_LEFT;
+		if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) > 16000)
+			cur |= BTN_RIGHT;
+		if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) < -16000)
+			cur |= BTN_UP;
+		if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) > 16000)
+			cur |= BTN_DOWN;
 	}
 #endif
 	for (i = 0; i < count; i++) {
@@ -164,6 +201,15 @@ int input_pressed(uint16_t m)
 int input_raw_down(uint16_t m)
 {
 	return input_down(m);
+}
+int input_touch(int *x, int *y)
+{
+	if (!touch_hit)
+		return 0;
+	touch_hit = 0;
+	*x = touch_x;
+	*y = touch_y;
+	return 1;
 }
 int input_autotest_choice(void)
 {

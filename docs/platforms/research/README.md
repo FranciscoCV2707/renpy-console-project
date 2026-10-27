@@ -34,7 +34,7 @@ Orden de menor a mayor costo de desarrollo e integración con el ecosistema de `
   * **Soporte oficial y legal sin fisuras:** No requiere vulnerar la consola ni perder la garantía. Cualquier usuario puede activar el modo desarrollador en su consola habitual por una tarifa de registro accesible (o gratis si es estudiante).
   * **SDL2 nativo y maduro:** SDL2 cuenta con soporte upstream oficial de WinRT / UWP con aceleración por Direct3D 11 y audio nativo.
   * **Pruebas automáticas sin emulador:** El paquete UWP se compila para arquitectura x64 y corre directamente en la PC del desarrollador con idéntica API. Además, Windows Device Portal permite automatizar la instalación y recogida de trazas TRACE por red.
-* **Documento detallado:** [docs/platforms/research/xbox-one-series.md](file:///E:/Dev/renpy-console-wt/T-R01-agy/docs/platforms/research/xbox-one-series.md).
+* **Documento detallado:** [docs/platforms/research/xbox-one-series.md](xbox-one-series.md).
 
 ---
 
@@ -44,7 +44,7 @@ Orden de menor a mayor costo de desarrollo e integración con el ecosistema de `
   * **SDK limpio y empaquetado consolidado:** OpenOrbis permite generar paquetes FPKG `.pkg` listos para instalar con GoldHEN.
   * **Emulación moderna:** Emuladores como `shadPS4` avanzan a gran velocidad y permiten invocar juegos por CLI (`--game`) para capturar trazas de regresión en CI.
 * **Limitación:** Requiere que los usuarios posean una consola en firmware <= 11.00 (mediante el exploit PPPwn o WebKit).
-* **Documento detallado:** [docs/platforms/research/ps4.md](file:///E:/Dev/renpy-console-wt/T-R01-agy/docs/platforms/research/ps4.md).
+* **Documento detallado:** [docs/platforms/research/ps4.md](ps4.md).
 
 ---
 
@@ -54,7 +54,7 @@ Orden de menor a mayor costo de desarrollo e integración con el ecosistema de `
   * **SDK y SDL2 disponibles:** PSL1GHT v2 cuenta con imágenes Docker comunitarias y puertos funcionales de SDL2 sobre Tiny3D y RSX.
   * **Accesibilidad para el usuario:** Prácticamente cualquier PS3 (Fat, Slim y SuperSlim) es compatible hoy en día con CFW o PS3HEN de forma sencilla mediante navegador web.
 * **Limitación:** El backend SDL2 no está upstreamed y la arquitectura Cell BE (PPU/SPU y memoria dividida 256 MB + 256 MB) añade cierta complejidad en la gestión de buffers de video respecto a sistemas x86_64.
-* **Documento detallado:** [docs/platforms/research/ps3.md](file:///E:/Dev/renpy-console-wt/T-R01-agy/docs/platforms/research/ps3.md).
+* **Documento detallado:** [docs/platforms/research/ps3.md](ps3.md).
 
 ---
 
@@ -63,7 +63,7 @@ Orden de menor a mayor costo de desarrollo e integración con el ecosistema de `
   * **Falta de emulador para CI:** No existe ningún emulador de PS5 operativo que permita verificar automáticamente las compuertas de calidad (`tools/ctl`).
   * **Método de despliegue fragmentado:** No existe un formato FPKG estandarizado y el software debe inyectarse en memoria vía red en consolas con versiones de firmware muy bajas (<= 4.51).
   * **Recomendación:** Mantener en Nivel R hasta que la comunidad desarrolle herramientas de emulación funcionales en PC.
-* **Documento detallado:** [docs/platforms/research/ps5.md](file:///E:/Dev/renpy-console-wt/T-R01-agy/docs/platforms/research/ps5.md).
+* **Documento detallado:** [docs/platforms/research/ps5.md](ps5.md).
 
 ---
 
@@ -72,7 +72,7 @@ Orden de menor a mayor costo de desarrollo e integración con el ecosistema de `
   * **Incompatibilidad de SDL2:** libxenon carece de un puerto de SDL2 (solo existe SDL 1.2), lo que rompería la regla de backend unificado.
   * **Incompatibilidad de emulador:** Xenia solo emula ejecutables comerciales XEX sobre el kernel retail de Microsoft y es incapaz de arrancar binarios ELF bare-metal de libxenon.
   * **Barrera de hardware extrema:** Exige abrir físicamente la consola para soldar chips de modificación RGH/JTAG, limitando el alcance a un grupo marginal de usuarios.
-* **Documento detallado:** [docs/platforms/research/xbox-360.md](file:///E:/Dev/renpy-console-wt/T-R01-agy/docs/platforms/research/xbox-360.md).
+* **Documento detallado:** [docs/platforms/research/xbox-360.md](xbox-360.md).
 
 ---
 

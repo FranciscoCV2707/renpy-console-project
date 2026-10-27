@@ -8,13 +8,17 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import sys
+import tomllib
+from functools import cache
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 SNOOT_PS1 = Path(r"E:\Dev\snoot-ps1")
 MAP_PATH = REPO / "build" / "ctl" / "snoot-map.json"
 COMPILE_OUT = REPO / "build" / "ctl" / "snoot-ps1-data"
+KIT_GAME = Path("E:/Dev/renpy-port-kit/juegos/snoot/game.toml")
 
 
 def _run_compile_all(out: Path):
@@ -60,3 +64,19 @@ def load_map() -> dict:
     raw = json.loads(MAP_PATH.read_text(encoding="utf-8"))
     # JSON guarda las claves como texto
     return {name: {int(k): v for k, v in table.items()} for name, table in raw.items()}
+
+
+@cache
+def load_spanish() -> dict:
+    """Texto en español de cada id de traducción (game/tl/es del juego publicado): lo que se ve en pantalla, sin el
+    hablante ni los espacios de los bordes. Dos líneas con el mismo texto se ven igual aunque su id sea otro."""
+    game = Path(tomllib.loads(KIT_GAME.read_text(encoding="utf-8"))["paths"]["game"])
+    lines, current = {}, None
+    for path in sorted((game / "tl" / "es").rglob("*.rpy")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if m := re.match(r"translate es (\w+):", line):
+                current = m.group(1)
+            elif current and (m := re.search(r'"(.*)"\s*(?:with \w+)?$', line)) and not line.lstrip().startswith("#"):
+                lines[current] = m.group(1).strip()
+                current = None
+    return lines

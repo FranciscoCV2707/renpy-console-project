@@ -4,6 +4,6 @@ inputs: []
 expect: []
 compare:
   mode: renpy
-  events: [SAY, CHOICE]
+  events: [SAY]
 limits:
   max_seconds: 300

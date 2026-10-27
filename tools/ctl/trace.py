@@ -136,29 +136,26 @@ def compare_events(actual, reference, allowed_events=None, tolerance_frames=0) -
     )
 
 
-def normalize_engine(events, snoot_map) -> list:
-    """Traza del motor en la forma comun (PLAN.md D17): SAY con nombre del hablante e id de traduccion, y CHOICE.
-    Sin cuadros: entre motores no se comparan los tiempos."""
-    out = []
-    for e in events:
-        if e.ev == "SAY":
-            fields = {"who": snoot_map["speakers"][int(e.fields["who"])],
-                      "id": snoot_map["text"][int(e.fields["text"])]}
-            out.append(TraceEvent(seq=e.seq, frame=0, ev="SAY", fields=fields))
-        elif e.ev == "CHOICE":
-            out.append(TraceEvent(seq=e.seq, frame=0, ev="CHOICE", fields={"i": e.fields["i"]}))
-    return out
+def normalize_engine(events, snoot_map, spanish) -> list:
+    """Traza del motor en la forma comun (PLAN.md D17): lo que ve el jugador en cada SAY, el hablante y el texto en
+    español (`spanish`: id de traduccion -> texto; si dos lineas dicen lo mismo, da igual que id les toco). Sin cuadros
+    ni CHOICE: los tiempos no se comparan entre motores, el hook de Ren'Py no ve las decisiones (kit_capture elige
+    antes) y el camino elegido ya se ve en la secuencia de lineas."""
+    return [say(e.seq, snoot_map["speakers"][int(e.fields["who"])], snoot_map["text"][int(e.fields["text"])], spanish)
+            for e in events if e.ev == "SAY"]
 
 
-def normalize_renpy(events) -> list:
-    """Traza de Ren'Py en la misma forma que normalize_engine."""
-    out = []
-    for e in events:
-        if e.ev == "SAY":
-            out.append(TraceEvent(seq=e.seq, frame=0, ev="SAY", fields={"who": e.fields["who"], "id": e.fields["id"]}))
-        elif e.ev == "CHOICE":
-            out.append(TraceEvent(seq=e.seq, frame=0, ev="CHOICE", fields={"i": e.fields["i"]}))
-    return out
+def normalize_renpy(events, spanish) -> list:
+    """Traza de Ren'Py en la misma forma que normalize_engine. Una linea con el mismo id dos veces seguidas es una
+    interaccion que Ren'Py reinicio (pasa antes del renpy.input del anuario en la ruta 4): el jugador la ve una vez."""
+    says = [e for e in events if e.ev == "SAY"]
+    return [say(e.seq, e.fields["who"], e.fields["id"], spanish) for k, e in enumerate(says)
+            if k == 0 or e.fields["id"] != says[k - 1].fields["id"]]
+
+
+def say(seq, who, tid, spanish) -> TraceEvent:
+    # un id sin texto en tl/es se compara por el id mismo
+    return TraceEvent(seq=seq, frame=0, ev="SAY", fields={"who": who, "text": spanish.get(tid, tid)})
 
 
 def compare_scenario(scenario, trace_path) -> CompareResult:
@@ -182,9 +179,10 @@ def compare_scenario(scenario, trace_path) -> CompareResult:
     ref_events = parse_file(ref_path)
     actual_events = parse_file(trace_path)
     if scenario.compare.mode == "renpy":
-        from .snoot_map import load_map
+        from .snoot_map import load_map, load_spanish
 
-        result = compare_events(normalize_engine(actual_events, load_map()), normalize_renpy(ref_events))
+        spanish = load_spanish()
+        result = compare_events(normalize_engine(actual_events, load_map(), spanish), normalize_renpy(ref_events, spanish))
         result.scenario = scenario.id
         return result
     allowed = scenario.compare.events

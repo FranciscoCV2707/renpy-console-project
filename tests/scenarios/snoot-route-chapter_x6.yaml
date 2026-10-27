@@ -15,6 +15,5 @@ compare:
   mode: renpy
   events:
   - SAY
-  - CHOICE
 limits:
   max_seconds: 602

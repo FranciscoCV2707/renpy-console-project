@@ -336,7 +336,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-403 | 4 | beam | Decodificadores SPU-ADPCM y XA en C para `platforms/sdl` | — |
 | T-304 | 3 | beam | Escenarios de las 14 rutas en PS1 (autoplay + `choices`) | T-303 |
 | T-402 | 4 | beam | `tools/assetpipe` perfil PC | — |
-| T-501 | 5 | kilo | Port PSP + `docs/platforms/psp.md` | G4 |
+| T-501 | 5 | kilo | Port PSP con el backend SDL y los datos de PS1 (D21), PPSSPP 1.20.4 | T-405 |
 | T-502 | 5 | codex | Port PS2 + `docs/platforms/ps2.md` | G4 |
 | T-503 | 5 | antigravity | Adapters `ctl` PPSSPP y PCSX2 | T-202 |
 | T-504 | 5 | beam | Perfiles de recursos PSP y PS2 | T-402 |

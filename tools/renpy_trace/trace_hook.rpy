@@ -56,26 +56,44 @@ init -999 python:
 
     # La musica sale de las ordenes play/stop del guion, no del canal: con "stop music fadeout 3" get_playing sigue
     # devolviendo la pista mientras se desvanece y, con el avance automatico, eso son varias lineas de mas.
-    _rcp_music_cmd = [None]
+    # Una pista por canal music, music1, music2...: Snoot sincroniza stems en varios canales (x9-naomi-tribulations.rpy)
+    _rcp_music_cmd = {}
     _rcp_orig_play = renpy.music.play
     _rcp_orig_stop = renpy.music.stop
 
     def _rcp_play(filenames, channel="music", *args, **kwargs):
-        if channel == "music":
+        if str(channel).startswith("music"):
             names = [filenames] if isinstance(filenames, str) else list(filenames or [])
-            _rcp_music_cmd[0] = names[0] if names else None
+            if names:
+                _rcp_music_cmd[channel] = names[0]
+            else:
+                _rcp_music_cmd.pop(channel, None)
         return _rcp_orig_play(filenames, channel, *args, **kwargs)
 
     def _rcp_stop(channel="music", *args, **kwargs):
-        if channel == "music":
-            _rcp_music_cmd[0] = None
+        if str(channel).startswith("music"):
+            _rcp_music_cmd.pop(channel, None)
         return _rcp_orig_stop(channel, *args, **kwargs)
 
     renpy.music.play = _rcp_play
     renpy.music.stop = _rcp_stop
 
     def _rcp_music():
-        return _rcp_music_cmd[0]
+        tracks = sorted(_rcp_music_cmd.values())
+        if not tracks:
+            return None
+        return tracks[0] if len(tracks) == 1 else "mix:" + "+".join(tracks)
+
+    # La sentencia scene llama renpy.scene(): se marca para emitir SCENE aunque queden tags con el mismo nombre
+    _rcp_scene_pending = [False]
+    _rcp_orig_scene = renpy.scene
+
+    def _rcp_scene(layer="master", *args, **kwargs):
+        if layer in (None, "master"):
+            _rcp_scene_pending[0] = True
+        return _rcp_orig_scene(layer, *args, **kwargs)
+
+    renpy.scene = _rcp_scene
 
     def _rcp_get_who():
         if renpy.store._last_say_who is None:
@@ -104,13 +122,17 @@ init -999 python:
                 prev = set()
             else:
                 prev = set(prev)
+            scene = _rcp_scene_pending[0] or bool(prev and (prev - curr_tags) == prev)
+            _rcp_scene_pending[0] = False
+            if scene:
+                # tras SCENE todo lo visible se vuelve a declarar, aunque el tag siga con el mismo nombre
+                _rcp_emit("SCENE")
+                prev = set()
+                _rcp_prev_attrs[0] = {}
             removed = prev - curr_tags
             added = curr_tags - prev
-            if prev and removed == prev:
-                _rcp_emit("SCENE")
             for tag in sorted(removed):
-                if not (prev and removed == prev):
-                    _rcp_emit("HIDE", tag=tag)
+                _rcp_emit("HIDE", tag=tag)
             # SHOW tambien cuando un tag ya visible cambia de expresion (antes solo al aparecer)
             attrs = {}
             for tag in sorted(curr_tags):

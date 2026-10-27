@@ -52,6 +52,9 @@ class FakeRenpy:
     def get_filename_line(self):
         return self._loc
 
+    def scene(self, layer="master"):
+        self._tags = set()
+
     def get_showing_tags(self, layer="master"):
         return set(self._tags)
 

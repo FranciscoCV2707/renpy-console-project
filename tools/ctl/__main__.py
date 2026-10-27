@@ -39,6 +39,9 @@ def main(argv=None) -> int:
         if args.target == "ds":
             result = subprocess.run([sys.executable, "platforms/ds/build.py"], check=False)
             return result.returncode
+        if args.target == "gba":
+            result = subprocess.run([sys.executable, "platforms/gba/build.py"], check=False)
+            return result.returncode
         print(f"adapter pendiente: build for target {args.target}", file=sys.stderr)
         return 2
 
@@ -69,6 +72,8 @@ def main(argv=None) -> int:
             from .ds import run_scenario
         elif args.target == "3ds":
             from .n3ds import run_scenario
+        elif args.target == "gba":
+            from .gba import run_scenario
         else:
             print(f"error: unsupported target: {args.target}", file=sys.stderr)
             return 2

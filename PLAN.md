@@ -355,6 +355,8 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-610 | 6 | beam | `ctl run --target 3ds` con Azahar | T-602 |
 | T-611 | 6 | beam | `ctl run --target wii` con Dolphin | T-603 |
 | T-612 | 6 | agy | Vita sin `libshacccg.suprx` (renderer GXM de SDL2) | T-608 |
+| T-613 | 6 | vibe | `ctl run --target ps3` con RPCS3 | T-607 |
+| T-614 | 6 | kilo | `ctl run --target ps4` con shadPS4 | T-609 |
 | T-407 | 6 | beam | `sdl_target.h` y fusión de 3DS, Wii, Xbox y Switch | T-601..T-605 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |
@@ -363,6 +365,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-704 | 7 | codex | Empaquetador de recursos de GB/GBC (tiles 2bpp, paletas GBC) | T-702, T-703 |
 | T-705 | 7 | beam | Motor mínimo de GBA: fondo y una línea en mGBA | T-702 |
 | T-706 | 7 | kilo | Motor mínimo de DS: fondo arriba y texto abajo en melonDS | — |
+| T-707 | 7 | codex | Empaquetador de recursos de DS (NitroFS, LZ77, IMA-ADPCM 22 kHz) | T-702, T-706 |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 | T-902 | — | vibe | Guía de instalación para jugadores, por consola | — |
 

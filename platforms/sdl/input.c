@@ -113,8 +113,10 @@ void input_update(void)
 		sdl_shot_request();
 		shot_pending = 0;
 	}
-	if (autotest_quit)
+	if (autotest_quit) {
+		SDL_TARGET_QUIT_MARKER();
 		exit(0);
+	}
 }
 int input_down(uint16_t m)
 {

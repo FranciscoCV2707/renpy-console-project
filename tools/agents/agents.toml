@@ -38,9 +38,9 @@ timeout_min = 90
 
 [agents.agy]
 # agy -p ya responde sin terminal en 1.4.7 (probado). Para tareas largas o de interfaz, mejor una terminal de Orca.
-cmd = ["agy", "-p", "{prompt}", "--mode", "auto", "--print-timeout", "5400s"]
+cmd = ["agy", "-p", "{prompt}", "--mode", "auto", "--print-timeout", "9000s"]
 max_parallel = 1
-timeout_min = 90
+timeout_min = 150
 
 [agents.claude]
 # Gasta la cuota de Claude: solo revisiones puntuales o desbloqueos

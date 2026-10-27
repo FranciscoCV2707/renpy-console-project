@@ -3,7 +3,7 @@
 ## Fecha: 2026-10-26
 
 ## Fase actual
-Fase 3 — Referencia Ren'Py. Fases 1 y 2 terminadas: G1 y G2 cumplidas el 2026-10-26.
+Fase 3 (referencia Ren'Py, falta G3) y Fase 4 (PC con SDL) en paralelo (D20). G1 y G2 cumplidas el 2026-10-26.
 
 ## Hecho
 - [x] Repo con git; rutas a `E:\snoot` en este repo y en los hermanos.
@@ -26,8 +26,14 @@ Fase 3 — Referencia Ren'Py. Fases 1 y 2 terminadas: G1 y G2 cumplidas el 2026-
 - [x] T-302: trazas de Ren'Py de las 14 rutas en `tests/reference/traces/snoot/`, en español (D16: Snoot solo se
   porta en español), con `python -m tools.renpy_trace.record`. Rutas 1-4: 11-15 min cada una; capítulos extra:
   menos de 1 min. En la copia de captura se saltan el teléfono de `textscroll` y el `renpy.input` del anuario.
-- [ ] Fase 3 (T-303): comparar PS1 contra Ren'Py. Falta un id común en las dos trazas: Ren'Py da `who=nombre;
-  loc=archivo:línea` y el motor `who=id;text=id`; LABEL solo sale de Ren'Py (el VNB no guarda nombres).
+- [x] T-303/T-304 (D17): comparación entre motores por id de traducción y hablante (`compare.mode: renpy`, tabla
+  armada con el compilador de snoot-ps1 en `build/`); 14 escenarios de ruta (`tests/scenarios/snoot-route-*.yaml`,
+  autoplay + `choices`). chapter_x2 coincide 97/97 en PS1 y en PC.
+- [ ] G3: regrabar Ren'Py con los nombres de hablante traducidos (en chapter_x3 los 54 ids coinciden y difieren 13
+  nombres: "Mr. Tsuki" contra "Sr. Tsuki") y correr las 14 rutas en PS1.
+- [ ] Fase 4 (D20, D21): T-401 hecho, backend SDL en PC con los datos del disco de PS1 (título bien; chapter_x2 PASS
+  en 5 s). T-405 en curso (Codex): audio, texto en escena, desfase del primer SCENE. Decodificadores ADPCM (T-403)
+  probados contra psx-spx y ffmpeg.
 
 ## Pista de agentes
 - [x] Logins, Orca y Beam (usuario). Skills de Orca `orca-cli` y `orchestration` instaladas para todos.
@@ -39,9 +45,12 @@ Fase 3 — Referencia Ren'Py. Fases 1 y 2 terminadas: G1 y G2 cumplidas el 2026-
 - [x] Chequeo de calidad en `dispatch.py` antes de la revisión, con una ronda de corrección: archivos fuera de la
   tarea, ruff, vulture, alias y `__all__`, salto de línea final, pytest.
 - [x] Segunda oleada: T-203, T-204, T-504 fusionadas (las cuatro ramas necesitaron retoques de Claude).
+- [x] Tercera oleada: T-303, T-304, T-403, T-505 (Beam) y T-401 (Codex, dos intentos) fusionadas. El chequeo ahora
+  también exige `.clang-format` en C nuevo y compara contra el merge-base de la rama.
+- [x] Audio por duración (D18): PSP 108 MB y PS2 159 MB (antes 364 MB y 1.35 GB), deterministas.
 
 ## Pendientes
-- Audio de los perfiles PSP/PS2 en WAV: PSP pesa 364 MB contra 191 MB de PC. Elegir formato comprimido por consola.
+- Fase 5: hay que bajar PPSSPP y PCSX2; PCSX2 necesita una BIOS de PS2 que tiene que poner el usuario.
 - El repo mezcla CRLF (lo copiado de `ps1-base`) y LF. Propuesta: `.gitattributes` con `eol=lf` y renormalizar.
 - Agentes que lanzan PCSX-Redux para probar opciones dejan procesos colgados: revisar `tasklist` al terminar.
 

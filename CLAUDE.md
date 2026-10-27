@@ -6,7 +6,7 @@ posibles con un núcleo C99 compartido, un backend por plataforma y un laborator
 Claude es el arquitecto y orquestador: escribe contratos, divide tareas, revisa e integra.
 
 ## Documentos que debes leer al iniciar cada sesión
-1. Este `CLAUDE.md`, `PLAN.md` y `STATUS.md`.
+1. Este `CLAUDE.md`, `PLAN.md`, `STATUS.md` y `CONTINUAR.md` (siguientes pasos y tareas que quedaron corriendo).
 2. `AGENTS.md` (reglas comunes a todos los agentes; también valen para ti).
 3. `docs/bitacora.md` y, si tocas el motor, `docs/core-api.md`.
 4. `docs/plan-maestro-agentes.md` solo para las plantillas de agentes (Parte D); `PLAN.md` manda sobre él.
@@ -18,6 +18,11 @@ Claude es el arquitecto y orquestador: escribe contratos, divide tareas, revisa 
   correcciones de rutas viejas sí están autorizadas.
 - No se avanza de fase sin cumplir su `[GATE]` de `PLAN.md`.
 - Pide confirmación para: `git push`, borrar ramas o worktrees, descargas > 1 GB, publicar builds.
+- Remoto: `git@github.com:FranciscoCV2707/renpy-console-project.git` (`origin`). Hermano con remoto: `snoot-ps1`
+  (`snoot-game-ps1`); `vn-engine-ps1`, `wani-ps1`, `renpy-port-kit` y `snoot-ps2` no tienen.
+- Alcance (D13, D16): solo Snoot Game y solo en español; Wani en pausa. Un port cuenta solo si es fiel y fluido (D24) y
+  las imágenes se liberan al dejar de verse (D25).
+- Revisa a ojo las capturas de los agentes antes de fusionar (ábrelas y mídelas): los reportes a veces no coinciden.
 - Lees reportes de agentes (`.agents/reports/`), no logs completos.
 - Commits: conventional commits en inglés, sin co-autor ni mención a Claude.
 
@@ -31,7 +36,8 @@ Claude es el arquitecto y orquestador: escribe contratos, divide tareas, revisa 
   `xemu-0.8.139` (Xbox clásica; falta MCPX y BIOS del usuario), `rpcs3-*` (PS3; firmware 4.93 en `ps3 firmware\`),
   `shadps4-*` (PS4), `mgba-0.10.5` (GBA), `melonds-1.1` (DS), `sameboy-1.0.4` (GB/GBC). Switch: sin emulador hasta
   tener claves y firmware del usuario. Xbox 360: Xenia no corre homebrew (T-R01). Repos hermanos en `E:\Dev`.
-- CLIs de agentes con login: codex, opencode (Beam), kilo (MiMo), vibe, agy. Orca instalado; su CLI está en
+- CLIs de agentes con login: codex, opencode (Beam, modelo `opencode-go/iceman-contributor-free` desde que
+  `beam-free` dejó de responder), kilo (MiMo), vibe, agy. Orca instalado; su CLI está en
   `C:\Users\Pako\AppData\Local\Programs\orca\resources\bin\orca.exe` (en el PATH al activar "Orca CLI").
 - Agentes: `python tools/agents/dispatch.py list-agents|run|batch|status|remove`; skills propias en
   `.agents/skills/` (copiar a `.claude/skills/` con `python tools/agents/sync_skills.py`); subagentes de revisión

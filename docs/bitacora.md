@@ -78,3 +78,26 @@
   solo, únicamente en la copia de captura.
 - `Path.write_text` en Windows escribe CRLF: lo usé para editar y convertí archivos LF; corregido. Las trazas se
   guardan con LF.
+
+## 2026-10-27
+
+- Fase 6 y 7 en paralelo con Beam, Kilo, Vibe, Antigravity y Codex. `chapter_x2` PASS contra Ren'Py en PSP, PS2,
+  Vita (renderer GXM sin `libshacccg.suprx`), 3DS (traza por `svcOutputDebugString`), Wii (crash por el teclado de
+  libwiikeyboard sin iniciar y 180 KB en el stack de `res_get`; traza por USB Gecko), PS4 (dlmalloc propio con
+  `MMAP_CLEARS=0`; shadPS4 etiqueta el stdout como `[stdin]`; Makefile sin dependencias de headers reusaba objetos
+  viejos), DS (núcleo compartido, traza por DLDI) y GBA (núcleo compartido, datos en GBFS).
+- PS3 en pausa: SDL2 del port de ps3dev desde la fuente arregla el audio; el Makefile no pasaba `VN_TRACE`; en RPCS3 el
+  flip del RSX se detiene (no es la GPU: probado con la Quadro y Vulkan).
+- GBA: el LZ77 tenía las banderas al revés (y el decodificador de prueba también, por eso pasaban las pruebas) y usaba
+  distancia 1, que la VRAM no acepta. El texto escribía bytes sueltos en VRAM.
+- Fidelidad (D24): la comparación solo veía el texto. `renpy_full` compara fondo, personajes y música por línea. El hook
+  de Ren'Py perdía los cambios de expresión, tomaba la música del canal (sigue sonando en el fadeout) y no veía las
+  capas de música ni el `scene` real; corregido y regrabadas las 14 rutas. Resultado en PC: x1-x6 y x9 sin
+  diferencias.
+- Memoria (D25): el backend SDL nunca liberaba texturas, buscaba los sonidos ambientales como imágenes (`I32770.IMG`)
+  y en PSP la panorámica de 1328×383 bloquea el renderer (textura máxima 512). Arreglos parciales y T-629 en curso.
+- G5 medido en capítulos: Vita, Wii y PS4 10/10; PSP y PS2 10/11.
+- Agentes: el despachador ahora mata el árbol de procesos al vencer el tiempo (dejaba OpenCode y emuladores vivos) y
+  acepta carpetas en "Archivos permitidos". `beam-free` dejó de responder: OpenCode usa `iceman-contributor-free`.
+  Antigravity reportó tres veces capturas que no coincidían con la imagen: medir siempre a ojo antes de fusionar.
+- Repositorio remoto creado; `CONTINUAR.md` y `REINSTALAR.md` para retomar después de formatear.

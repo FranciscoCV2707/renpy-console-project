@@ -1,0 +1,15 @@
+# Humo de PS2 (D22): el mismo recorrido que snoot-smoke, contra una traza del propio backend SDL en PCSX2.
+id: snoot-smoke-ps2
+reference: tests/reference/traces/ps2/snoot-smoke.trace
+inputs:
+  - wait: 60
+  - press: CROSS
+  - wait: 60
+  - advance: 30
+expect:
+  - {ev: SCENE}
+compare:
+  events: [SAY, SHOW, HIDE, SCENE, PLAY, STOP, MENU, CHOICE]
+  tolerance: {frames: 6}
+limits:
+  max_seconds: 300

@@ -6,6 +6,9 @@
 #include <pspkernel.h>
 #elif defined(__WII__)
 #include <fat.h>
+#elif defined(_EE)
+#include <sbv_patches.h>
+#include <sifrpc.h>
 #endif
 
 #if defined(NXDK)
@@ -21,7 +24,7 @@
 
 /* PC */
 #if !defined(__PSP__) && !defined(__vita__) && !defined(__3DS__) && !defined(__WII__) && !defined(NXDK) &&             \
-    !defined(__SWITCH__)
+    !defined(__SWITCH__) && !defined(_EE)
 #define SDL_TARGET_DATA_DIR             "."
 #define SDL_TARGET_SAVE_DIR             "build/pc/save"
 #define SDL_TARGET_WINDOW_W             960
@@ -59,6 +62,24 @@
 #define SDL_TARGET_VIEW_Y               0
 #define SDL_TARGET_VIEW_W               360
 #define SDL_TARGET_VIEW_H               272
+
+/* PS2 (ps2sdk) */
+#elif defined(_EE)
+#define SDL_TARGET_DATA_DIR             "host:disc"
+#define SDL_TARGET_SAVE_DIR             "build/pc/save"
+#define SDL_TARGET_WINDOW_W             640
+#define SDL_TARGET_WINDOW_H             448
+#define SDL_TARGET_MANUAL_SCALE         0
+#define SDL_TARGET_USE_LOGICAL_SIZE     1
+#define SDL_TARGET_INIT_FLAGS           (SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO)
+#define SDL_TARGET_SET_MAIN_READY       0
+#define SDL_TARGET_RENDERER_FLAGS       SDL_RENDERER_SOFTWARE
+#define SDL_TARGET_HAS_GAME_CONTROLLER  0
+#define SDL_TARGET_FLUSH_STDOUT_ENABLED 0
+#define SDL_TARGET_PSP_MODULE_INFO      0
+#define SDL_TARGET_NEEDS_FAT_INIT       0
+#define SDL_TARGET_HAS_RENDER_GEOMETRY  1
+#define SDL_TARGET_MKDIR_WITH_MODE      1
 
 /* PS Vita */
 #elif defined(__vita__)
@@ -155,7 +176,7 @@
 #define SDL_TARGET_MKDIR_WITH_MODE      1
 
 #else
-#error "Consola SDL no soportada: define __PSP__, __vita__, __3DS__, __WII__, NXDK o __SWITCH__"
+#error "Consola SDL no soportada: define __PSP__, _EE, __vita__, __3DS__, __WII__, NXDK o __SWITCH__"
 #endif
 
 #if SDL_TARGET_SET_MAIN_READY
@@ -174,6 +195,26 @@
 #define SDL_TARGET_FLUSH_STDOUT() fflush(stdout)
 #else
 #define SDL_TARGET_FLUSH_STDOUT() ((void)0)
+#endif
+
+#if defined(_EE)
+/* El audio de SDL2 en PS2 carga libsd.irx y audsrv.irx por SIF (init_audio_driver de ps2_drivers): sin
+ * SifInitRpc(0) y los parches SBV la RPC se queda esperando al IOP para siempre. */
+#define SDL_TARGET_PREPARE_IOP()                                                                                       \
+	do {                                                                                                           \
+		SifInitRpc(0);                                                                                         \
+		sbv_patch_enable_lmb();                                                                                \
+		sbv_patch_disable_prefix_check();                                                                      \
+	} while (0)
+/* El ELF termina con exit(0) pero PCSX2 no se cierra: tools/ctl/ps2.py ve esta marca en el log y lo cierra. */
+#define SDL_TARGET_QUIT_MARKER()                                                                                       \
+	do {                                                                                                           \
+		printf("VN_QUIT\n");                                                                                   \
+		fflush(stdout);                                                                                        \
+	} while (0)
+#else
+#define SDL_TARGET_PREPARE_IOP() ((void)0)
+#define SDL_TARGET_QUIT_MARKER() ((void)0)
 #endif
 
 #if defined(NXDK)

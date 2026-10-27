@@ -1,0 +1,23 @@
+"""Pruebas del adapter PS2/PCSX2, sin emulador."""
+from tools.ctl.ps2 import extract_trace, game_quit
+
+
+def test_extract_trace_mixed_output():
+    text = "booting\nT|1|0|SAY|who=1\nnoise\nT|2|1|CHOICE|i=2\n"
+    assert extract_trace(text) == "T|1|0|SAY|who=1\nT|2|1|CHOICE|i=2\n"
+
+
+def test_extract_trace_empty_output():
+    assert extract_trace("PCSX2 started\n") == ""
+
+
+def test_extract_trace_strips_pcsx2_timestamps():
+    from tools.ctl.ps2 import extract_trace
+
+    assert extract_trace("[    1.1670] T|0|0|SCENE|img=1\n[    1.2] otra cosa\n") == "T|0|0|SCENE|img=1\n"
+
+
+def test_game_quit_marker():
+    assert game_quit("[    2.5] VN_QUIT\n")
+    assert game_quit("VN_QUIT")
+    assert not game_quit("T|1|0|SAY|who=0\n")

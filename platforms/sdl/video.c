@@ -89,6 +89,7 @@ static void rect(int layer, int x, int y, int w, int h, int r, int g, int b, int
 }
 void video_init(void)
 {
+	SDL_TARGET_PREPARE_IOP();
 	SDL_TARGET_CALL_SET_MAIN_READY();
 	if (SDL_InitSubSystem(SDL_TARGET_INIT_FLAGS) != 0)
 		return;
@@ -97,8 +98,8 @@ void video_init(void)
 		if (headless_surface)
 			renderer = SDL_CreateSoftwareRenderer(headless_surface);
 	} else {
-		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_TARGET_WINDOW_W,
-		                          SDL_TARGET_WINDOW_H, SDL_WINDOW_SHOWN);
+		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		                          SDL_TARGET_WINDOW_W, SDL_TARGET_WINDOW_H, SDL_WINDOW_SHOWN);
 		if (window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_TARGET_RENDERER_FLAGS);
 		if (!renderer && window)

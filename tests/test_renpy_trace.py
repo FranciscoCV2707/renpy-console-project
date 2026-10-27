@@ -55,6 +55,9 @@ class FakeRenpy:
     def eval_who(self, who):
         return self._who[who]
 
+    def translate_string(self, s):
+        return s
+
 
 class FakeConfig:
     def __init__(self):

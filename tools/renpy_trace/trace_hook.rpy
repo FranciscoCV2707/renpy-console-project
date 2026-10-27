@@ -65,9 +65,10 @@ init -999 python:
     def _rcp_get_who():
         if renpy.store._last_say_who is None:
             return ""
-        # Un personaje escrito como texto ("Trevor & Tana" "...") llega como str, sin .name
+        # Un personaje escrito como texto ("Trevor & Tana" "...") llega como str, sin .name. El nombre se traduce como
+        # al mostrarlo (renpy.translate_string, exports/__init__.py:277 del SDK 8.3.7): PS1 lo tiene en español
         who = renpy.eval_who(renpy.store._last_say_who)
-        return who if isinstance(who, str) else who.name
+        return renpy.translate_string(who if isinstance(who, str) else who.name)
 
     def _rcp_on_label(name, abnormal=False):
         if not _rcp_enabled[0]:

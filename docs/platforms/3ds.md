@@ -86,18 +86,31 @@ el `AUTOTEST.BIN` del escenario), parchea `user/config/qt-config.ini` (filtro de
   45987 (src/core/rpc/rpc_server.cpp); el cliente `scripting/AzaharRPC.py` del propio Azahar
   toma capturas PNG (`screenshot()`).
 
-### Canal de traza: bloqueo actual
+### Canal de traza (T-619)
 
 - Azahar solo recibe por log lo que el juego manda con `svcOutputDebugString`
-  (`Kernel::SVC::OutputDebugString` lo escribe como `Debug.Emulated`; src/core/hle/kernel/svc.cpp).
-- libctru solo manda `stderr` ahí con `consoleDebugInit(debugDevice_SVC)` (libctru/source/console.c,
-  `debug_write`), y `stdout` (donde el motor escribe la traza con `puts`,
-  platforms/sdl/backend_sdl.c) se descarta sin `consoleInit`: verificado con un `.3dsx` de
-  prueba — `printf`/`fprintf(stderr)` nunca llegan al log, `svcOutputDebugString` sí.
-- Consecuencia: `ctl run --target 3ds` corre el juego completo (el log muestra que lee
-  AUDIO.BIN, imágenes y SPU del disco durante el escenario) pero la traza llega vacía y el
-  adapter lo reporta como error con el bloqueo exacto. Falta enrutar `vn_ops->log` a
-  `svcOutputDebugString` en `platforms/sdl` bajo `__3DS__` para tener veredicto automático.
+  (`Kernel::SVC::OutputDebugString` lo escribe como `Debug.Emulated`; src/core/hle/kernel/svc.cpp), y
+  libctru descarta `stdout`/`stderr` mientras no haya un `consoleInit` (verificado en T-610 con un
+  `.3dsx` de prueba). Por eso el bloque de 3DS de `platforms/sdl/sdl_target.h` instala un devoptab
+  propio de stdout (`ctr_svc_write`) que manda cada línea a `svcOutputDebugString`, activado en
+  `SDL_TARGET_PREPARE_IOP`; `SDL_TARGET_QUIT_MARKER` imprime `VN_QUIT` por ese mismo canal y
+  `tools/ctl/n3ds.py` corta Azahar al verlo.
+- Salida de ejemplo del log (`user/log/azahar_log.txt`):
+  `Debug.Emulated <Debug> ...OutputDebugString:1190: T|1|0|SAY|who=1`.
+- El buffer del log de Azahar es de 4 KB y no se vacía al terminar el juego: las últimas líneas
+  (`END|` y `VN_QUIT`) a veces no llegan al archivo antes de que el adapter corte el proceso, así que
+  el corte puede esperar los `max_seconds` del escenario. El veredicto no se afecta (la traza ya
+  tiene todos los eventos `SAY`), pero conviene revisarlo si algún día importa el tiempo de corrida.
+
+### Capturas del AUTOTEST (T-619)
+
+- El bloque de 3DS fija `VN_SHOT_DIR=sdmc:/3ds/snoot` y lee `VN_SHOT_NAMES` de
+  `sdmc:/3ds/snoot/shot_names.txt` (el mismo patrón que Vita: en 3DS no hay variables de entorno del
+  SO). `tools/ctl/n3ds.py` escribe ese archivo con los pasos `shot` del escenario y copia los BMP a
+  `build/ctl/3ds/`.
+- Captura por RPC (`scripting/AzaharRPC.py`, UDP 45987, `enable_rpc_server=true`): la pantalla
+  superior muestra el título de Snoot y la inferior queda en negro (el backend solo usa la superior).
+  El negro de T-610 era un problema de momento de la captura, no del render.
 
 ## Lo que falta
 

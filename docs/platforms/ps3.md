@@ -66,14 +66,33 @@ RPCS3 (TTY.log: `PSL1GHT_AUD_OpenDevice(..., (null), 0)`, `audioPortOpen: 0`, `a
 arranca con el puerto de audio activo y consume el `AUTOTEST.BIN` (navegó el menú de capítulos del guion en
 corridas manuales de RPCS3 a ~4-30 fps).
 
-**Bloqueo actual (2026-10-27):** desde media sesión de T-615, todo lanzamiento de RPCS3 sobre el juego (por
-`tools.ctl`, por línea de comandos, con OpenGL o con config custom de Vulkan) muere a los ~5 s de emulación:
-`RSX SIG: Thread terminated due to fatal error: Verification failed (object: 0x0)` en
-`GLTextureCache.h:729 create_new_texture` ("No se puede encontrar el módulo especificado") →
-"Emulation has been frozen" antes del primer evento de traza; con el mismo `EBOOT.BIN` y los mismos datos el
-juego corrió bien a primera hora (30 fps en el título, menú navegable). Es un fallo del renderer de RPCS3 en
-este host (su sensor de CPU también reporta "The required API is not initialized"), no del repo: el veredicto
-de `snoot-route-chapter_x2` quedó pendiente de una corrida sana del emulador.
+**Bloqueo resuelto (T-621): `--headless` no sirve para este juego.** El puerto de SDL2 espera el flip
+del RSX en cada cuadro: `waitFlip` en `build/ps3/sdl2-src/src/render/psl1ght/SDL_psl1ghtrender.c:113`
+(bucle `while (gcmGetFlipStatus() != 0) usleep(200)`), llamado desde `PSL1GHT_RenderPresent` (línea 798);
+el modo flip es vsync (`gcmSetFlipMode(GCM_FLIP_VSYNC)`, `src/video/psl1ght/SDL_PSL1GHTvideo.c:90`). Con
+el renderer Null de `--headless` el flip nunca se completa, el juego se bloquea en el primer
+`SDL_RenderPresent` (~79 millones de `sys_timer_usleep` en `RPCS3.log`) y no abre `C00.VNB` nunca.
+`tools/ctl/ps3.py` ahora corre con `--no-gui` y escribe `config/custom_configs/config_SNOT00001.yml`
+si falta (claves reales de RPCS3 0.0.43-20410, verificadas en `RPCS3.log`: "Applying custom config"):
+`Video: Renderer: OpenGL`, `Resolution: 1280x720`, `Force CPU Blit: true`, `Write/Read Color Buffers:
+true`, `Strict Texture Flushing: true`, `Strict Rendering Mode: true`. Sin `Force CPU Blit` el cache de
+texturas truena a los ~3-5 s con los blits chicos del renderer software de SDL (OpenGL:
+`GLTextureCache.h:729 create_new_texture`, Vulkan: `VKTextureCache.cpp:1053`, ambas
+`Verification failed (object: 0x0)`); con CPU blit el juego arranca, lee `FONT/GAME/MCICON/AUTOTEST`,
+abre los saves, lee `AUDIO.BIN`/`MUSIC.XA` y pasa los créditos de arranque a ~60 fps.
+
+**Bloqueo actual (2026-10-27, T-621): el pipeline de flip/texturas de RPCS3 en este host se muere en
+silencio.** Con la configuración anterior (OpenGL + CPU blit) el RSX procesa los primeros flips y
+después deja de completarlos sin error en el log (`RSX: Flip texture was not found in cache. Uploading
+surface from CPU` ×7-12 y silencio; `sys_rsx_context_attribute` congelado; `sys_timer_usleep` girando a
+~33k/s en el bucle de `waitFlip`): el FPS de la ventana queda congelado y el juego no pasa del título.
+En una corrida de ~15 min los flips continuaron a ~30 fps (título y menús dibujados, captura en
+`build/ctl/ps3`), pero no llegó a abrir `C00.VNB`. Variante Vulkan sobre la iGPU Intel UHD 770
+(`Video: Vulkan: Adapter`): la emulación congela en el arranque (swapchain creado, PPU nunca inicia).
+Mismo `EBOOT.BIN` y datos corrieron a 30 fps con menús navegables en la primera mitad de la sesión de
+T-615: es el mismo fallo del host que ya documentaba T-615 (además su sensor de CPU reporta "The
+required API is not initialized"); el veredicto de `snoot-route-chapter_x2` sigue pendiente de una
+corrida sana del emulador.
 
 ## Lo que falta para la automatización con `tools/ctl`
 

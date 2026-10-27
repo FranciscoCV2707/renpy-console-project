@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from tools.ctl.__main__ import main
-from tools.ctl.ps3 import extract_trace, install_pkg, stage_data
+from tools.ctl.ps3 import CUSTOM_CONFIG_TEXT, extract_trace, install_custom_config, install_pkg, stage_data
 
 
 def test_extract_trace_from_tty_log():
@@ -34,6 +34,15 @@ def test_stage_data(tmp_path):
     assert staged == data_dir
     assert (data_dir / "DATA" / "C00.VNB").read_bytes() == b"vnb"
     assert (data_dir / "AUTOTEST.BIN").read_bytes() == b"\x01\x00\x00\x00\xff\xff"
+
+
+def test_install_custom_config_writes_once(tmp_path, monkeypatch):
+    cfg = tmp_path / "custom_configs" / "config_SNOT00001.yml"
+    monkeypatch.setattr("tools.ctl.ps3.CUSTOM_CONFIG", cfg)
+    install_custom_config()
+    assert cfg.read_text(encoding="utf-8") == CUSTOM_CONFIG_TEXT
+    install_custom_config()  # ya existe: no la reescribe
+    assert cfg.read_text(encoding="utf-8") == CUSTOM_CONFIG_TEXT
 
 
 def test_install_pkg_skips_when_eboot_is_newer(tmp_path, monkeypatch):

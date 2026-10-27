@@ -24,11 +24,7 @@
 
 /* PC */
 #if !defined(__PSP__) && !defined(__vita__) && !defined(__3DS__) && !defined(__WII__) && !defined(NXDK) &&             \
-<<<<<<< HEAD
-    !defined(__SWITCH__) && !defined(_EE)
-=======
-    !defined(__SWITCH__) && !defined(__ORBIS__)
->>>>>>> agent/beam/T-609
+    !defined(__SWITCH__) && !defined(_EE) && !defined(__ORBIS__)
 #define SDL_TARGET_DATA_DIR             "."
 #define SDL_TARGET_SAVE_DIR             "build/pc/save"
 #define SDL_TARGET_WINDOW_W             960
@@ -210,11 +206,7 @@
 #define SDL_TARGET_VIEW_H               960
 
 #else
-<<<<<<< HEAD
-#error "Consola SDL no soportada: define __PSP__, _EE, __vita__, __3DS__, __WII__, NXDK o __SWITCH__"
-=======
-#error "Consola SDL no soportada: define __PSP__, __vita__, __3DS__, __WII__, NXDK, __SWITCH__ o __ORBIS__"
->>>>>>> agent/beam/T-609
+#error "Consola SDL no soportada: define __PSP__, _EE, __vita__, __3DS__, __WII__, NXDK, __SWITCH__ o __ORBIS__"
 #endif
 
 #if SDL_TARGET_SET_MAIN_READY

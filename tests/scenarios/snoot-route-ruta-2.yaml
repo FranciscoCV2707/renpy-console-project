@@ -1,0 +1,13 @@
+id: snoot-route-ruta-2
+reference: tests/reference/traces/snoot/ruta 2.trace
+inputs:
+  - wait: 60
+  - press: CROSS
+  - autoplay: true
+  - choices: [1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 1, 7, 2, 1, 2, 2, 1, 2]
+expect: []
+compare:
+  mode: renpy
+  events: [SAY, CHOICE]
+limits:
+  max_seconds: 12970

@@ -374,6 +374,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-627 | 6 | beam | PS3: por qué el flip del RSX se detiene en RPCS3 (secuencia de SDL_PSL1GHT contra PSL1GHT) | T-621 |
 | T-628 | 3+ | codex | `renpy_full` en las 14 rutas: reglas de nombre simétricas y lista de bugs reales | T-624 |
 | T-629 | 5–6 | kilo | Backend SDL: imágenes solo mientras se ven (D25) y panorámicas en mosaicos; ruta-1 PASS en PSP | T-622 |
+| T-630 | 4–6 | beam | Backend SDL: brillo correcto (tinte 128 de PS1 = sin cambio) | T-712 |
 | T-407 | 6 | beam | `sdl_target.h` y fusión de 3DS, Wii, Xbox y Switch | T-601..T-605 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |

@@ -158,6 +158,146 @@ def say(seq, who, tid, spanish) -> TraceEvent:
     return TraceEvent(seq=seq, frame=0, ev="SAY", fields={"who": who, "text": spanish.get(tid, tid)})
 
 
+def _resource_name(snoot_map, image_id, tag=None):
+    name = snoot_map["images"].get(image_id, f"image:{image_id}")
+    names = name if isinstance(name, list) else [name]
+    if tag is not None:
+        for candidate in names:
+            if candidate == tag or candidate.startswith(tag + " "):
+                return candidate
+    return names[0]
+
+
+def _sprite_name(tag, image_name):
+    return image_name[len(tag):].strip() if image_name.startswith(tag) else image_name
+
+
+def _music_name(value):
+    return value.replace("\\", "/").casefold() if value else None
+
+
+def _background_name(value):
+    return value[3:] if value.startswith("bg ") else value
+
+
+def _is_background_tag(tag):
+    return tag in ("bg", "background")
+
+
+def _state_event(seq, who, text, bg, sprites, music):
+    return TraceEvent(seq=seq, frame=0, ev="SAY", fields={
+        "who": who,
+        "text": text,
+        "bg": bg,
+        "sprites": sorted(f"{tag} {expression}".strip() for tag, expression in sprites.items()),
+        "music": music,
+    })
+
+
+def normalize_engine_full(events, snoot_map, spanish) -> list[TraceEvent]:
+    """Normaliza cada SAY junto al fondo, sprites y música activos en el motor."""
+    bg = None
+    sprites = {}
+    music = None
+    result = []
+    for event in events:
+        fields = event.fields
+        if event.ev == "SCENE":
+            bg_name = _background_name(_resource_name(snoot_map, int(fields["img"]))) if "img" in fields else None
+            bg = (bg_name, bg_name) if bg_name is not None else None
+            sprites.clear()
+        elif event.ev == "SHOW":
+            tag = snoot_map["tags"].get(int(fields["tag"]), f"tag:{fields['tag']}")
+            image_name = _resource_name(snoot_map, int(fields["img"]), tag)
+            expression = _sprite_name(tag, image_name)
+            if expression and not _is_background_tag(tag):
+                sprites[tag] = expression
+                if bg is not None and tag == bg[0]:
+                    bg = None
+            else:
+                bg_name = _background_name(image_name)
+                bg = (tag, bg_name)
+                sprites.pop(tag, None)
+        elif event.ev == "HIDE":
+            tag = snoot_map["tags"].get(int(fields["tag"]), f"tag:{fields['tag']}")
+            sprites.pop(tag, None)
+            if bg is not None and bg[0] == tag:
+                bg = None
+        elif event.ev == "PLAY":
+            music = _music_name(snoot_map["tracks"].get(int(fields["track"]), f"track:{fields['track']}"))
+        elif event.ev == "STOP":
+            music = None
+        elif event.ev == "SAY":
+            who = snoot_map["speakers"][int(fields["who"])]
+            text = spanish.get(snoot_map["text"][int(fields["text"])], snoot_map["text"][int(fields["text"])])
+            result.append(_state_event(event.seq, who, text, bg[1] if bg else None, sprites, music))
+    return result
+
+
+def normalize_renpy_full(events, spanish) -> list[TraceEvent]:
+    """Normaliza los cambios SHOW/SCENE/PLAY de Ren'Py al estado de cada SAY."""
+    bg = None
+    sprites = {}
+    music = None
+    result = []
+    previous_say_id = None
+    for event in events:
+        fields = event.fields
+        if event.ev == "SCENE":
+            bg = None
+            sprites.clear()
+        elif event.ev == "SHOW":
+            tag = fields["tag"]
+            attrs = fields.get("attrs", "").split()
+            if attrs and not _is_background_tag(tag):
+                sprites[tag] = " ".join(attrs)
+                if bg is not None and bg[0] == tag:
+                    bg = None
+            else:
+                bg_name = " ".join([tag, *attrs]) if _is_background_tag(tag) else tag
+                bg = (tag, _background_name(bg_name))
+                sprites.pop(tag, None)
+        elif event.ev == "HIDE":
+            tag = fields["tag"]
+            sprites.pop(tag, None)
+            if bg is not None and bg[0] == tag:
+                bg = None
+        elif event.ev == "PLAY":
+            music = _music_name(fields.get("music", ""))
+        elif event.ev == "STOP":
+            music = None
+        elif event.ev == "SAY":
+            tid = fields["id"]
+            if tid == previous_say_id:
+                continue
+            result.append(_state_event(event.seq, fields["who"], spanish.get(tid, tid), bg[1] if bg else None,
+                                       sprites, music))
+            previous_say_id = tid
+    return result
+
+
+def compare_renpy_full(actual, reference, exceptions=None) -> CompareResult:
+    """Compara las líneas y su estado visible/audible con excepciones exactas por índice."""
+    allowed = {(item["index"], item["field"]): (item["actual"], item["reference"])
+               for item in (exceptions or [])}
+    n = min(len(actual), len(reference))
+    for index in range(n):
+        left, right = actual[index], reference[index]
+        fields = set(left.fields) | set(right.fields)
+        mismatch = next((name for name in sorted(fields)
+                         if left.fields.get(name) != right.fields.get(name)
+                         and allowed.get((index, name)) != (left.fields.get(name), right.fields.get(name))), None)
+        if mismatch is not None:
+            return CompareResult(False, index, left, right,
+                                 f"first divergent at SAY {index}: {mismatch} differs", "FAIL")
+    if len(actual) != len(reference):
+        index = n
+        return CompareResult(False, index, actual[index] if index < len(actual) else None,
+                             reference[index] if index < len(reference) else None,
+                             f"length mismatch: actual {len(actual)} vs reference {len(reference)} SAY events", "FAIL")
+    return CompareResult(True, None, None, None, "traces match", "PASS")
+
+
 def compare_scenario(scenario, trace_path) -> CompareResult:
     ref_path = Path(scenario.reference)
     if not ref_path.is_absolute():
@@ -183,6 +323,18 @@ def compare_scenario(scenario, trace_path) -> CompareResult:
 
         spanish = load_spanish()
         result = compare_events(normalize_engine(actual_events, load_map(), spanish), normalize_renpy(ref_events, spanish))
+        result.scenario = scenario.id
+        return result
+    if scenario.compare.mode == "renpy_full":
+        from .snoot_map import load_map, load_spanish
+
+        snoot_map = load_map()
+        spanish = load_spanish()
+        result = compare_renpy_full(
+            normalize_engine_full(actual_events, snoot_map, spanish),
+            normalize_renpy_full(ref_events, spanish),
+            scenario.compare.exceptions,
+        )
         result.scenario = scenario.id
         return result
     allowed = scenario.compare.events

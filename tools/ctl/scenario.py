@@ -19,6 +19,7 @@ class CompareSpec:
     events: list[str]
     tolerance: dict = field(default_factory=dict)
     mode: str = "same"
+    exceptions: list[dict] = field(default_factory=list)
 
 
 @dataclass
@@ -77,9 +78,26 @@ class Scenario:
         if not isinstance(tolerance, dict):
             raise ScenarioError("compare.tolerance", "must be a mapping")
         mode = cmp_data.get("mode", "same")
-        if mode not in ("same", "renpy"):
-            raise ScenarioError("compare.mode", "must be same or renpy")
-        compare = CompareSpec(events=events, tolerance=tolerance, mode=mode)
+        if mode not in ("same", "renpy", "renpy_full"):
+            raise ScenarioError("compare.mode", "must be same, renpy or renpy_full")
+        exceptions = cmp_data.get("exceptions", [])
+        if not isinstance(exceptions, list):
+            raise ScenarioError("compare.exceptions", "must be a list")
+        for i, exception in enumerate(exceptions):
+            field_name = f"compare.exceptions[{i}]"
+            if not isinstance(exception, dict):
+                raise ScenarioError(field_name, "must be a mapping")
+            if isinstance(exception.get("index"), bool) or not isinstance(exception.get("index"), int):
+                raise ScenarioError(f"{field_name}.index", "must be an integer")
+            if exception["index"] < 0:
+                raise ScenarioError(f"{field_name}.index", "must be non-negative")
+            if exception.get("field") not in ("bg", "sprites", "music"):
+                raise ScenarioError(f"{field_name}.field", "must be bg, sprites or music")
+            if "actual" not in exception or "reference" not in exception:
+                raise ScenarioError(field_name, "actual and reference are required")
+            if not all(isinstance(exception[key], (str, list, type(None))) for key in ("actual", "reference")):
+                raise ScenarioError(field_name, "actual and reference must be strings, lists or null")
+        compare = CompareSpec(events=events, tolerance=tolerance, mode=mode, exceptions=exceptions)
         lim_data = data["limits"]
         if not isinstance(lim_data, dict):
             raise ScenarioError("limits", "must be a mapping")

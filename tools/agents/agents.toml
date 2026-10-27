@@ -22,13 +22,13 @@ cmd = ["codex", "exec", "--sandbox", "workspace-write", "-C", "{worktree}", "{pr
 auto_commit = true
 env = { TMP = "{worktree}/.tmp", TEMP = "{worktree}/.tmp" }
 max_parallel = 1
-timeout_min = 60
+timeout_min = 120
 
 [agents.kilo]
 # --dir: sin él kilo trabaja en el repo principal aunque se lance desde el worktree (pasó en la prueba de humo)
 cmd = ["kilo", "run", "--auto", "--dir", "{worktree}", "-m", "xiaomi-token-plan-sgp/mimo-v2.6-pro", "{prompt}"]
 max_parallel = 1
-timeout_min = 60
+timeout_min = 120
 
 [agents.vibe]
 cmd = ["vibe", "--prompt", "{prompt}", "--max-turns", "40", "--output", "json", "--trust", "--auto-approve"]

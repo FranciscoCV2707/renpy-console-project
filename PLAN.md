@@ -85,6 +85,7 @@ menús, 3 ranuras, galería; es la referencia de UI para todos los ports).
 | D18 | **Audio por duración**: más de 10 s = música → OGG Vorbis 44.1 kHz estéreo (PSP q0, PS2 q2, resto q3); efectos y UI → WAV PCM 16 bits 22050 Hz mono. Se verifica en el hola mundo de audio de cada consola (Fase 5); si SDL2_mixer no trae Vorbis ahí, música en ADPCM | Claude (líder), 2026-10-26 | WAV inflaba PSP a 364 MB; Vorbis lo baja a ~1/10 y SDL2_mixer lo decodifica en todas las de nivel A |
 | D19 | **Fidelidad de los demakes**: todas las rutas y todo el texto siempre. DS: fondo arriba (256×192, 16 bits), texto abajo, sprites reducidos, música ADPCM 22 kHz mono, sin video. GBA: 240×160 a 256 colores con tramado, sprites a 16 colores, música en bucles de 20 s a 8 kHz mono, cartucho ≤ 32 MB. GB/GBC (una ROM dual, MBC5 ≤ 8 MB): fondos en tiles con tramado (4 colores; paletas en GBC), retratos en vez de sprites completos, efectos simples y sin música original | Claude (líder), 2026-10-26 | Lo que cabe en cada cartucho sin perder la historia |
 | D20 | **El backend SDL (T-401) arranca ya**, en paralelo a la Fase 3: no depende de ella. La compuerta G3 sigue siendo requisito para dar por buena la Fase 4 | Claude (líder), 2026-10-26 | La Fase 4 es el cuello de botella de las 8 consolas SDL |
+| D21 | **PC corre primero los datos del disco de PS1** (VNB, IMG1, SPU/XA, a 320×240 escalado): el backend SDL implementa la misma API por enlace y lee los archivos de la carpeta del disco. Los recursos en alta resolución (assetpipe + coordenadas por perfil, D12) vienen después, sobre un backend que ya pasa las rutas | Claude (líder), 2026-10-26 | PC de punta a punta cuanto antes y comparable con las mismas trazas |
 
 Descartado de v2.0: el submódulo `upstream/` (D2/inventario), la rama `integration` mientras trabaje un solo agente
 (se crea en la Fase 4), y las tablas de cronograma por meses de v0.1 (no eran verificables).
@@ -330,12 +331,15 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-301 | 3 | beam | TRACE en `kit_capture.rpy` (propuesta para renpy-port-kit; formato de la sección 4.1) | — |
 | T-302 | 3 | beam | Trazas de referencia de todas las rutas de Snoot | T-301 |
 | T-303 | 3 | beam | `ctl compare` (primer evento divergente) | T-203, T-302 |
-| T-401 | 4 | codex | `platforms/sdl` para PC | G3 |
+| T-401 | 4 | codex | `platforms/sdl` para PC con los datos de PS1 (D21): video, img, res, input, save, cd | D20 |
+| T-403 | 4 | beam | Decodificadores SPU-ADPCM y XA en C para `platforms/sdl` | — |
+| T-304 | 3 | beam | Escenarios de las 14 rutas en PS1 (autoplay + `choices`) | T-303 |
 | T-402 | 4 | beam | `tools/assetpipe` perfil PC | — |
 | T-501 | 5 | kilo | Port PSP + `docs/platforms/psp.md` | G4 |
 | T-502 | 5 | codex | Port PS2 + `docs/platforms/ps2.md` | G4 |
 | T-503 | 5 | antigravity | Adapters `ctl` PPSSPP y PCSX2 | T-202 |
 | T-504 | 5 | beam | Perfiles de recursos PSP y PS2 | T-402 |
+| T-505 | 5 | beam | Audio de los perfiles por duración (D18) | T-504 |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 
 **Primera oleada de Beam (5 en paralelo, tras la prueba de humo):** T-101, T-202, T-205, T-301, T-402; T-206 entra

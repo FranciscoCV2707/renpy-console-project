@@ -6,8 +6,6 @@ tools/demake/gba_pack.py (modo 4, LZ77 de la BIOS) y de platforms/gba/main.c.
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 import subprocess
 import sys
 from pathlib import Path
@@ -94,7 +92,7 @@ def build() -> Path:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--trace", action="store_true")
-    args = parser.parse_args()
+    parser.parse_args()
     print(build())
     return 0
 

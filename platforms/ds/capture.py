@@ -15,7 +15,7 @@ import subprocess
 import time
 from pathlib import Path
 
-from PIL import Image, ImageGrab
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 MELONDS = Path("E:/snoot/melonds-1.1/melonDS.exe")
@@ -81,29 +81,64 @@ def screen_rects(shot: Image.Image) -> tuple[tuple[int, int, int, int], tuple[in
     return top, bottom
 
 
-def capture() -> Path:
+def grab_window(hwnd: int) -> Image.Image:
+    user32 = ctypes.windll.user32
+    gdi32 = ctypes.windll.gdi32
+
+    rect = ctypes.wintypes.RECT()
+    user32.GetClientRect(hwnd, ctypes.byref(rect))
+    w = rect.right - rect.left
+    h = rect.bottom - rect.top
+
+    hdc_window = user32.GetDC(hwnd)
+    hdc_mem = gdi32.CreateCompatibleDC(hdc_window)
+    hbm = gdi32.CreateCompatibleBitmap(hdc_window, w, h)
+    gdi32.SelectObject(hdc_mem, hbm)
+
+    pw_clientonly = 2
+    user32.PrintWindow(hwnd, hdc_mem, pw_clientonly)
+
+    bmp_info = ctypes.create_string_buffer(40)
+    import struct
+    struct.pack_into("<IiiHHIIIIII", bmp_info, 0, 40, w, -h, 1, 32, 0, w * h * 4, 0, 0, 0, 0)
+    buf = ctypes.create_string_buffer(w * h * 4)
+    gdi32.GetDIBits(hdc_mem, hbm, 0, h, buf, bmp_info, 0)
+
+    gdi32.DeleteObject(hbm)
+    gdi32.DeleteDC(hdc_mem)
+    user32.ReleaseDC(hwnd, hdc_window)
+
+    im = Image.frombuffer("RGBA", (w, h), buf, "raw", "BGRA", 0, 1)
+    return im.convert("RGB")
+
+
+def capture(out_path: Path | None = None, boot_seconds: int = BOOT_SECONDS) -> Path:
+    out = out_path or OUT
     ctypes.windll.user32.SetProcessDPIAware()
     process = subprocess.Popen([str(MELONDS), str(ROM)])
     try:
-        time.sleep(BOOT_SECONDS)
-        user32 = ctypes.windll.user32
+        time.sleep(boot_seconds)
         hwnd = find_window(process.pid)
-        rect = ctypes.wintypes.RECT()
-        user32.GetWindowRect(hwnd, ctypes.byref(rect))
-        user32.SetWindowPos(hwnd, ctypes.c_void_p(-1), 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)
-        time.sleep(1)
-        shot = ImageGrab.grab(bbox=(rect.left, rect.top, rect.right, rect.bottom))
-        user32.SetWindowPos(hwnd, ctypes.c_void_p(-2), 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)
+        shot = grab_window(hwnd)
     finally:
         process.terminate()
         process.wait()
-    top_rect, bottom_rect = screen_rects(shot)
+
+    w, h = shot.size
+    if w == SCREEN_WIDTH and h == SCREEN_HEIGHT * 2 + 22:
+        top_crop = shot.crop((0, 22, SCREEN_WIDTH, SCREEN_HEIGHT + 22))
+        bot_crop = shot.crop((0, SCREEN_HEIGHT + 22, SCREEN_WIDTH, h))
+    else:
+        top_rect, bottom_rect = screen_rects(shot)
+        top_crop = shot.crop(top_rect)
+        bot_crop = shot.crop(bottom_rect)
+
     screens = Image.new("RGB", (SCREEN_WIDTH, SCREEN_HEIGHT * 2))
-    screens.paste(shot.crop(top_rect), (0, 0))
-    screens.paste(shot.crop(bottom_rect), (0, SCREEN_HEIGHT))
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    screens.save(OUT)
-    return OUT
+    screens.paste(top_crop, (0, 0))
+    screens.paste(bot_crop, (0, SCREEN_HEIGHT))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    screens.save(out)
+    return out
 
 
 def main() -> int:

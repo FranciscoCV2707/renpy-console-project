@@ -40,7 +40,13 @@ class FakeRenpy:
 
         self.exports = SimpleNamespace(display_menu=_display_menu)
         self.store = SimpleNamespace(_last_say_who=None)
-        self.music = SimpleNamespace(get_playing=lambda channel: self._music)
+        def _play(filenames, channel="music", *args, **kwargs):
+            self._music = filenames
+
+        def _stop(channel="music", *args, **kwargs):
+            self._music = None
+
+        self.music = SimpleNamespace(get_playing=lambda channel: self._music, play=_play, stop=_stop)
         self.game = SimpleNamespace(context=lambda: SimpleNamespace(translate_identifier="start_1a2b3c4d"))
 
     def get_filename_line(self):
@@ -94,7 +100,8 @@ def test_sequence_produces_expected_lines(tmp_path, monkeypatch):
     out = tmp_path / "trace.txt"
     ns, renpy, config = _run(monkeypatch, str(out))
     renpy._tags = {"bg"}
-    renpy._music = "song.ogg"
+    # el hook envuelve renpy.music.play/stop: la musica sale de las ordenes del guion
+    renpy.music.play("song.ogg", channel="music")
     renpy._who = {"e": SimpleNamespace(name="Eileen")}
     renpy._attrs = {"sayori": ("smile", "happy")}
     renpy.store._last_say_who = "e"
@@ -102,13 +109,13 @@ def test_sequence_produces_expected_lines(tmp_path, monkeypatch):
     config.label_callbacks[0]("start", False)
 
     renpy._tags = {"bg", "sayori"}
-    renpy._music = "song.ogg"
     renpy._loc = ("game/script.rpy", 20)
     config.all_character_callbacks[0]("begin", interact=True)
     config.start_interact_callbacks[0]()
 
     renpy._tags = {"room"}
-    renpy._music = None
+    renpy.music.stop(channel="music")
+    renpy._music = "song.ogg"  # el canal sigue sonando (fadeout): no debe contar
     config.start_interact_callbacks[0]()
 
     renpy.exports.display_menu([("Yes", 0), ("No", 1)])

@@ -24,9 +24,9 @@ OBJDIR = $(OUT)/obj$(if $(filter 1,$(VN_TRACE)),-trace)
 OBJS = $(patsubst $(SRC)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
 # dlmalloc 2.8.6 (dominio publico): en Orbis no hay sbrk, el heap sale de mmap; FOOTERS detecta
-# desbordes/doble free al liberar (T-616: el juego murio con un puntero corrupto en shadPS4)
+# desbordes/doble free al liberar. MMAP_CLEARS=0: shadPS4 no garantiza mmap en ceros y SDL_calloc lo necesita
 DLMALLOC_OBJ = $(OBJDIR)/platforms/ps4/dlmalloc-2.8.6.o
-$(DLMALLOC_OBJ): CFLAGS += -DHAVE_MORECORE=0 -DUSE_LOCKS=1 -DFOOTERS=1
+$(DLMALLOC_OBJ): CFLAGS += -DHAVE_MORECORE=0 -DUSE_LOCKS=1 -DFOOTERS=1 -DMMAP_CLEARS=0
 
 ARCH = --target=x86_64-pc-freebsd12-elf
 CFLAGS += $(ARCH) -std=c99 -Wall -Wextra -Wno-unused-parameter -pedantic -O2 -fPIC -funwind-tables

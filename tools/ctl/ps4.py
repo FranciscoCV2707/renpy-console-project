@@ -24,12 +24,17 @@ END_MARKERS = (b"Exiting with status code", b"Exit function called")
 
 
 def extract_trace(log: str) -> str:
-    """Las lineas ``T|`` que el juego escribio por stdout (Devices::Logger de shadPS4, src/core/file_sys)."""
+    """Las lineas ``T|`` que el juego escribio por stdout (Devices::Logger de shadPS4, src/core/file_sys).
+
+    shadPS4 0.20.0 etiqueta el fd del stdout del juego como ``[stdin]``; se aceptan las dos etiquetas.
+    """
     lines = []
     for line in log.splitlines():
-        _, sep, rest = line.partition("[stdout] ")
-        if sep and rest.startswith("T|"):
-            lines.append(rest)
+        for tag in ("[stdout] ", "[stdin] "):
+            _, sep, rest = line.partition(tag)
+            if sep and rest.startswith("T|"):
+                lines.append(rest)
+                break
     return "".join(f"{line}\n" for line in lines)
 
 

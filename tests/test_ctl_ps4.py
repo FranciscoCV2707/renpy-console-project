@@ -25,6 +25,12 @@ def test_extract_trace_from_shadps4_log():
     assert extract_trace(log) == "T|1|0|SAY|who=1\nT|2|1|CHOICE|i=2\n"
 
 
+def test_extract_trace_accepts_stdin_tag():
+    # shadPS4 0.20.0 etiqueta el stdout del juego como [stdin]
+    log = "[Tty] <Info> (Game:Main) logger.cpp:62 log_flush: [stdin] T|0|623|SCENE|img=1\n"
+    assert extract_trace(log) == "T|0|623|SCENE|img=1\n"
+
+
 def test_extract_trace_ignores_log_without_trace():
     assert extract_trace("x\ny\n") == ""
     assert extract_trace("[Tty] <Info> (Game:Main) logger.cpp:55 log_flush: [stdout] hola\n") == ""

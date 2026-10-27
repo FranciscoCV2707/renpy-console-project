@@ -105,6 +105,44 @@
 #define SDL_TARGET_VIEW_Y               32
 #define SDL_TARGET_VIEW_W               640
 #define SDL_TARGET_VIEW_H               480
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+extern struct _reent *__getreent(void);
+extern int setenv(const char *name, const char *value, int overwrite);
+static inline int vita_flush(FILE *f)
+{
+	(void)f;
+	struct _reent *r = __getreent();
+	if (r && r->_stdout)
+		return fflush(r->_stdout);
+	return 0;
+}
+#define fflush(f)          vita_flush(f)
+static inline void vita_flush_on_exit(void)
+{
+	vita_flush(NULL);
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+}
+static inline void vita_set_main_ready(void)
+{
+	setenv("VN_SHOT_DIR", "ux0:data/snoot", 0);
+	FILE *f = fopen("ux0:data/snoot/shot_names.txt", "r");
+	if (f) {
+		char names[256];
+		if (fgets(names, sizeof(names), f)) {
+			size_t l = strlen(names);
+			if (l && names[l - 1] == '\n')
+				names[l - 1] = 0;
+			setenv("VN_SHOT_NAMES", names, 1);
+		}
+		fclose(f);
+	}
+	atexit(vita_flush_on_exit);
+	(SDL_SetMainReady)();
+	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "VITA gxm");
+}
+#define SDL_SetMainReady() vita_set_main_ready()
 
 /* Nintendo 3DS */
 #elif defined(__3DS__)

@@ -9,9 +9,18 @@
 int img_brightness = 256;
 
 typedef struct {
-	uint8_t *indices;
+	uint8_t x, y; /* posición dentro de la imagen pre-escalada (0..w-1, 0..h-1) */
+	uint8_t idx;
+	uint8_t pad;
+} GbaPoint;
+
+typedef struct {
+	uint8_t *data; /* tile 8-bit (w*h), tile 4-bit (sprites densos) o lista de puntos opacos */
 	uint16_t palette[256];
-	uint16_t w, h;
+	uint16_t w, h; /* tamaño almacenado: la imagen pre-escalada a la pantalla (3/4 x, 2/3 y) */
+	int sparse;    /* 1: data es una lista de puntos opacos en vez de un tile */
+	int packed;    /* 1: tile de índices de 4 bits (16 colores) */
+	int count;     /* puntos de la lista dispersa */
 	int in_use;
 } GbaTexture;
 
@@ -20,9 +29,9 @@ static GbaTexture textures[GBA_MAX_TEXTURES] __attribute__((section(".sbss")));
 void gba_free_texture(int slot)
 {
 	if (slot >= 0 && slot < GBA_MAX_TEXTURES && textures[slot].in_use) {
-		if (textures[slot].indices) {
-			free(textures[slot].indices);
-			textures[slot].indices = NULL;
+		if (textures[slot].data) {
+			free(textures[slot].data);
+			textures[slot].data = NULL;
 		}
 		textures[slot].in_use = 0;
 	}
@@ -31,6 +40,15 @@ void gba_free_texture(int slot)
 static uint16_t rd16(const uint8_t *p)
 {
 	return (uint16_t)(p[0] | ((unsigned)p[1] << 8));
+}
+
+static int color_distance(const uint8_t *file, int a, int b)
+{
+	int ca = rd16(file + 24 + a * 2), cb = rd16(file + 24 + b * 2);
+	int dr = (ca & 31) - (cb & 31);
+	int dg = ((ca >> 5) & 31) - ((cb >> 5) & 31);
+	int db = ((ca >> 10) & 31) - ((cb >> 10) & 31);
+	return dr * dr + dg * dg + db * db;
 }
 
 static uint32_t rd32(const uint8_t *p)
@@ -84,31 +102,155 @@ int img_load(Image *img, const uint8_t *file, int file_size, int vram_x, int vra
 		gba_free_texture(slot);
 	}
 
-	uint8_t *indices = (uint8_t *)malloc(raw);
-	if (!indices) {
-		res_evict_undrawn();
-		indices = (uint8_t *)malloc(raw);
-		if (!indices)
-			return -1;
-	}
-
-	if (lz4_decode(file + 544, (int)comp, indices, (int)raw) != (int)raw) {
-		free(indices);
+	uint8_t *indices;
+	if (raw > sizeof(gba_backbuffer))
 		return -1;
+	/* El temporal de decodificación (hasta 76,8 KB para una imagen 320x240) no cabe en el heap
+	 * (85,7 KB en total con el capítulo y el resto de la escena residentes), así que se decodifica
+	 * sobre el backbuffer. Solo se pisa entre flips: las cargas van en scene_sync o draw_scene y
+	 * video_flip reescribe la pantalla entera cada cuadro (video_snapshot es local y no guarda el
+	 * cuadro anterior). */
+	indices = (uint8_t *)gba_backbuffer;
+	gba_backbuffer_scratched = 1;
+
+	if (lz4_decode(file + 544, (int)comp, indices, (int)raw) != (int)raw)
+		return -1;
+
+	/* La pantalla de GBA es 3/4 del ancho y 2/3 del alto de los 320x240 del motor: la imagen se
+	 * guarda ya reducida con esa proporción (la misma que usa render_cmd) para que fondo y
+	 * personajes de una escena quepan juntos en el heap. La reducción se hace dentro del propio
+	 * buffer (el destino siempre va por detrás del origen) y después se libera la cola con
+	 * realloc. */
+	int sw = img->w * 3 / 4;
+	int sh = img->h * 2 / 3;
+	if (sw < 1)
+		sw = 1;
+	if (sh < 1)
+		sh = 1;
+	for (int y = 0; y < sh; y++) {
+		const uint8_t *src_row = indices + (y * img->h / sh) * img->w;
+		uint8_t *dst_row = indices + y * sw;
+		for (int x = 0; x < sw; x++)
+			dst_row[x] = src_row[x * img->w / sw];
 	}
 
-	textures[slot].indices = indices;
-	textures[slot].w = img->w;
-	textures[slot].h = img->h;
+	/* Un sprite casi transparente ocupa muchísimo menos como lista de puntos opacos que como
+	 * tile: en las escenas con un fondo grande y un overlay fino (como el cuarto de chapter_x2)
+	 * es lo que permite tener ambos en memoria a la vez (D25). */
+	int sparse = 0;
+	int count = 0;
+	if (img->flags & 1) {
+		for (int i = 0; i < sw * sh; i++) {
+			if (indices[i])
+				count++;
+		}
+		if (count > 0 && (size_t)count * sizeof(GbaPoint) < (size_t)sw * sh) {
+			/* La lista se arma tras el tile reducido (siempre cabe: la condición exige
+			 * count*4 < sw*sh, así que tile + lista < 2*sw*sh = w*h = raw) y luego se
+			 * mueve al principio del buffer para soltar el resto con realloc. */
+			GbaPoint *points = (GbaPoint *)(indices + sw * sh);
+			int n = 0;
+			for (int y = 0; y < sh; y++) {
+				for (int x = 0; x < sw; x++) {
+					uint8_t idx = indices[y * sw + x];
+					if (!idx)
+						continue;
+					points[n].x = (uint8_t)x;
+					points[n].y = (uint8_t)y;
+					points[n].idx = idx;
+					points[n].pad = 0;
+					n++;
+				}
+			}
+			memmove(indices, points, (size_t)n * sizeof(GbaPoint));
+			sparse = 1;
+			count = n;
+		}
+	}
+
+	size_t stored = sparse ? (size_t)count * sizeof(GbaPoint) : (size_t)sw * sh;
+
+	/* Los personajes se guardan a 16 colores (D19) en índices de 4 bits: con el fondo de la
+	 * escena residente (28,8 KB a 256 colores) el temporal de decodificación del fondo solo
+	 * cabe si los sprites densos ocupan la mitad. La paleta nueva son los 15 colores más usados
+	 * de la original; cada píxel pasa al más cercano. */
+	int packed = 0;
+	if (!sparse && (img->flags & 1) && stored > 512) {
+		int usage[256];
+		uint8_t best[256];
+		memset(usage, 0, sizeof(usage));
+		for (int i = 0; i < sw * sh; i++)
+			usage[indices[i]]++;
+
+		int picked[15];
+		int npicked = 0;
+		for (int k = 0; k < 15 && npicked < 15; k++) {
+			int top = -1;
+			for (int i = 1; i < 256; i++) {
+				if (usage[i] > 0 && (top < 0 || usage[i] > usage[top]))
+					top = i;
+			}
+			if (top < 0)
+				break;
+			picked[npicked++] = top;
+			usage[top] = 0;
+		}
+
+		for (int i = 0; i < 256; i++) {
+			best[i] = 0;
+			if (i == 0)
+				continue;
+			int top_dist = -1;
+			for (int k = 0; k < npicked; k++) {
+				int d = color_distance(file, i, picked[k]);
+				if (top_dist < 0 || d < top_dist) {
+					top_dist = d;
+					best[i] = (uint8_t)(k + 1);
+				}
+			}
+		}
+
+		for (int i = 0; i < sw * sh; i += 2) {
+			uint8_t lo = best[indices[i]];
+			uint8_t hi = (i + 1 < sw * sh) ? best[indices[i + 1]] : 0;
+			indices[i / 2] = (uint8_t)(lo | (hi << 4));
+		}
+		for (int k = 0; k < npicked; k++) {
+			uint16_t c = rd16(file + 24 + picked[k] * 2);
+			textures[slot].palette[k + 1] = (uint16_t)((c & 0x7fff) | 0x8000);
+		}
+		textures[slot].palette[0] = 0;
+		packed = 1;
+		stored = ((size_t)sw * sh + 1) / 2;
+	}
+
+	/* La textura definitiva vive en el heap: si no cabe se desaloja una imagen no dibujada y
+	 * se reintenta (D25). */
+	uint8_t *stored_buf = (uint8_t *)malloc(stored);
+	while (!stored_buf && res_evict_undrawn())
+		stored_buf = (uint8_t *)malloc(stored);
+	if (!stored_buf)
+		return -1;
+	memcpy(stored_buf, indices, stored);
+	indices = stored_buf;
+
+	textures[slot].data = indices;
+	textures[slot].w = (uint16_t)sw;
+	textures[slot].h = (uint16_t)sh;
+	textures[slot].sparse = sparse;
+	textures[slot].packed = packed;
+	textures[slot].count = count;
 	textures[slot].in_use = 1;
 
-	for (int i = 0; i < 256; i++) {
-		uint16_t c = rd16(file + 24 + i * 2);
-		/* Formato PS1 BGR555 -> GBA BGR555 (ambos son 0bbbbbgggggrrrrr) */
-		textures[slot].palette[i] = (uint16_t)((c & 0x7fff) | 0x8000);
+	if (!packed) {
+		for (int i = 0; i < 256; i++) {
+			uint16_t c = rd16(file + 24 + i * 2);
+			/* Formato PS1 BGR555 -> GBA BGR555 (ambos son 0bbbbbgggggrrrrr) */
+			textures[slot].palette[i] = (uint16_t)((c & 0x7fff) | 0x8000);
+		}
+		if (img->flags & 1)
+			textures[slot].palette[0] = 0;
 	}
-	if (img->flags & 1)
-		textures[slot].palette[0] = 0;
 
 	img->vram_x = (uint16_t)slot;
 	img->loaded = 1;
@@ -144,7 +286,7 @@ void gba_render_img(const Image *img, int screen_x, int screen_y, int flip, int 
 		return;
 
 	int slot = img->vram_x;
-	if (slot >= GBA_MAX_TEXTURES || !textures[slot].in_use || !textures[slot].indices)
+	if (slot >= GBA_MAX_TEXTURES || !textures[slot].in_use || !textures[slot].data)
 		return;
 
 	GbaTexture *tex = &textures[slot];
@@ -155,13 +297,10 @@ void gba_render_img(const Image *img, int screen_x, int screen_y, int flip, int 
 		dst_h = (img->h * zoom / 64) * 2 / 3;
 		dst_x = (GBA_SCREEN_W - dst_w) / 2;
 		dst_y = 12;
-	} else if (img->big || (img->w >= 300 && img->h >= 170)) {
-		/* Fondo de escena: ocupa los 240x160 de la pantalla completa */
-		dst_x = 0;
-		dst_y = 0;
-		dst_w = GBA_SCREEN_W;
-		dst_h = GBA_SCREEN_H;
 	} else {
+		/* Todas las imágenes (fondos y personajes) se dibujan en su posición del motor 320x240
+		 * escalada 3/4 x y 2/3 y, como el resto de los comandos; la textura ya está
+		 * pre-escalada, así que a zoom normal se copia 1:1. */
 		int fw = img->full_w;
 		int eff_x = screen_x + (flip ? (fw - img->x - img->w) * zoom / 64 : img->x * zoom / 64);
 		int eff_y = screen_y + img->y * zoom / 64;
@@ -174,6 +313,36 @@ void gba_render_img(const Image *img, int screen_x, int screen_y, int flip, int 
 	if (dst_w <= 0 || dst_h <= 0)
 		return;
 
+	if (tex->sparse) {
+		/* Lista de puntos opacos: misma proyección que el muestreo del tile, un punto por
+		 * píxel opaco de la imagen pre-escalada. */
+		const GbaPoint *points = (const GbaPoint *)tex->data;
+		for (int i = 0; i < tex->count; i++) {
+			int sx = points[i].x;
+			if (flip)
+				sx = tex->w - 1 - sx;
+			int px = dst_x + sx * dst_w / tex->w;
+			int py = dst_y + points[i].y * dst_h / tex->h;
+			if (px < 0 || px >= GBA_SCREEN_W || py < 0 || py >= GBA_SCREEN_H)
+				continue;
+			uint16_t c = tex->palette[points[i].idx];
+			if (!(c & 0x8000))
+				continue;
+			if (brightness < 256) {
+				int cr = ((c & 31) * brightness) >> 8;
+				int cg = (((c >> 5) & 31) * brightness) >> 8;
+				int cb = (((c >> 10) & 31) * brightness) >> 8;
+				c = (uint16_t)(cr | (cg << 5) | (cb << 10) | 0x8000);
+			}
+			uint16_t *dst = gba_backbuffer + py * GBA_SCREEN_W + px;
+			if (img->flags & IMG_TRANSLUCENT)
+				*dst = gba_blend50(*dst, (uint16_t)(c & 0x7fff));
+			else
+				*dst = (uint16_t)(c & 0x7fff);
+		}
+		return;
+	}
+
 	int x0 = dst_x < 0 ? 0 : dst_x;
 	int y0 = dst_y < 0 ? 0 : dst_y;
 	int x1 = dst_x + dst_w > GBA_SCREEN_W ? GBA_SCREEN_W : dst_x + dst_w;
@@ -181,22 +350,28 @@ void gba_render_img(const Image *img, int screen_x, int screen_y, int flip, int 
 
 	for (int py = y0; py < y1; py++) {
 		int dy = py - dst_y;
-		int sy = dy * img->h / dst_h;
-		if (sy >= img->h)
-			sy = img->h - 1;
+		int sy = dy * tex->h / dst_h;
+		if (sy >= tex->h)
+			sy = tex->h - 1;
 
-		const uint8_t *src_row = tex->indices + sy * img->w;
+		const uint8_t *src_row = tex->packed ? tex->data + (size_t)sy * tex->w / 2 : tex->data + sy * tex->w;
 		uint16_t *dst_row = gba_backbuffer + py * GBA_SCREEN_W;
 
 		for (int px = x0; px < x1; px++) {
 			int dx = px - dst_x;
-			int sx = flip ? (img->w - 1 - (dx * img->w / dst_w)) : (dx * img->w / dst_w);
+			int sx = flip ? (tex->w - 1 - (dx * tex->w / dst_w)) : (dx * tex->w / dst_w);
 			if (sx < 0)
 				sx = 0;
-			if (sx >= img->w)
-				sx = img->w - 1;
+			if (sx >= tex->w)
+				sx = tex->w - 1;
 
-			uint8_t idx = src_row[sx];
+			uint8_t idx;
+			if (tex->packed) {
+				uint8_t pair = src_row[sx / 2];
+				idx = (sx & 1) ? (pair >> 4) : (pair & 0x0F);
+			} else {
+				idx = src_row[sx];
+			}
 			if (idx == 0 && (img->flags & 1))
 				continue;
 			uint16_t c = tex->palette[idx];
@@ -228,9 +403,6 @@ static void draw_ex(const Image *img, int layer, int screen_x, int screen_y, int
 	res_mark_drawn(img);
 
 	int is_title = (layer == LAYER_TEXT && screen_y < 120);
-	if (is_title)
-		gba_in_title = 1;
-
 	gba_queue_img(img, layer, screen_x, screen_y, flip, zoom, r, g, b, angle, img_brightness, is_title);
 }
 

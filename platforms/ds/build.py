@@ -27,6 +27,8 @@ def prepare_work(autotest_path: Path | None = None) -> None:
             target = WORK / folder
             if target.exists():
                 shutil.rmtree(target)
+        if (WORK / "snoot.nds").exists():
+            (WORK / "snoot.nds").unlink()
     WORK.mkdir(parents=True, exist_ok=True)
 
     shutil.copy2(SRC / "Makefile", WORK / "Makefile")
@@ -82,8 +84,9 @@ def build(trace: bool = False, autotest_path: Path | None = None) -> Path:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--trace", action="store_true")
+    parser.add_argument("--autotest-path", type=Path, default=None)
     args = parser.parse_args()
-    print(build(args.trace))
+    print(build(args.trace, args.autotest_path))
     return 0
 
 

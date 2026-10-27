@@ -12,6 +12,8 @@ static int top_bg_id;
 static int bottom_bg_id;
 static int frame_count = 0;
 static int vblank_count = 0;
+int ds_in_dialog = 0;
+int ds_in_title = 0;
 
 uint16_t ds_blend50(uint16_t c1, uint16_t c2)
 {
@@ -29,14 +31,21 @@ void ds_draw_glyph(int layer, int x, int y, int u, int v, int w, int h, int r, i
 		dy = y * 4 / 5;
 	} else {
 		target = bottom_fb;
-		if (y >= 168) {
-			dy = y - 168 + 20;
-			dx = x;
+		if (ds_in_dialog) {
+			dx = 14 + (x - 8) * 4 / 5;
+			dy = (y - 168) + 26;
+		} else if (ds_in_title) {
+			dx = x * 4 / 5;
+			dy = (y - 35) * 4 / 5;
 		} else {
 			dx = x * 4 / 5;
 			dy = y * 4 / 5;
 		}
 	}
+
+	int fr = (r * 2 > 255) ? 255 : (r * 2);
+	int fg = (g * 2 > 255) ? 255 : (g * 2);
+	int fb = (b * 2 > 255) ? 255 : (b * 2);
 
 	for (int gy = 0; gy < h; gy++) {
 		int py = dy + gy;
@@ -61,15 +70,21 @@ void ds_draw_glyph(int layer, int x, int y, int u, int v, int w, int h, int r, i
 				continue;
 
 			if (a >= 15) {
-				target[py * DS_SCREEN_W + px] = (uint16_t)ARGB16(1, r >> 3, g >> 3, b >> 3);
+				target[py * DS_SCREEN_W + px] = (uint16_t)ARGB16(1, fr >> 3, fg >> 3, fb >> 3);
 			} else {
 				uint16_t bg = target[py * DS_SCREEN_W + px];
 				int bg_r = (bg & 31) << 3;
 				int bg_g = ((bg >> 5) & 31) << 3;
 				int bg_b = ((bg >> 10) & 31) << 3;
-				int out_r = (r * a + bg_r * (15 - a)) / (15 * 8);
-				int out_g = (g * a + bg_g * (15 - a)) / (15 * 8);
-				int out_b = (b * a + bg_b * (15 - a)) / (15 * 8);
+				int out_r = (fr * a + bg_r * (15 - a)) / (15 * 8);
+				int out_g = (fg * a + bg_g * (15 - a)) / (15 * 8);
+				int out_b = (fb * a + bg_b * (15 - a)) / (15 * 8);
+				if (out_r > 31)
+					out_r = 31;
+				if (out_g > 31)
+					out_g = 31;
+				if (out_b > 31)
+					out_b = 31;
 				target[py * DS_SCREEN_W + px] = (uint16_t)ARGB16(1, out_r, out_g, out_b);
 			}
 		}
@@ -107,11 +122,12 @@ void video_rect(int layer, int x, int y, int w, int h, int r, int g, int b, int 
 		rh = h * 4 / 5;
 	} else {
 		target = bottom_fb;
-		if (y >= 168) {
-			ry = y - 168 + 20;
-			rx = x * 4 / 5;
-			rw = w * 4 / 5;
-			rh = (h > 60) ? 160 : (h * 4 / 5);
+		if (layer == LAYER_BOX && y == 168) {
+			ds_in_dialog = 1;
+			rx = 6;
+			rw = DS_SCREEN_W - 12;
+			ry = 18;
+			rh = 156;
 		} else {
 			rx = x * 4 / 5;
 			ry = y * 4 / 5;
@@ -168,15 +184,22 @@ void video_triangle_down(int layer, int x, int y, int w, int h, int r, int g, in
 {
 	(void)layer;
 	int dx, dy;
-	if (y >= 168) {
-		dy = y - 168 + 20;
+	if (ds_in_dialog) {
+		dx = 232;
+		dy = 154;
+	} else if (ds_in_title) {
 		dx = x * 4 / 5;
+		dy = (y - 35) * 4 / 5;
 	} else {
 		dx = x * 4 / 5;
 		dy = y * 4 / 5;
 	}
 
-	uint16_t col = (uint16_t)ARGB16(1, r >> 3, g >> 3, b >> 3);
+	int tr = (r * 2 > 255) ? 255 : (r * 2);
+	int tg = (g * 2 > 255) ? 255 : (g * 2);
+	int tb = (b * 2 > 255) ? 255 : (b * 2);
+	uint16_t col = (uint16_t)ARGB16(1, tr >> 3, tg >> 3, tb >> 3);
+
 	for (int row = 0; row < h; row++) {
 		int py = dy + row;
 		if (py < 0 || py >= DS_SCREEN_H)
@@ -203,6 +226,8 @@ void video_flip(void)
 		bottom_fb[i] = (uint16_t)ARGB16(1, 4, 6, 12);
 	}
 
+	ds_in_dialog = 0;
+	ds_in_title = 0;
 	vblank_count++;
 	frame_count++;
 }

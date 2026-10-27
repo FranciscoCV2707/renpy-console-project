@@ -144,6 +144,7 @@ static void draw_ex(const Image *img, int layer, int screen_x, int screen_y, int
 	int dst_x, dst_y, dst_w, dst_h;
 
 	if (layer == LAYER_TEXT && screen_y < 120) {
+		ds_in_title = 1;
 		dst_w = (img->w * zoom / 64) * 4 / 5;
 		dst_h = (img->h * zoom / 64) * 4 / 5;
 		dst_x = (DS_SCREEN_W - dst_w) / 2;
@@ -153,7 +154,7 @@ static void draw_ex(const Image *img, int layer, int screen_x, int screen_y, int
 		int eff_x = screen_x + (flip ? (fw - img->x - img->w) * zoom / 64 : img->x * zoom / 64);
 		int eff_y = screen_y + img->y * zoom / 64;
 		dst_x = eff_x * 4 / 5;
-		dst_y = eff_y * 4 / 5;
+		dst_y = ds_in_title ? ((eff_y - 35) * 4 / 5) : (eff_y * 4 / 5);
 		dst_w = (img->w * zoom / 64) * 4 / 5;
 		dst_h = (img->h * zoom / 64) * 4 / 5;
 	}
@@ -170,7 +171,9 @@ static void draw_ex(const Image *img, int layer, int screen_x, int screen_y, int
 			sy = img->h - 1;
 
 		const uint8_t *src_row = tex->indices + sy * img->w;
-		uint16_t *dst_row = top_fb + py * DS_SCREEN_W;
+		uint16_t *dst_base =
+		    ((layer == LAYER_TEXT && screen_y >= 120) || layer == LAYER_BOX) ? bottom_fb : top_fb;
+		uint16_t *dst_row = dst_base + py * DS_SCREEN_W;
 
 		for (int dx = 0; dx < dst_w; dx++) {
 			int px = dst_x + dx;

@@ -348,6 +348,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-604 | 6 | beam | Xbox clásica con nxdk | T-405 |
 | T-605 | 6 | beam | Switch con el backend SDL (devkitA64) | T-405 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
+| T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 
 **Primera oleada de Beam (5 en paralelo, tras la prueba de humo):** T-101, T-202, T-205, T-301, T-402; T-206 entra

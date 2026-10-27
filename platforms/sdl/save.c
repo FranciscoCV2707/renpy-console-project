@@ -89,7 +89,11 @@ SaveResult save_write(uint8_t *d)
 		char *slash = strrchr(folder, '/');
 		if (slash) {
 			*slash = 0;
+#ifdef __SWITCH__
+			mkdir(folder, 0777);
+#else
 			mkdir(folder);
+#endif
 		}
 	}
 	f = fopen(p, "wb");

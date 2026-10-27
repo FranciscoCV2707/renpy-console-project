@@ -16,7 +16,12 @@ static FILE *open_file(const char *n)
 {
 	const char *root = getenv("VN_DATA_DIR");
 	char p[600];
-	snprintf(p, sizeof(p), "%s/%s", root && *root ? root : ".", n);
+#if defined(__SWITCH__)
+	const char *default_root = "sdmc:/switch/snoot/data";
+#else
+	const char *default_root = ".";
+#endif
+	snprintf(p, sizeof(p), "%s/%s", root && *root ? root : default_root, n);
 	return fopen(p, "rb");
 }
 static int file_size(const char *n)

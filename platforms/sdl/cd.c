@@ -5,7 +5,11 @@
 #include <string.h>
 #include <ctype.h>
 
+#if defined(__SWITCH__)
+static char root[512] = "sdmc:/switch/snoot/data";
+#else
 static char root[512] = ".";
+#endif
 static char filename[600];
 volatile uint32_t cd_sync_vblanks, cd_wait_vblanks;
 int cd_init(void)

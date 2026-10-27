@@ -15,7 +15,7 @@
 | 3DS | A | 6 | 400×240 + 320×240 | 128/256 MB | libctru + citro2d | `devkitpro/devkitarm` | Azahar | log de debug | Pendiente |
 | Wii | A | 6 | 640×480 | 24+64 MB | libogc | `devkitpro/devkitppc` | Dolphin (`-b -e <dol>`, verificar) | OSReport | Pendiente |
 | Xbox clásica | A | 6 | 640×480 | 64 MB unificada | nxdk (trae SDL2) | WSL2 (verificar) | xemu | DbgPrint (verificar) | Pendiente |
-| Switch 1 | A | 6 | 1280×720 | 4 GB | libnx | `devkitpro/devkita64` | hardware propio | nxlink | Pendiente |
+| Switch 1 | A | 6 | 1280×720 | 4 GB | libnx + SDL2 (switch-sdl2) | `devkitpro/devkita64@sha256:1fc388c3a0d34bd2045a6dadcb1020e069d5f876a187fd705de14b4440c00282` | hardware propio | nxlink | Backend SDL compila a `snoot.nro` (sin pruebas en hardware) |
 | GBA | C | 7 | 240×160 | 32 KB IWRAM + 256 KB EWRAM / 96 KB; ROM ≤ 32 MB | Butano | `devkitpro/devkitarm` | mGBA (Lua) | registros de debug de mGBA | Pendiente |
 | DS | C | 7 | 2× 256×192 | 4 MB / 656 KB | BlocksDS | imagen de BlocksDS (verificar) | melonDS | consola de debug | Pendiente |
 | GB / GBC | D | 7 | 160×144 | 8/32 KB WRAM; ROM ≤ 8 MB (MBC5) | GBDK-2020 | release Windows | SameBoy / BizHawk / Mesen 2 | debug del emulador | Pendiente |

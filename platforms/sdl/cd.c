@@ -13,6 +13,10 @@ int cd_init(void)
 	const char *p = getenv("VN_DATA_DIR");
 	if (p && *p)
 		snprintf(root, sizeof(root), "%s", p);
+#ifdef NXDK
+	else
+		snprintf(root, sizeof(root), "D:/data");
+#endif
 	return 1;
 }
 static void make_path(const char *path)

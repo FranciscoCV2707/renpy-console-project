@@ -1,7 +1,11 @@
 #include "img.h"
 #include "video.h"
 
+#ifdef NXDK
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include "lz4.h"

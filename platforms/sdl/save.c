@@ -2,7 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef NXDK
+#include <direct.h>
+#define mkdir(p) _mkdir(p)
+#else
 #include <sys/stat.h>
+#endif
 
 static char dir[512] = "build/pc/save";
 static unsigned seq;

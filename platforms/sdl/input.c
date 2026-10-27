@@ -1,6 +1,10 @@
 #include "input.h"
 #include "video.h"
+#ifdef NXDK
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,6 +1,10 @@
 #include "video.h"
 
+#ifdef NXDK
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -73,8 +77,13 @@ void video_init(void)
 		if (headless_surface)
 			renderer = SDL_CreateSoftwareRenderer(headless_surface);
 	} else {
+#ifdef NXDK
+		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480,
+		                          SDL_WINDOW_SHOWN);
+#else
 		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720,
 		                          SDL_WINDOW_SHOWN);
+#endif
 		if (window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 		if (!renderer && window)
@@ -183,6 +192,11 @@ void video_flip(void)
 					SDL_SetRenderDrawColor(renderer, d->r, d->g, d->b, d->blend ? 128 : 255);
 					SDL_RenderFillRect(renderer, &dst);
 				} else if (d->type == 2) {
+#ifdef NXDK
+					SDL_Rect tr = {d->x, d->y, d->w > 0 ? d->w : 1, d->h > 0 ? d->h : 1};
+					SDL_SetRenderDrawColor(renderer, d->r, d->g, d->b, 255);
+					SDL_RenderFillRect(renderer, &tr);
+#else
 					SDL_Vertex v[3] = {{{(float)d->x, (float)d->y},
 					                    {(Uint8)d->r, (Uint8)d->g, (Uint8)d->b, 255},
 					                    {0, 0}},
@@ -193,6 +207,7 @@ void video_flip(void)
 					                    {(Uint8)d->r, (Uint8)d->g, (Uint8)d->b, 255},
 					                    {0, 0}}};
 					SDL_RenderGeometry(renderer, NULL, v, 3, NULL, 0);
+#endif
 				} else if (d->type == 3) {
 					SDL_SetTextureColorMod(d->texture, d->r, d->g, d->b);
 					SDL_SetTextureBlendMode(d->texture,

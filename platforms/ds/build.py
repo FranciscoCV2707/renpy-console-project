@@ -22,8 +22,17 @@ def prepare_work(autotest_path: Path | None = None) -> None:
         raise FileNotFoundError("faltan los datos del disco PS1; ejecuta primero ctl run --target ps1")
 
     if WORK.exists():
-        # Keep build objects if Makefile unchanged to speed up, or clear
-        for folder in ("source", "engine_core", "engine_app", "engine_modules", "games_snoot", "include", "generated", "nitrofs"):
+        for folder in (
+            "build",
+            "source",
+            "engine_core",
+            "engine_app",
+            "engine_modules",
+            "games_snoot",
+            "include",
+            "generated",
+            "nitrofs",
+        ):
             target = WORK / folder
             if target.exists():
                 shutil.rmtree(target)

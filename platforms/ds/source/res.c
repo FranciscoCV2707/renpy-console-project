@@ -68,6 +68,9 @@ const Image *res_get(int id)
 	if (img_load(&cache[slot].image, file_buf, n, 0, 0, 0) != 0)
 		return NULL;
 
+	if (cache[slot].image.full_w > 320 || cache[slot].image.full_h > 240)
+		cache[slot].image.big = 1;
+
 	cache[slot].id = id + 1;
 	cache[slot].last_used = ++tick_counter;
 	return &cache[slot].image;

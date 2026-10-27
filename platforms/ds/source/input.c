@@ -1,5 +1,7 @@
 #include "input.h"
+#include "ds_internal.h"
 #include <nds.h>
+#include <stdio.h>
 #include <string.h>
 
 volatile uint32_t autotest_autoplay, autotest_quit;
@@ -79,6 +81,16 @@ void input_update(void)
 	frame++;
 
 	if (autotest_quit) {
+		static int done_written = 0;
+		if (!done_written) {
+			done_written = 1;
+			FILE *f = fopen("fat:/done.txt", "w");
+			if (f) {
+				fputs("AUTOTEST_DONE\n", f);
+				fclose(f);
+			}
+			ds_close_trace();
+		}
 	}
 }
 

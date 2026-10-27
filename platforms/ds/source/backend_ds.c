@@ -3,8 +3,19 @@
 #include "video.h"
 #include "ds_internal.h"
 #include <nds.h>
+#include <fat.h>
 #include <stdio.h>
 #include <string.h>
+
+static FILE *trace_file = NULL;
+
+void ds_close_trace(void)
+{
+	if (trace_file) {
+		fclose(trace_file);
+		trace_file = NULL;
+	}
+}
 
 static int file_size(const char *name)
 {
@@ -43,7 +54,19 @@ static void glyphs_end(int layer)
 
 static void ds_log_line(const char *msg)
 {
-	(void)msg;
+	FILE *f = fopen("fat:/trace.txt", "a");
+	if (!f)
+		f = fopen("fat:/trace.txt", "w");
+	if (!f)
+		f = fopen("trace.txt", "a");
+	if (!f)
+		f = fopen("trace.txt", "w");
+	if (f) {
+		if (msg)
+			fputs(msg, f);
+		fputc('\n', f);
+		fclose(f);
+	}
 }
 
 static unsigned int get_time_ms(void)

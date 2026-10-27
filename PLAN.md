@@ -355,6 +355,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-702 | 7 | codex | Empaquetador de recursos de GBA (LZ77, modo 4, PCM 8 kHz) | T-701 |
 | T-703 | 7 | vibe | Presupuesto del demake de GB/GBC (ROM MBC5 de 8 MB) | T-701 |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
+| T-902 | — | vibe | Guía de instalación para jugadores, por consola | — |
 
 **Primera oleada de Beam (5 en paralelo, tras la prueba de humo):** T-101, T-202, T-205, T-301, T-402; T-206 entra
 en cuanto se libere uno. Claude sigue con T-102..T-105 en cuanto llegue T-101. Si aparecen errores 429 o

@@ -8,66 +8,6 @@ from PIL import Image
 from tools.demake import gb_budget
 
 
-def _lz77_decode(data: bytes) -> bytes:
-    """Decodificador de referencia del LZ77 propio de gb_budget: tamano en 32 bits
-    little-endian y bloques de flags + 8 unidades."""
-    size = int.from_bytes(data[:4], "little")
-    out = bytearray()
-    i = 4
-    while len(out) < size:
-        flags = data[i]
-        i += 1
-        for bit in range(7, -1, -1):
-            if len(out) >= size:
-                break
-            if flags & (1 << bit):
-                out.append(data[i])
-                i += 1
-            else:
-                token = (data[i] << 8) | data[i + 1]
-                i += 2
-                length = (token >> 12) + 3
-                disp = (token & 0xFFF) + 1
-                assert 3 <= length <= 18, "longitud fuera de rango"
-                assert 1 <= disp <= 4096, "desplazamiento fuera de la ventana"
-                assert disp <= len(out), "referencia anterior al inicio"
-                for _ in range(length):
-                    out.append(out[-disp])
-    assert len(out) == size
-    return bytes(out)
-
-
-def test_lz77_roundtrip():
-    rng = random.Random(42)
-    data = rng.randbytes(1000) + b"lorem ipsum " * 300 + bytes(5000) + rng.randbytes(200)
-    compressed = gb_budget.lz77(data)
-    assert compressed[:4] == len(data).to_bytes(4, "little")
-    assert _lz77_decode(compressed) == data
-    assert len(compressed) < len(data)
-
-
-def test_lz77_known_vector():
-    # 'a' literal + retroreferencia de longitud 3 y desplazamiento 1.
-    assert gb_budget.lz77(b"aaaa") == bytes([0x04, 0x00, 0x00, 0x00, 0x80, 0x61, 0x00, 0x00])
-
-
-def test_lz77_empty():
-    assert gb_budget.lz77(b"") == bytes(4)
-
-
-def test_lz77_bloque_grande_rechazado():
-    class TooBig:
-        def __len__(self):
-            return 1 << 32
-
-    try:
-        gb_budget.lz77(TooBig())  # type: ignore[arg-type]
-    except ValueError as exc:
-        assert "4 GiB" in str(exc)
-    else:
-        raise AssertionError("debio rechazar bloques de mas de 4 GiB")
-
-
 def test_pack_2bpp():
     # Pan Docs (Tile Data): byte 0 = bit 0 del color, byte 1 = bit 1, bit 7 = pixel izquierdo.
     row = bytes([1, 0, 2, 3, 0, 0, 1, 2])

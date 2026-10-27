@@ -4,7 +4,7 @@ Mide si Snoot cabe en una ROM dual GB/GBC con MBC5 de 8 MB con la fidelidad
 de D19: fondos en tiles de 8x8 a 2 bits con tramado ordenado Bayer 4x4 de
 4 tonos, retratos de 48x48 en vez de sprites completos, efectos simples y
 sin musica original, y el texto de ``tl/es`` a 1 byte por glifo comprimido
-con un LZ77 propio (la GB no trae descompresion por hardware).
+con el LZ77 de tools/demake/lz77.py (el de la BIOS de GBA; en GB se descomprime por software).
 
 Datos de hardware citados de Pan Docs (gbdev.io/pandocs):
 - Pantalla: "an area of 160x144 pixels of this picture can be displayed on
@@ -27,6 +27,7 @@ from PIL import Image
 
 from tools.assetpipe.manifest import classify_kind, inventory, source_file
 from tools.demake.gba_budget import SPRITE_FOLDERS, _sample
+from .lz77 import bios_lz77
 
 CART_BYTES = 8 * 1024 * 1024  # MBC5 (Pan Docs, MBC5)
 SCREEN_W, SCREEN_H = 160, 144
@@ -56,71 +57,6 @@ BAYER4 = ((0, 8, 2, 10), (12, 4, 14, 6), (3, 11, 1, 9), (15, 7, 13, 5))
 
 # Paleta de muestra: tono 0 = negro, 3 = blanco (los indices vienen de la luminancia).
 _GRAY_PALETTE = [value for tone in (0, 85, 170, 255) for value in (tone, tone, tone)]
-
-
-def lz77(data: bytes) -> bytes:
-    """Comprime ``data`` con un LZ77 de software para la ROM de GB (sin BIOS, el
-    formato es propio): tamano sin comprimir en 32 bits little-endian y bloques de
-    byte de flags seguido de 8 unidades; bit a 1 (MSB primero) = byte literal, bit
-    a 0 = par de bytes con (longitud-3) en el nibble alto y (desplazamiento-1) en
-    12 bits, big-endian. Ventana de 4096, longitudes de 3 a 18."""
-    size = len(data)
-    if size > 0xFFFFFFFF:
-        raise ValueError(f"LZ77: maximo 4 GiB, recibe {size} bytes")
-    out = bytearray(size.to_bytes(4, "little"))
-    head: dict[int, int] = {}
-    prev = [-1] * size
-    i = 0
-    while i < size:
-        flags = 0
-        block = bytearray()
-        for bit in range(7, -1, -1):
-            if i >= size:
-                break
-            length, disp = _longest_match(data, i, size, head, prev)
-            if length >= LZ_MIN_MATCH:
-                block.append(((length - LZ_MIN_MATCH) << 4) | ((disp - 1) >> 8))
-                block.append((disp - 1) & 0xFF)
-                for pos in range(i, min(i + length, size - LZ_MIN_MATCH + 1)):
-                    _insert(data, head, prev, pos)
-                i += length
-            else:
-                flags |= 1 << bit
-                block.append(data[i])
-                if i + LZ_MIN_MATCH <= size:
-                    _insert(data, head, prev, i)
-                i += 1
-        out.append(flags)
-        out += block
-    return bytes(out)
-
-
-def _insert(data: bytes, head: dict[int, int], prev: list[int], pos: int) -> None:
-    key = (data[pos] << 16) | (data[pos + 1] << 8) | data[pos + 2]
-    prev[pos] = head.get(key, -1)
-    head[key] = pos
-
-
-def _longest_match(data: bytes, i: int, n: int, head: dict[int, int], prev: list[int]) -> tuple[int, int]:
-    """La coincidencia mas larga en la ventana de 4096 bytes desde ``i``: (longitud, desplazamiento)."""
-    if i + LZ_MIN_MATCH > n:
-        return 0, 0
-    max_len = min(LZ_MAX_MATCH, n - i)
-    best_len, best_disp = 0, 0
-    pos = head.get((data[i] << 16) | (data[i + 1] << 8) | data[i + 2], -1)
-    low = i - LZ_WINDOW
-    chain = 0
-    while pos >= 0 and pos >= low and chain < LZ_MAX_CHAIN:
-        length = LZ_MIN_MATCH
-        while length < max_len and data[pos + length] == data[i + length]:
-            length += 1
-        if length > best_len:
-            best_len, best_disp = length, i - pos
-            if length >= max_len:
-                break
-        pos = prev[pos]
-        chain += 1
-    return best_len, best_disp
 
 
 def bayer4_indices(img: Image.Image, width: int, height: int) -> bytes:
@@ -345,7 +281,7 @@ def measure_text(game_dir: Path, language: str) -> tuple[dict, int]:
     compressed = 0
     for text in contents:
         raw += len(text)
-        compressed += len(lz77(encode_glyphs(text, glyph_ids)))
+        compressed += len(bios_lz77(encode_glyphs(text, glyph_ids)))
     category = {
         "name": "texto",
         "files": len(paths),

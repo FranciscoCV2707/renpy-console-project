@@ -352,7 +352,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-608 | 6 | agy | `ctl run --target vita` con Vita3K | T-601 |
 | T-609 | 6 | beam | PS4 en `sdl_target.h` (fusión de T-606) | T-606, T-407 |
 | T-607 | 6 | beam | PS3 con el backend SDL (PSL1GHT) | T-407 |
-| T-610 | 6 | beam | `ctl run --target 3ds` con Azahar | T-602 |
+| T-610 | 6 | vibe | `ctl run --target 3ds` con Azahar | T-602 |
 | T-611 | 6 | vibe | `ctl run --target wii` con Dolphin | T-603 |
 | T-612 | 6 | agy | Vita sin `libshacccg.suprx` (renderer GXM de SDL2) | T-608 |
 | T-613 | 6 | vibe | `ctl run --target ps3` con RPCS3 | T-607 |

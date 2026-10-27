@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 
 from .snoot_map import load_map, load_spanish
-from .trace import normalize_engine_full, normalize_renpy_full, parse_file
+from .trace import engine_background_names, normalize_engine_full, normalize_renpy_full, parse_file
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_REFERENCE = REPO / "tests" / "reference" / "traces" / "snoot" / "chapter_x2.trace"
@@ -35,8 +35,10 @@ def compare_files(engine_path: Path, renpy_path: Path = DEFAULT_REFERENCE) -> tu
     """Normaliza y agrupa las diferencias entre una traza de motor y Ren'Py."""
     snoot_map = load_map()
     spanish = load_spanish()
-    engine = normalize_engine_full(parse_file(engine_path), snoot_map, spanish)
-    renpy = normalize_renpy_full(parse_file(renpy_path), spanish)
+    engine_events = parse_file(engine_path)
+    engine = normalize_engine_full(engine_events, snoot_map, spanish)
+    renpy = normalize_renpy_full(parse_file(renpy_path), spanish,
+                                 engine_background_names(engine_events, snoot_map))
     return diff_rows(engine, renpy)
 
 

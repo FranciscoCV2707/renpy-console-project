@@ -41,3 +41,7 @@ compare:
 Los campos permitidos son `bg`, `sprites` y `music`. La excepción solo permite el par de valores escrito; otros
 cambios en esa línea siguen produciendo `FAIL`. Sin una excepción coincidente, el reporte señala el primer `SAY` y
 campo divergente.
+
+### Normalización verificada en T-628
+
+Un `SHOW` sin atributos no cambia el fondo: guiones como X3 muestran personajes de imagen única y capas `dimmer_*`. El fondo se reconoce por el estado `SCENE` del motor y por tags de escena conocidos; `room` también se trata como fondo. Para `fangphonevideocall` y `layeredanonphone` se quitan del nombre compilado solo los atributos `default` comprobados en `src/image_definitions.rpy`; los atributos del teléfono se ordenan porque sus grupos son independientes. La música se normaliza como conjunto ordenado con prefijo `mix:` y se quitan prefijos `<sync ...>`. Esta forma común no recupera canales que el hook no registró; véase la revisión de 14 rutas en `docs/fidelidad.md`.

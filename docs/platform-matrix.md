@@ -19,7 +19,7 @@
 | GBA | C | 7 | 240×160 | 32 KB IWRAM + 256 KB EWRAM / 96 KB; ROM ≤ 32 MB | Butano | `devkitpro/devkitarm` | mGBA (Lua) | registros de debug de mGBA | Pendiente |
 | DS | C | 7 | 2× 256×192 | 4 MB / 656 KB | BlocksDS | imagen de BlocksDS (verificar) | melonDS | consola de debug | Pendiente |
 | GB / GBC | D | 7 | 160×144 | 8/32 KB WRAM; ROM ≤ 8 MB (MBC5) | GBDK-2020 | release Windows | SameBoy / BizHawk / Mesen 2 | debug del emulador | Pendiente |
-| PS3 | R | — | — | — | PSL1GHT | — | RPCS3 | — | Investigación |
+| PS3 | R | 6 | 1280×720 | 256 MB / 256 MB | PSL1GHT v2 | `hldtux/ps3dev-sdl2@sha256:2b6154588148336d559fbd37f4f52a3418fa96a86906b5019160baef22c75e55` | RPCS3 | stdout/RPCS3.log | Compila con backend SDL (T-607); `build/ps3/snoot.self` y `build/ps3/snoot.pkg` |
 | PS4 | R | — | — | — | OpenOrbis | — | shadPS4 | — | Investigación |
 | PS5 | R | — | — | — | PS5SDK experimental | — | sin emulador general | — | Investigación |
 | Xbox 360 | R | — | — | — | libxenon (bare-metal) | — | Xenia | — | Investigación |

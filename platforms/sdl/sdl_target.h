@@ -21,7 +21,7 @@
 
 /* PC */
 #if !defined(__PSP__) && !defined(__vita__) && !defined(__3DS__) && !defined(__WII__) && !defined(NXDK) &&             \
-    !defined(__SWITCH__)
+    !defined(__SWITCH__) && !defined(__PSL1GHT__)
 #define SDL_TARGET_DATA_DIR             "."
 #define SDL_TARGET_SAVE_DIR             "build/pc/save"
 #define SDL_TARGET_WINDOW_W             960
@@ -154,8 +154,30 @@
 #define SDL_TARGET_HAS_RENDER_GEOMETRY  1
 #define SDL_TARGET_MKDIR_WITH_MODE      1
 
+/* PS3 (PSL1GHT) */
+#elif defined(__PSL1GHT__)
+#define SDL_TARGET_DATA_DIR             "/dev_hdd0/game/SNOT00001/USRDIR/data"
+#define SDL_TARGET_SAVE_DIR             "/dev_hdd0/game/SNOT00001/USRDIR/save"
+#define SDL_TARGET_WINDOW_W             1280
+#define SDL_TARGET_WINDOW_H             720
+#define SDL_TARGET_MANUAL_SCALE         1
+#define SDL_TARGET_USE_LOGICAL_SIZE     0
+#define SDL_TARGET_INIT_FLAGS           (SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO)
+#define SDL_TARGET_SET_MAIN_READY       1
+#define SDL_TARGET_RENDERER_FLAGS       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
+#define SDL_TARGET_HAS_GAME_CONTROLLER  1
+#define SDL_TARGET_FLUSH_STDOUT_ENABLED 1
+#define SDL_TARGET_PSP_MODULE_INFO      0
+#define SDL_TARGET_NEEDS_FAT_INIT       0
+#define SDL_TARGET_HAS_RENDER_GEOMETRY  1
+#define SDL_TARGET_MKDIR_WITH_MODE      1
+#define SDL_TARGET_VIEW_X               160
+#define SDL_TARGET_VIEW_Y               0
+#define SDL_TARGET_VIEW_W               960
+#define SDL_TARGET_VIEW_H               720
+
 #else
-#error "Consola SDL no soportada: define __PSP__, __vita__, __3DS__, __WII__, NXDK o __SWITCH__"
+#error "Consola SDL no soportada: define __PSP__, __vita__, __3DS__, __WII__, NXDK, __SWITCH__ o __PSL1GHT__"
 #endif
 
 #if SDL_TARGET_SET_MAIN_READY

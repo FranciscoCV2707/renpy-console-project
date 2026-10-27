@@ -18,7 +18,8 @@ timeout_min = 90          # T-302 corre Ren'Py de verdad
 [agents.codex]
 cmd = ["codex", "exec", "--sandbox", "workspace-write", "-C", "{worktree}", "{prompt}"]
 # Su sandbox de Windows no deja escribir en .git ni en .agents (ni con --add-dir) ni usar el temporal global:
-# el commit lo hace dispatch.py y las pruebas usan .tmp/ del worktree
+# el commit lo hace dispatch.py y las pruebas usan .tmp/ del worktree. Tampoco llega a Docker (pipe denegado, T-502):
+# las tareas que compilan en Docker van a Kilo o Beam
 auto_commit = true
 env = { TMP = "{worktree}/.tmp", TEMP = "{worktree}/.tmp" }
 max_parallel = 1
@@ -33,20 +34,20 @@ timeout_min = 120
 [agents.vibe]
 cmd = ["vibe", "--prompt", "{prompt}", "--max-turns", "40", "--output", "json", "--trust", "--auto-approve"]
 max_parallel = 1
-timeout_min = 45
+timeout_min = 90
 
 [agents.agy]
 # agy -p ya responde sin terminal en 1.4.7 (probado). Para tareas largas o de interfaz, mejor una terminal de Orca.
 cmd = ["agy", "-p", "{prompt}", "--mode", "auto", "--print-timeout", "2400s"]
 max_parallel = 1
-timeout_min = 45
+timeout_min = 90
 
 [agents.claude]
 # Gasta la cuota de Claude: solo revisiones puntuales o desbloqueos
 # auto: acceptEdits no deja correr git commit ni las pruebas en modo -p
 cmd = ["claude", "-p", "{prompt}", "--permission-mode", "auto"]
 max_parallel = 1
-timeout_min = 45
+timeout_min = 90
 
 # Sustituto si Beam deja de estar disponible (ver `opencode models`):
 # [agents.gomodel]

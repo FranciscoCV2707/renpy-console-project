@@ -81,7 +81,7 @@ menús, 3 ranuras, galería; es la referencia de UI para todos los ports).
 | D15 | **API de plataforma por enlace**: `video`, `img`, `res`, `audio`, `input`, `save`, `cd` son funciones C que cada backend implementa (el linker elige); `VnPlatformOps` queda solo para archivos y fuente | Usuario (2026-10-26) | Cada consola compila un solo backend: una tabla de ~60 punteros no aporta y obliga a reescribir ~290 llamadas de `main.c` y arriesga G1 |
 | D14 | **Commits:** conventional commits en inglés, sin coautor; la tarea va en el cuerpo (`Refs: T-041`) | Reglas del repo sobre v2.0 | v2.0 pedía `T-xxx: resumen`; se conserva la convención existente |
 | D16 | **Snoot solo en español** (traducción oficial `game/tl/es`), en todas las consolas: texto, imágenes con texto traducido (`tl/es/images`) y trazas de referencia | Usuario, 2026-10-26 | Igual que el port de PS1 v1.0; sin selector de idioma. `tools/assetpipe --language es`; `tools/renpy_trace/record.py` graba en `es` |
-| D17 | **Id común PS1 ↔ Ren'Py = id de traducción** (`chapter_x1_15b4bb09`): el hook de Ren'Py lo emite en `SAY id=`; para PS1, `tools/ctl` corre `compile_all` de snoot-ps1 en `build/` (sin modificar ese repo) y traduce `text=<gid>` al id y `who=<n>` al nombre. La comparación entre motores ignora los cuadros y `LABEL` (el VNB no guarda nombres; el flujo ya lo da la secuencia de líneas) | Claude (líder), 2026-10-26 | Sin tocar el formato VNB ni el motor |
+| D17 | **Id común PS1 ↔ Ren'Py = id de traducción** (`chapter_x1_15b4bb09`): el hook de Ren'Py lo emite en `SAY id=`; para PS1, `tools/ctl` corre `compile_all` de snoot-ps1 en `build/` (sin modificar ese repo) y traduce `text=<gid>` al id y `who=<n>` al nombre. Se compara lo que ve el jugador: hablante y texto en español de `tl/es` por id (dos líneas iguales con otro id cuentan como iguales), sin `CHOICE` (el hook no los ve) ni repeticiones seguidas de Ren'Py; se ignoran los cuadros y `LABEL` (el VNB no guarda nombres; el flujo ya lo da la secuencia de líneas) | Claude (líder), 2026-10-26 | Sin tocar el formato VNB ni el motor |
 | D18 | **Audio por duración**: más de 10 s = música → OGG Vorbis 44.1 kHz estéreo (PSP q0, PS2 q2, resto q3); efectos y UI → WAV PCM 16 bits 22050 Hz mono. Se verifica en el hola mundo de audio de cada consola (Fase 5); si SDL2_mixer no trae Vorbis ahí, música en ADPCM | Claude (líder), 2026-10-26 | WAV inflaba PSP a 364 MB; Vorbis lo baja a ~1/10 y SDL2_mixer lo decodifica en todas las de nivel A |
 | D19 | **Fidelidad de los demakes**: todas las rutas y todo el texto siempre. DS: fondo arriba (256×192, 16 bits), texto abajo, sprites reducidos, música ADPCM 22 kHz mono, sin video. GBA: 240×160 a 256 colores con tramado, sprites a 16 colores, música en bucles de 20 s a 8 kHz mono, cartucho ≤ 32 MB. GB/GBC (una ROM dual, MBC5 ≤ 8 MB): fondos en tiles con tramado (4 colores; paletas en GBC), retratos en vez de sprites completos, efectos simples y sin música original | Claude (líder), 2026-10-26 | Lo que cabe en cada cartucho sin perder la historia |
 | D20 | **El backend SDL (T-401) arranca ya**, en paralelo a la Fase 3: no depende de ella. La compuerta G3 sigue siendo requisito para dar por buena la Fase 4 | Claude (líder), 2026-10-26 | La Fase 4 es el cuello de botella de las 8 consolas SDL |
@@ -341,6 +341,14 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-503 | 5 | antigravity | Adapters `ctl` PPSSPP y PCSX2 | T-202 |
 | T-504 | 5 | beam | Perfiles de recursos PSP y PS2 | T-402 |
 | T-505 | 5 | beam | Audio de los perfiles por duración (D18) | T-504 |
+| T-506 | 6 | codex | Perfiles de recursos de Vita, 3DS, Wii, Xbox clásica y Switch | T-505 |
+| T-601 | 6 | beam | PS Vita con el backend SDL (VitaSDK en Docker) | T-405 |
+| T-602 | 6 | beam | 3DS con el backend SDL (devkitARM) | T-405 |
+| T-603 | 6 | beam | Wii con el backend SDL (devkitPPC) | T-405 |
+| T-604 | 6 | beam | Xbox clásica con nxdk | T-405 |
+| T-605 | 6 | beam | Switch con el backend SDL (devkitA64) | T-405 |
+| T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
+| T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 
 **Primera oleada de Beam (5 en paralelo, tras la prueba de humo):** T-101, T-202, T-205, T-301, T-402; T-206 entra

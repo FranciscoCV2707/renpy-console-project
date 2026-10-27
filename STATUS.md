@@ -29,11 +29,14 @@ Fase 3 (referencia Ren'Py, falta G3) y Fase 4 (PC con SDL) en paralelo (D20). G1
 - [x] T-303/T-304 (D17): comparación entre motores por id de traducción y hablante (`compare.mode: renpy`, tabla
   armada con el compilador de snoot-ps1 en `build/`); 14 escenarios de ruta (`tests/scenarios/snoot-route-*.yaml`,
   autoplay + `choices`). chapter_x2 coincide 97/97 en PS1 y en PC.
-- [ ] G3: regrabar Ren'Py con los nombres de hablante traducidos (en chapter_x3 los 54 ids coinciden y difieren 13
-  nombres: "Mr. Tsuki" contra "Sr. Tsuki") y correr las 14 rutas en PS1.
-- [ ] Fase 4 (D20, D21): T-401 hecho, backend SDL en PC con los datos del disco de PS1 (título bien; chapter_x2 PASS
-  en 5 s). T-405 en curso (Codex): audio, texto en escena, desfase del primer SCENE. Decodificadores ADPCM (T-403)
-  probados contra psx-spx y ffmpeg.
+- [ ] G3: trazas de Ren'Py con id y nombres traducidos. La comparación mira lo que ve el jugador (hablante + texto en
+  español de `tl/es`). En PC pasan 13 de 14 rutas, las 4 principales completas (6.485 a 8.362 líneas). Diferencia
+  explicada: chapter_x6, "Trevor & Tana" sin traducir (error del compilador de snoot-ps1, también en la v1.0). Las 14
+  rutas en PS1 y la regresión G1 están corriendo.
+- [ ] Fase 4 (D20, D21, D22): backend SDL en PC con los datos del disco de PS1: título, texto, audio XA/SPU; humo
+  propio (`snoot-smoke-pc`). Falta: oír el audio contra los OGG originales.
+- [ ] Fase 5: PSP (T-501, Kilo, en curso) y PS2 (T-502: compila; se cuelga al arrancar en PCSX2; segunda ronda con
+  Kilo). Emuladores: PPSSPP 1.20.4 y PCSX2 2.8.2 portable con BIOS `scph39001`.
 
 ## Pista de agentes
 - [x] Logins, Orca y Beam (usuario). Skills de Orca `orca-cli` y `orchestration` instaladas para todos.

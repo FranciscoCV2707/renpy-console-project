@@ -7,6 +7,8 @@
 
 #ifdef _EE
 static char root[512] = "host:disc";
+#elif defined(__PSP__)
+static char root[512] = "ms0:/PSP/GAME/SNOOT/DATA";
 #else
 static char root[512] = ".";
 #endif

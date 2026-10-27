@@ -24,6 +24,37 @@ static int shot_requested, shot_number;
 static int output_w = SCREEN_W, output_h = SCREEN_H;
 void sdl_snapshot_to(const char *path);
 
+#ifdef __PSP__
+#define PSP_OUT_W  480
+#define PSP_OUT_H  272
+#define PSP_VIEW_X 60
+#define PSP_VIEW_W 360
+#define PSP_VIEW_H 272
+#endif
+
+/* En PSP los 320x240 del motor van a 360x272 centrados en la pantalla de 480x272; en PC, tal cual. */
+static void map_pos(int *mx, int *my, int x, int y)
+{
+#ifdef __PSP__
+	*mx = PSP_VIEW_X + x * PSP_VIEW_W / SCREEN_W;
+	*my = y * PSP_VIEW_H / SCREEN_H;
+#else
+	*mx = x;
+	*my = y;
+#endif
+}
+
+static void map_rect(SDL_Rect *r, int x, int y, int w, int h)
+{
+	int mx, my, ex, ey;
+	map_pos(&mx, &my, x, y);
+	map_pos(&ex, &ey, x + w, y + h);
+	r->x = mx;
+	r->y = my;
+	r->w = ex - mx;
+	r->h = ey - my;
+}
+
 static void add(Draw d)
 {
 	if (draw_count < COMMANDS)
@@ -66,8 +97,14 @@ static void rect(int layer, int x, int y, int w, int h, int r, int g, int b, int
 }
 void video_init(void)
 {
+#ifdef __PSP__
+	SDL_SetMainReady();
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != 0)
+		return;
+#else
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) != 0)
 		return;
+#endif
 	if (getenv("SDL_VIDEODRIVER") && strcmp(getenv("SDL_VIDEODRIVER"), "dummy") == 0) {
 		headless_surface = SDL_CreateRGBSurfaceWithFormat(0, SCREEN_W, SCREEN_H, 32, SDL_PIXELFORMAT_RGBA32);
 		if (headless_surface)
@@ -77,6 +114,13 @@ void video_init(void)
 		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 448,
 		                          SDL_WINDOW_SHOWN);
 		if (window)
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+#elif defined(__PSP__)
+		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, PSP_OUT_W,
+		                          PSP_OUT_H, SDL_WINDOW_SHOWN);
+		if (window)
+			renderer = SDL_CreateRenderer(window, -1, 0);
+		if (!renderer && window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 #else
 		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720,
@@ -88,7 +132,9 @@ void video_init(void)
 #endif
 	}
 	if (renderer) {
+#ifndef __PSP__
 		SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);
+#endif
 		SDL_GetRendererOutputSize(renderer, &output_w, &output_h);
 	}
 	last_pixels = malloc(SCREEN_W * SCREEN_H * 4);
@@ -171,7 +217,8 @@ void video_flip(void)
 		SDL_RenderClear(renderer);
 		for (layer = LAYER_BG; layer >= LAYER_DEBUG; layer--) {
 			if (clip && layer >= LAYER_SPRITE0) {
-				SDL_Rect c = {0, VIEW_Y, SCREEN_W, VIEW_H};
+				SDL_Rect c;
+				map_rect(&c, 0, VIEW_Y, SCREEN_W, VIEW_H);
 				SDL_RenderSetClipRect(renderer, &c);
 			} else
 				SDL_RenderSetClipRect(renderer, NULL);
@@ -180,25 +227,27 @@ void video_flip(void)
 				SDL_Rect dst;
 				if (d->layer != layer)
 					continue;
-				dst.x = d->x;
-				dst.y = d->y;
-				dst.w = d->w;
-				dst.h = d->h;
+				map_rect(&dst, d->x, d->y, d->w, d->h);
 				if (d->type == 1) {
 					SDL_SetRenderDrawBlendMode(renderer,
 					                           d->blend ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 					SDL_SetRenderDrawColor(renderer, d->r, d->g, d->b, d->blend ? 128 : 255);
 					SDL_RenderFillRect(renderer, &dst);
 				} else if (d->type == 2) {
-					SDL_Vertex v[3] = {{{(float)d->x, (float)d->y},
+					int ax, ay, bx, by, cx, cy;
+					SDL_Vertex v[3];
+					map_pos(&ax, &ay, d->x, d->y);
+					map_pos(&bx, &by, d->x + d->w, d->y);
+					map_pos(&cx, &cy, d->x + d->w / 2, d->y + d->h);
+					v[0] = (SDL_Vertex){{(float)ax, (float)ay},
 					                    {(Uint8)d->r, (Uint8)d->g, (Uint8)d->b, 255},
-					                    {0, 0}},
-					                   {{(float)(d->x + d->w), (float)d->y},
+					                    {0, 0}};
+					v[1] = (SDL_Vertex){{(float)bx, (float)by},
 					                    {(Uint8)d->r, (Uint8)d->g, (Uint8)d->b, 255},
-					                    {0, 0}},
-					                   {{(float)(d->x + d->w / 2), (float)(d->y + d->h)},
+					                    {0, 0}};
+					v[2] = (SDL_Vertex){{(float)cx, (float)cy},
 					                    {(Uint8)d->r, (Uint8)d->g, (Uint8)d->b, 255},
-					                    {0, 0}}};
+					                    {0, 0}};
 					SDL_RenderGeometry(renderer, NULL, v, 3, NULL, 0);
 				} else if (d->type == 3) {
 					SDL_SetTextureColorMod(d->texture, d->r, d->g, d->b);

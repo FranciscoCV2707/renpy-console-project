@@ -37,7 +37,7 @@ def _run_compile_all(out: Path):
 
 
 def build_map(out: Path) -> dict:
-    """Corre ``compile_all(out)`` y devuelve ``{"text": {gid: tid}, "speakers": {indice: nombre}}``."""
+    """Corre ``compile_all(out)`` y devuelve las equivalencias TRACE del compilador."""
     out.mkdir(parents=True, exist_ok=True)
     _, _, result = _run_compile_all(out)
     if result.errors:
@@ -53,7 +53,14 @@ def build_map(out: Path) -> dict:
             text_map[base + i] = entry["id"]
 
     speakers = {i: info.get("name", "") for i, info in enumerate(meta["speakers"])}
-    return {"text": text_map, "speakers": speakers}
+    images = {
+        i: entry.get("names", [])
+        for i, entry in enumerate(meta["images"])
+        if entry is not None and entry.get("names")
+    }
+    tracks = {i: entry["path"] for i, entry in enumerate(meta["audio"]) if "path" in entry}
+    tags = {int(i): name for i, name in meta["tags"].items()}
+    return {"text": text_map, "speakers": speakers, "images": images, "tracks": tracks, "tags": tags}
 
 
 def load_map() -> dict:
@@ -62,6 +69,9 @@ def load_map() -> dict:
         MAP_PATH.parent.mkdir(parents=True, exist_ok=True)
         MAP_PATH.write_text(json.dumps(build_map(COMPILE_OUT), ensure_ascii=False), encoding="utf-8")
     raw = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+    if not {"images", "tracks", "tags"}.issubset(raw):
+        raw = build_map(COMPILE_OUT)
+        MAP_PATH.write_text(json.dumps(raw, ensure_ascii=False), encoding="utf-8")
     # JSON guarda las claves como texto
     return {name: {int(k): v for k, v in table.items()} for name, table in raw.items()}
 

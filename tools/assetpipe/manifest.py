@@ -98,26 +98,35 @@ def sha256_file(path) -> str:
     return h.hexdigest()
 
 
-def copy_resources(game_dir, out_dir, resources: Iterable) -> None:
+def source_file(game_dir: Path, rel: Path, language: str | None) -> Path:
+    """El archivo que Ren'Py usa con ese idioma: game/tl/<idioma>/<ruta> si existe (imagenes con texto
+    traducido), si no game/<ruta>."""
+    if language:
+        translated = game_dir / "tl" / language / rel
+        if translated.is_file():
+            return translated
+    return game_dir / rel
+
+
+def copy_resources(game_dir, out_dir, resources: Iterable, language: str | None = None) -> None:
     """Copia los recursos al directorio de salida."""
     game_dir = Path(game_dir)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     for rel in resources:
         rel = Path(rel)
-        src = game_dir / rel
         dst = out_dir / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(src, dst)
+        shutil.copyfile(source_file(game_dir, rel, language), dst)
 
 
-def build_manifest(profile: str, game_dir, resources: Iterable) -> dict:
+def build_manifest(profile: str, game_dir, resources: Iterable, language: str | None = None) -> dict:
     """Construye el diccionario del manifiesto (sin escribirlo)."""
     game_dir = Path(game_dir)
     entries = []
     for rel in resources:
         rel = Path(rel)
-        full = game_dir / rel
+        full = source_file(game_dir, rel, language)
         entries.append(
             {
                 "path": rel.as_posix(),
@@ -133,7 +142,8 @@ def build_manifest(profile: str, game_dir, resources: Iterable) -> dict:
     }
 
 
-def convert_resources(profile: dict, game_dir: Path, out_dir: Path, resources: Iterable) -> dict:
+def convert_resources(profile: dict, game_dir: Path, out_dir: Path, resources: Iterable,
+                      language: str | None = None) -> dict:
     """Reduce los recursos segun el perfil; devuelve el manifiesto con ``source`` por recurso y ``skipped``."""
     entries, skipped = [], []
     for rel in map(Path, resources):
@@ -141,7 +151,7 @@ def convert_resources(profile: dict, game_dir: Path, out_dir: Path, resources: I
         if kind in profile["skip_kinds"]:
             skipped.append({"source": rel.as_posix()})
             continue
-        src = game_dir / rel
+        src = source_file(game_dir, rel, language)
         out_rel = rel.with_suffix({"image": ".png", "audio": ".wav"}.get(kind, rel.suffix))
         dst = out_dir / out_rel
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -170,7 +180,7 @@ def _is_out_inside_game(game_dir: Path, out_dir: Path) -> bool:
         return False
 
 
-def run(profile: str, game, out) -> dict:
+def run(profile: str, game, out, language: str | None = None) -> dict:
     """Ejecuta el pipeline completo y devuelve el manifiesto."""
     if profile not in PROFILES:
         raise ValueError(
@@ -184,11 +194,15 @@ def run(profile: str, game, out) -> dict:
         raise ValueError("--out no puede estar dentro de --game")
     resources = inventory(game_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    if language and not (game_dir / "tl" / language).is_dir():
+        raise ValueError(f"el juego no trae la traduccion {language} (falta {game_dir / 'tl' / language})")
     if profile == "pc":
-        copy_resources(game_dir, out_dir, resources)
-        manifest = build_manifest(profile, game_dir, resources)
+        copy_resources(game_dir, out_dir, resources, language)
+        manifest = build_manifest(profile, game_dir, resources, language)
     else:
-        manifest = convert_resources(PROFILES[profile], game_dir, out_dir, resources)
+        manifest = convert_resources(PROFILES[profile], game_dir, out_dir, resources, language)
+    if language:
+        manifest["language"] = language
     manifest_path = out_dir / "manifest.json"
     with manifest_path.open("w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=2, sort_keys=True, ensure_ascii=False)

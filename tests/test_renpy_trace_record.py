@@ -40,8 +40,8 @@ def test_record_writes_the_trace_of_each_route(tmp_path, monkeypatch):
 
     routes = {**ROUTES, "ruta 1": {"entry": "start", "decisions": []}}
 
-    def run_route(command, copy, name, route, out_root, settings):
-        assert settings["wait"] == 0.2
+    def run_route(command, copy, name, route, out_root, language, settings):
+        assert (language, settings["wait"]) == ("es", 0.2)
         # como Ren'Py en Windows: CRLF
         Path(os.environ["RCP_TRACE_OUT"]).write_bytes(b"T|1|0|LABEL|name=start\r\n")
         return {"status": "ok" if name == "chapter_x1" else "se detuvo a los 3600 s"}

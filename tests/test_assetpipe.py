@@ -131,3 +131,18 @@ def test_console_profiles_reduce_resources(tmp_path, profile, size, rate, channe
     first = (tmp_path / "out" / "manifest.json").read_bytes()
     run(profile, game, tmp_path / "out2")
     assert (tmp_path / "out2" / "manifest.json").read_bytes() == first
+
+
+def test_language_uses_translated_files(tmp_path):
+    from tools.assetpipe.manifest import run
+
+    game = _make_game(tmp_path)
+    (game / "tl" / "es" / "images").mkdir(parents=True)
+    (game / "tl" / "es" / "images" / "hero.png").write_bytes(b"png-es")
+    manifest = run("pc", game, tmp_path / "out", "es")
+    assert (tmp_path / "out" / "images" / "hero.png").read_bytes() == b"png-es"
+    assert (tmp_path / "out" / "audio" / "theme.ogg").read_bytes() == b"ogg-bytes"
+    assert manifest["language"] == "es"
+    assert not any(r["path"].startswith("tl/") for r in manifest["resources"])
+    with pytest.raises(ValueError, match="traduccion fr"):
+        run("pc", game, tmp_path / "out2", "fr")

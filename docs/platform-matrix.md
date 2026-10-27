@@ -27,6 +27,8 @@
 
 ## Recursos por plataforma (perfiles de `tools/assetpipe`)
 
+Snoot va solo en español (`PLAN.md` D16): `--language es` toma las imágenes con texto traducido de `game/tl/es/`.
+
 | Plataforma | Fondos / CG | Sprites | Música | Efectos / voz | Video |
 |---|---|---|---|---|---|
 | PC | Original | Original | Original | Original | Original |

@@ -25,6 +25,8 @@ BUILD = ROOT / "build" / "renpy" / "snoot"
 TRACES = ROOT / "tests" / "reference" / "traces" / "snoot"
 HOOK = Path(__file__).with_name("trace_hook.rpy")
 SNOOT_CAPTURE = Path(__file__).with_name("snoot_capture.rpy")
+# Snoot se porta solo en español (PLAN.md D16): la referencia sale de la traducción oficial game/tl/es
+LANGUAGE = "es"
 
 sys.path.insert(0, str(PORT_KIT))
 from renpykit.compare import capture  # noqa: E402
@@ -59,7 +61,8 @@ def record(names: list[str], routes: dict, folder: Path = GAME_FOLDER, build: Pa
         raw.unlink(missing_ok=True)
         os.environ["RCP_TRACE_OUT"] = str(raw)
         start = time.monotonic()
-        result = capture.run_route(command, copy, name, routes[name], build / "captura", settings=settings)
+        result = capture.run_route(command, copy, name, routes[name], build / "captura", LANGUAGE,
+                                   settings=settings)
         # Ren'Py escribe en modo texto (CRLF en Windows); la referencia se guarda con LF
         lines = raw.read_text(encoding="utf-8").splitlines() if raw.exists() else []
         counts = Counter(line.split("|")[3] for line in lines)

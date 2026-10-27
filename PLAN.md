@@ -80,6 +80,7 @@ menús, 3 ranuras, galería; es la referencia de UI para todos los ports).
 | D13 | **Snoot primero, Wani detrás**; el núcleo no tiene nada fijo de un juego | v0.1 + regla de `vn-engine-ps1` | Snoot está completo en PS1; Wani valida que el núcleo es genérico |
 | D15 | **API de plataforma por enlace**: `video`, `img`, `res`, `audio`, `input`, `save`, `cd` son funciones C que cada backend implementa (el linker elige); `VnPlatformOps` queda solo para archivos y fuente | Usuario (2026-10-26) | Cada consola compila un solo backend: una tabla de ~60 punteros no aporta y obliga a reescribir ~290 llamadas de `main.c` y arriesga G1 |
 | D14 | **Commits:** conventional commits en inglés, sin coautor; la tarea va en el cuerpo (`Refs: T-041`) | Reglas del repo sobre v2.0 | v2.0 pedía `T-xxx: resumen`; se conserva la convención existente |
+| D16 | **Snoot solo en español** (traducción oficial `game/tl/es`), en todas las consolas: texto, imágenes con texto traducido (`tl/es/images`) y trazas de referencia | Usuario, 2026-10-26 | Igual que el port de PS1 v1.0; sin selector de idioma. `tools/assetpipe --language es`; `tools/renpy_trace/record.py` graba en `es` |
 
 Descartado de v2.0: el submódulo `upstream/` (D2/inventario), la rama `integration` mientras trabaje un solo agente
 (se crea en la Fase 4), y las tablas de cronograma por meses de v0.1 (no eran verificables).
@@ -238,7 +239,7 @@ cargar, teclado, chat, créditos) **idéntico píxel a píxel** a la referencia 
 
 ### Fase 3 — Referencia Ren'Py
 1. `kit_capture.rpy` emite TRACE (C3) además de capturas.
-2. Trazas de todas las rutas y finales de Snoot con el SDK de su versión → `tests/reference/traces/snoot/`.
+2. Trazas de todas las rutas y finales de Snoot, en español (D16), con el juego publicado → `tests/reference/traces/snoot/`.
 3. `ctl compare` de PS1 contra la referencia; las diferencias aceptadas se documentan.
 
 **[GATE G3]** Trazas de referencia de todas las rutas; PS1 coincide en eventos o cada diferencia está explicada.

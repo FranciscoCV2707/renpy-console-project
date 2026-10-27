@@ -7,7 +7,7 @@ description: Convierte imágenes, audio, video y fuentes de un juego Ren'Py a lo
 ## Dónde vive hoy
 - PS1: herramientas de `E:\Dev\snoot-ps1\tools\` y `E:\Dev\wani-ps1\tools\` (imágenes IMG1 con CLUT, XA/SPU y
   STR con `psxavenc`, fuente `build_font.py`). Se reutilizan, no se reescriben.
-- Resto de plataformas: `tools/assetpipe/` de este repo (Fase 4), con un perfil por plataforma.
+- Resto de plataformas: `tools/assetpipe/` de este repo (Fase 4), con un perfil por plataforma. Snoot solo en español: siempre `--language es` (`PLAN.md` D16).
 
 ## Principios
 - Salida en `build/assets/<plataforma>/` con `manifest.json` y hash por recurso.

@@ -57,7 +57,7 @@ pendientes hasta que el compilador los exponga.
 
 ## Grabacion de trazas de referencia (T-302)
 
-`python -m tools.renpy_trace.record [--route <nombre>]` prepara una copia del juego en `build/renpy/snoot/juego` (con `kit_capture.rpy` y `trace_hook.rpy`), corre Snoot sobre cada ruta elegida y deja la traza en `tests/reference/traces/snoot/<ruta>.trace`. Sin `--route` corre las 14 rutas de `reporte/rutas.json`.
+`python -m tools.renpy_trace.record [--route <nombre>]` prepara una copia del juego en `build/renpy/snoot/juego` (con `kit_capture.rpy` y `trace_hook.rpy`), corre Snoot sobre cada ruta elegida y deja la traza en `tests/reference/traces/snoot/<ruta>.trace`. Sin `--route` corre las 14 rutas de `reporte/rutas.json`. Graba en español (`tl/es`, `PLAN.md` D16): el port es solo en español, así que la referencia también.
 
 ```
 E:/Dev/renpy-console-project/.venv/Scripts/python.exe -m tools.renpy_trace.record --route chapter_x1

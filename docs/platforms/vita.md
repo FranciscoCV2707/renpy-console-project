@@ -49,15 +49,24 @@ stdout y `SDL_SetMainReady()` (el `main` es el del motor, no el de SDL2).
 Para probar en Vita3K: abrir el VPK con el emulador; Vita3K carga el `eboot.bin` y el
 `param.sfo` del paquete.
 
-## Lo que falta para el Console Test Lab
+## Console Test Lab (`tools/ctl/vita.py`, T-608)
 
-- Adapter `tools/ctl/vita.py` que copie el VPK y los datos, arranque Vita3K y extraiga las
-  líneas `T|` del log. No se implementa en esta tarea (T-601).
-- Verificación automática en emulador: pendiente de T-405/T-503 (adapters).
+El adapter `tools/ctl/vita.py` automatiza la configuración de Vita3K y la ejecución de escenarios:
+
+- **Instalación de firmware:** `--firmware <archivo.pup>` instala `PSVUPDAT.PUP` y `PSP2UPDAT-preinst.PUP` (`Vita3K.exe --help`).
+- **Instalación y auto-arranque del VPK:** argumento posicional `content-path` (`Vita3K.exe --help`).
+- **Directorio de datos aislado:** `-c <config.yml>` con la directiva `pref-path:` en el archivo YAML de configuración (`Vita3K.exe --help`).
+- **Cierre automático:** `--frontend sdl` ejecuta la aplicación en ventana independiente y finaliza con ella (`Vita3K.exe --help`).
+- **Captura de traza/printf:** `-l 0` (nivel TRACE en CLI y `log-level: 0` en YAML) registra los accesos a terminal en `|T| [write_file]: *** TTY: <texto>` (`Vita3K.exe --help` e implementación de `write_file` en `iofilemgr.cpp`).
+
+### Bloqueo conocido en emulación sin `libshacccg.suprx`
+
+El backend SDL2 de VitaSDK enlaza contra `vitaGL` (`-lvitaGL -lvitashark -lSceShaccCgExt`). Al inicializarse, `vitaGL` intenta cargar dinámicamente el compilador de shaders en tiempo de ejecución desde `ur0:data/libshacccg.suprx`. Este archivo es propietario de Sony (procedente del runtime de PlayStation Mobile) y no está incluido en las actualizaciones de firmware oficiales (`PSVUPDAT.PUP` ni `PSP2UPDAT-preinst.PUP`).
+
+Al no encontrar `libshacccg.suprx`, `vitaGL` invoca un cuadro de diálogo del sistema mediante `sceCommonDialog`, cuya rutina `sceCommonDialogUpdate` no está implementada en Vita3K, deteniendo la ejecución antes de iniciar el bucle principal de la VM. Para solventarlo se requiere contar con `libshacccg.suprx` en `ur0:data/` o usar shaders precompilados (GXP) estáticos en el backend gráfico.
 
 ## Observaciones
 
 - `*.vpk`, `*.elf`, `*.velf` y `*.bin` están ignorados por `.gitignore`.
 - El VPK incluye los recursos de LiveArea copiados de la muestra de VitaSDK
   (`sce_sys/`); sustituirlos por arte propio antes de publicar.
-- No se ha ejecutado el paquete en hardware ni en Vita3K desde este entorno.

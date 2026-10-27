@@ -89,6 +89,7 @@ menús, 3 ranuras, galería; es la referencia de UI para todos los ports).
 | D22 | **Cuadros solo contra la misma plataforma**: cada consola tiene sus tiempos de carga; su humo se compara con una traza propia (`tests/reference/traces/<plataforma>/`). Entre plataformas y contra Ren'Py se compara por eventos (`compare.mode: renpy`, D17) | Claude (líder), 2026-10-26 | PC llegaba 10 cuadros tarde al primer SCENE sin ningún error de lógica |
 | D23 | **Nivel R según T-R01**: Xbox One/Series (UWP en modo desarrollador, esfuerzo S), PS4 (OpenOrbis, M) y PS3 (PSL1GHT, M) entran al plan después de la Fase 6; PS5 y Xbox 360 quedan fuera por ahora (sin SDL2 maduro ni emulador que corra homebrew) | Claude (líder), 2026-10-27 | `docs/platforms/research/README.md` |
 | D24 | **Un port "funciona" solo si es fiel y fluido**, no solo si el texto coincide: (1) `compare.mode: renpy_full` (fondo, personajes y música por línea, T-623); (2) ritmo medido por consola (cuadros por segundo y eventos por segundo en las rutas largas) con un mínimo; (3) cachés acotados en todos los backends (T-622); (4) tras G5, las consolas con memoria de sobra (PC, Vita, PS3, PS4, Switch) pasan de los datos del disco de PS1 a los recursos originales en español con `tools/assetpipe` | Claude (líder), 2026-10-27 | El usuario pidió fidelidad a Ren'Py y fluidez; D17 solo comparaba texto |
+| D25 | **Imágenes en memoria: solo lo que se usa.** Cada backend carga una imagen cuando el guion la muestra y la libera cuando deja de estar en pantalla (cambio de escena, `HIDE`, cambio de expresión). Lo único que se guarda además es lo que el guion pide precargar para lo que viene (`res_preload`/`res_prefetch`) y se suelta al usarse o al cambiar de escena. Nada de cachés que crecen por tamaño fijo. Aplica a todos los backends (SDL, DS, GBA, GB) | Claude (líder), 2026-10-27 | Pedido del usuario; en PSP el caché sin límite frenaba las rutas largas (T-620) |
 
 Descartado de v2.0: el submódulo `upstream/` (D2/inventario), la rama `integration` mientras trabaje un solo agente
 (se crea en la Fase 4), y las tablas de cronograma por meses de v0.1 (no eran verificables).
@@ -368,6 +369,9 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-622 | 5–6 | kilo | Backend SDL: caché de imágenes acotado y negativo; ruta-1 PASS en PSP | T-620 |
 | T-623 | 3+ | codex | `compare.mode: renpy_full`: fondo, personajes y música por línea contra Ren'Py | T-303, T-304 |
 | T-624 | 3+ | codex | `renpy_full`: separar diferencias de nombre de bugs reales (fondo, flip, música) | T-623 |
+| T-625 | 6–7 | beam | Chat del teléfono (capítulo 4) jugable y legible en cada consola | — |
+| T-626 | 6–7 | beam | Teclado del anuario (capítulo 13D) en cada consola, táctil en DS/3DS/Vita | — |
+| T-627 | 6 | beam | PS3: por qué el flip del RSX se detiene en RPCS3 (secuencia de SDL_PSL1GHT contra PSL1GHT) | T-621 |
 | T-407 | 6 | beam | `sdl_target.h` y fusión de 3DS, Wii, Xbox y Switch | T-601..T-605 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |

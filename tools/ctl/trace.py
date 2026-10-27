@@ -169,7 +169,8 @@ def _resource_name(snoot_map, image_id, tag=None):
 
 
 def _sprite_name(tag, image_name):
-    return image_name[len(tag):].strip() if image_name.startswith(tag) else image_name
+    expression = image_name[len(tag):].strip() if image_name.startswith(tag) else image_name
+    return " ".join(attribute for attribute in expression.split() if attribute != "flip")
 
 
 def _music_name(value):
@@ -184,7 +185,7 @@ def _is_background_tag(tag):
     return tag in ("bg", "background")
 
 
-def _is_renpy_overlay_tag(tag):
+def _is_overlay_tag(tag):
     """Snoot draws these tag-only images over the current scene background."""
     return tag in ("rec", "viewfinder", "photoviewfinder")
 
@@ -192,6 +193,11 @@ def _is_renpy_overlay_tag(tag):
 def _is_renpy_background_tag(tag):
     """Snoot also uses ``room`` as the tag for named room backgrounds."""
     return _is_background_tag(tag) or tag == "room"
+
+
+def _is_untraced_black_overlay(tag):
+    """The Ren'Py capture omits Snoot's temporary ``show black`` overlay."""
+    return tag == "black"
 
 
 def _state_event(seq, who, text, bg, sprites, music):
@@ -218,9 +224,13 @@ def normalize_engine_full(events, snoot_map, spanish) -> list[TraceEvent]:
             sprites.clear()
         elif event.ev == "SHOW":
             tag = snoot_map["tags"].get(int(fields["tag"]), f"tag:{fields['tag']}")
+            if _is_untraced_black_overlay(tag):
+                continue
             image_name = _resource_name(snoot_map, int(fields["img"]), tag)
             expression = _sprite_name(tag, image_name)
-            if expression and not _is_background_tag(tag):
+            if _is_overlay_tag(tag):
+                sprites[tag] = ""
+            elif expression and not _is_background_tag(tag):
                 sprites[tag] = expression
                 if bg is not None and tag == bg[0]:
                     bg = None
@@ -230,6 +240,8 @@ def normalize_engine_full(events, snoot_map, spanish) -> list[TraceEvent]:
                 sprites.pop(tag, None)
         elif event.ev == "HIDE":
             tag = snoot_map["tags"].get(int(fields["tag"]), f"tag:{fields['tag']}")
+            if _is_untraced_black_overlay(tag):
+                continue
             sprites.pop(tag, None)
             if bg is not None and bg[0] == tag:
                 bg = None
@@ -259,12 +271,12 @@ def normalize_renpy_full(events, spanish) -> list[TraceEvent]:
         elif event.ev == "SHOW":
             tag = fields["tag"]
             attrs = fields.get("attrs", "").split()
-            if _is_renpy_background_tag(tag) or (not attrs and not _is_renpy_overlay_tag(tag)):
+            if _is_renpy_background_tag(tag) or (not attrs and not _is_overlay_tag(tag)):
                 bg_name = " ".join([tag, *attrs])
                 bg = (tag, _background_name(bg_name))
                 sprites.pop(tag, None)
             else:
-                expression = " ".join(attribute for attribute in attrs if attribute != "flip")
+                expression = " ".join(attribute for attribute in attrs if attribute not in ("flip",))
                 sprites[tag] = expression
                 if bg is not None and bg[0] == tag:
                     bg = None

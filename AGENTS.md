@@ -21,7 +21,9 @@ Lo leen solos Codex, OpenCode (Beam) y Kilo; a Claude, Vibe y Antigravity se lo 
 
 ## Cómo compilar y probar
 - Pruebas: `E:\Dev\renpy-console-project\.venv\Scripts\python.exe -m pytest` (incluye la prueba C de host del
-  núcleo). En un worktree no hay `.venv`: usa siempre el del repo principal, con esa ruta completa.
+  núcleo). En un worktree no hay `.venv`: usa siempre el del repo principal, con esa ruta completa. Las pruebas que
+  compilan paquetes de consola en Docker no corren por defecto: `-m consoles` (si tu tarea toca una consola, corre la
+  suya: `-m consoles -k <consola>`).
 - Host: `C:\msys64\ucrt64\bin\gcc.exe` (C99, `-Wall -Wextra -pedantic`).
 - PS1: `C:\msys64\usr\local\psn00bsdk\bin\mipsel-none-elf-gcc.exe` con los flags de `docs/core-api.md`.
 - Otras consolas: siempre por Docker con la imagen de `docs/platforms/<x>.md`.

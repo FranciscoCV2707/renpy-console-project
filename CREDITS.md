@@ -44,6 +44,7 @@ datos) y su licencia; lo que exige cada licencia al publicar está en `docs/lice
 | nxdk | Xbox | **MIT** (lwIP: BSD modificada; PDCLib: CC0; NVIDIA Cg: licencia NVIDIA) | `README.md` de github.com/XboxDev/nxdk y cabeceras SPDX (`lib/nxdk/path.h`) |
 | libogg | Todas (audio Ogg) | **BSD 3-cláusulas** | `C:\msys64\ucrt64\share\licenses\libogg\COPYING` |
 | libvorbis | Todas (audio Ogg) | **BSD** (estilo Xiph) | `README` de github.com/xiph/vorbis ("a BSD-style license software implementation of the Vorbis specification") |
+| dlmalloc 2.8.6 (asignador de memoria) | PS4 | **Dominio público** (CC0) | Cabecera de `platforms/ps4/dlmalloc-2.8.6.c` ("released to the public domain") |
 
 ## Herramientas de compilación y conversión (no se distribuyen en el build)
 

@@ -122,9 +122,35 @@ El adapter `tools/ctl/ps4.py` copia `build/ctl/ps1/disc/` y el `AUTOTEST.BIN` de
 del juego (o `limits.max_seconds`), mata el proceso si hace falta y extrae de `log\shad_log.txt` las líneas
 `T|` de la traza VN_TRACE (`build/ctl/ps4/trace.txt`) para el veredicto contra Ren'Py.
 
-**Bloqueo conocido (T-614):** el `libc.a` de OpenOrbis implementa `malloc`/`realloc` sobre
-`sceLibcMspace*` de `libSceLibcInternal` (`malloc.lo`, verificado con `llvm-nm` sobre la imagen
-`xfangfang/pacbrew`), pero shadPS4 0.20.0 solo tiene stubs de esos NIDs (`CommonStub` que devuelven 0). El
-heap del guest nunca se inicializa: la CRT reserva regiones flexibles de 2.5 GiB ("User Mem") en bucle hasta
-que shadPS4 muere con `address_space.cpp:294 MapRegion: Assertion Failed!`, antes de ningún evento TRACE ni
-de dibujar la pantalla de título. Ver `reports/T-614.md`.
+## Memoria del juego (T-616)
+
+El `libc.a` de OpenOrbis implementa `malloc`/`realloc` sobre `sceLibcMspace*` de `libSceLibcInternal`
+(`malloc.lo`, verificado con `nm` sobre la imagen `xfangfang/pacbrew`), pero shadPS4 0.20.0 solo tiene stubs
+de esos NIDs (`stubs.cpp:35 CommonStub`, devuelve 0). Para no depender de ellos, el juego trae su propio
+asignador en `platforms/ps4/`:
+
+- `platforms/ps4/dlmalloc-2.8.6.c`: dlmalloc 2.8.6 de Doug Lea, dominio público, vendido tal cual viene
+  (cabecera "released to the public domain"; md5 `a2973f1be9a71842ec1ead2f1c515e7c`). Se compila con
+  `-DHAVE_MORECORE=0` (en Orbis no hay `sbrk`; el heap sale de `mmap`), `-DUSE_LOCKS=1` (spin locks
+  atómicos: el hilo `SDLAudioP2` de SDL2 reserva memoria desde su propio hilo) y `-DFOOTERS=1` (avisa de
+  frees corruptos mientras siga abierto el crash de SDL de abajo).
+- Exporta `malloc`, `free`, `calloc`, `realloc`, `memalign`, `posix_memalign`, etc. (toda la familia que
+  define dlmalloc), que es lo que usan SDL2 y el núcleo sin cambios.
+- El heap sale de `mmap(NULL, ..., PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANON, -1, 0)`: en shadPS4 ese
+  import resuelve a `posix_mmap` (`src/core/libraries/kernel/memory.cpp:753`, export
+  `LIB_FUNCTION("BPE9s9vQQXo", "libScePosix"/"libkernel", ...)`) que con `MAP_ANON` mapea memoria flexible
+  (`memory.cpp:783-790`); en una PS4 real es el `mmap` estándar de `libkernel`/`libScePosix`
+  (`sys/mman.h:114` del toolchain). En el log de shadPS4 se ve `posix_mmap ... flags = 0x1002 ...
+  addr_out = 0x200020000`.
+- El Makefile ya no enlaza `-lSceLibcInternal`; `nm -u build/ps4/snoot.elf` no muestra ningún
+  `sceLibcMspace*` (lo asegura `tests/test_ps4_build.py::test_ps4_elf_without_sce_libc_mspace`).
+
+**Bloqueo conocido (T-616):** con el heap funcionando, el juego arranca (SDL_Init, `FONT.BIN`, `GAME.BIN`,
+`MCICON.BIN`, `AUTOTEST.BIN`, saves) y muere al cargar las imágenes de la pantalla de título
+(`I0706.IMG` -> `I0707.IMG`) con `signals.cpp:145 Unhandled Exception 0xc0000005` dentro de
+`SDL_InvalidateAllBlitMap`, que recorre `surface->list_blitmap` con un puntero corrupto al liberar una
+superficie de `img_load` (`SDL_FreeSurface` tras `SDL_CreateTextureFromSurface`). Reproduce igual con
+`SDL_VIDEODRIVER=dummy` (headless) y con `FOOTERS=1` sin abort de dlmalloc: no es corrupción de metadatos
+de chunks ni depende del renderer; el sospechoso es el `libSDL2.a` precompilado de la imagen
+(`ps4-openorbis-sdl2 2.0.18-16`), que no se puede parchear desde el repo. El juego muere antes del primer
+evento `T|`, así que `chapter_x2` sigue dando `FAIL` (0 eventos). Ver `reports/T-616.md`.

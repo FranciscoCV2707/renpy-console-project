@@ -18,8 +18,14 @@ SRCS = $(wildcard $(SRC)/engine/core/*.c) \
        $(wildcard $(SRC)/engine/app/*.c) \
        $(wildcard $(SRC)/engine/modules/*.c) \
        $(wildcard $(SRC)/games/snoot/*.c) \
+       $(wildcard $(SRC)/platforms/ps4/*.c) \
        $(wildcard $(SRC)/platforms/sdl/*.c)
 OBJS = $(patsubst $(SRC)/%.c,$(OUT)/obj/%.o,$(SRCS))
+
+# dlmalloc 2.8.6 (dominio publico): en Orbis no hay sbrk, el heap sale de mmap; FOOTERS detecta
+# desbordes/doble free al liberar (T-616: el juego murio con un puntero corrupto en shadPS4)
+DLMALLOC_OBJ = $(OUT)/obj/platforms/ps4/dlmalloc-2.8.6.o
+$(DLMALLOC_OBJ): CFLAGS += -DHAVE_MORECORE=0 -DUSE_LOCKS=1 -DFOOTERS=1
 
 ARCH = --target=x86_64-pc-freebsd12-elf
 CFLAGS += $(ARCH) -std=c99 -Wall -Wextra -Wno-unused-parameter -pedantic -O2 -fPIC -funwind-tables
@@ -33,7 +39,7 @@ ifeq ($(VN_TRACE),1)
 CFLAGS += -DVN_TRACE
 endif
 
-LIBS = -L$(OPENORBIS)/lib -L$(OPENORBIS)/usr/lib -lc -lclang_rt.builtins-x86_64 -lkernel -lSceLibcInternal \
+LIBS = -L$(OPENORBIS)/lib -L$(OPENORBIS)/usr/lib -lc -lclang_rt.builtins-x86_64 -lkernel \
        -lpthread -lsamplerate -lm -lSDL2 -lSceSystemService -lSceSysUtil -lSceSysmodule -lSceUserService \
        -lSceAudioOut -lScePad -lScePigletv2VSH
 LDFLAGS = $(ARCH) -fuse-ld=lld -Wl,-melf_x86_64 -Wl,-pie -Wl,--script=$(OPENORBIS)/link.x -Wl,--eh-frame-hdr $(LIBS) -nostdlib $(OPENORBIS)/lib/crt1.o

@@ -1,13 +1,37 @@
 id: snoot-route-ruta-4
 reference: tests/reference/traces/snoot/ruta 4.trace
 inputs:
-  - wait: 60
-  - press: CROSS
-  - autoplay: true
-  - choices: [1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 1, 7, 2, 1, 2, 2, 0, 2, 1, 1]
+- wait: 60
+- press: CROSS
+- autoplay: true
+- choices:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 2
+  - 2
+  - 1
+  - 2
+  - 1
+  - 1
+  - 1
+  - 7
+  - 2
+  - 1
+  - 2
+  - 2
+  - 0
+  - 2
+  - 1
+  - 1
 expect: []
 compare:
   mode: renpy
-  events: [SAY, CHOICE]
+  events:
+  - SAY
+  - CHOICE
 limits:
   max_seconds: 15926

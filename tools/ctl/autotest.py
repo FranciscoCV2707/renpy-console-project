@@ -49,6 +49,19 @@ def scenario_steps(scenario: Scenario) -> list[Step]:
         elif key == "autoplay":
             steps.append((cursor, "autoplay", ""))
             autoplay = True
+        elif key == "steps":
+            # pasos absolutos como los del arnes de vn-engine-ps1 ("60 press L1; 120 shot dev; 400 autoplay")
+            for part in str(value).split(";"):
+                words = part.split()
+                if not words:
+                    continue
+                action, arg = words[1], (words[2] if len(words) > 2 else "")
+                if action not in ("press", "shot", "autoplay", "quit") or (action == "press" and arg not in BUTTONS):
+                    raise ScenarioError(f"inputs[{i}]", f"bad step: {part.strip()!r}")
+                steps.append((int(words[0]), action, arg))
+                cursor = max(cursor, int(words[0]))
+                autoplay |= action == "autoplay"
+                has_quit |= action == "quit"
         elif key == "choices":
             if not isinstance(value, list) or not all(isinstance(c, int) and 0 <= c < 16 for c in value):
                 raise ScenarioError(f"inputs[{i}]", "choices must be a list of option indexes 0..15")

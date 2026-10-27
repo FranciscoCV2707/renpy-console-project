@@ -17,8 +17,10 @@ void res_tick(void)
 }
 const Image *res_get(int id)
 {
+	/* Estatico: 180 KB en el stack desbordan el del hilo principal de consolas como Wii (128 KB)
+	 * y corrompen la memoria que sigue (crash en el primer SCENE). */
+	static uint8_t file[180000];
 	char path[32];
-	uint8_t file[180000];
 	int i, n;
 	for (i = 0; i < RES_MAX; i++)
 		if (cache[i].id == id + 1)

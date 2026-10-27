@@ -1,13 +1,15 @@
-"""Adapter Wii / Dolphin del Console Test Lab (T-611).
+"""Adapter Wii / Dolphin del Console Test Lab (T-611, T-617).
 
 Prepara la raiz de usuario de Dolphin en ``build/ctl/wii/user/`` con la carpeta de sincronizacion
 ``user/Load/WiiSDSync/apps/snoot/data`` (archivos del disco de PS1 mas el ``AUTOTEST.BIN`` del
 escenario), corre ``build/wii/boot.dol`` en modo batch con la SD virtual sincronizada y extrae la
-traza del log ``user/Logs/dolphin.log``, donde Dolphin deja el OSReport del juego.
+traza del TCP del USB Gecko (``Dolphin.Core.SerialPort2=7``: puerto 0xd6ec de EXI_DeviceGecko.cpp),
+donde el backend manda el stdout del juego (``SDL_TARGET_PREPARE_IOP`` de ``platforms/sdl``).
 """
 from __future__ import annotations
 
 import shutil
+import socket
 import subprocess
 import sys
 import time
@@ -22,6 +24,10 @@ GAME_DATA = Path("apps") / "snoot" / "data"
 # WiiSDCardFilesize esta en bytes (MainSettings.cpp escribe MebibytesToBytes); el disco de PS1
 # pesa ~222 MB, asi que 2 GiB cubre datos y partidas (el minimo de la GUI, 128 MiB, no alcanza).
 SD_FILESIZE_BYTES = "2147483648"
+# EXIDeviceType::Gecko vale 7 (EXI_Device.h); el servidor TCP del gecko escucha en 0xd6ec
+# (EXI_DeviceGecko.cpp, GeckoConnectionWaiter) y reenvia el stdout del juego al primer cliente.
+GECKO_DEVICE = "7"
+GECKO_PORT = 0xD6EC
 
 _UIA_SCAN_PS = r'''
 Add-Type -AssemblyName UIAutomationClient
@@ -47,7 +53,7 @@ foreach ($e in $els) {{
 
 
 def extract_trace(log: str) -> str:
-    """Las lineas ``T|`` que el juego escribio por OSReport, quitando el prefijo del log."""
+    """Las lineas ``T|`` que el juego escribio por el USB Gecko, quitando lo que no es traza."""
     lines: list[str] = []
     for raw_line in log.splitlines():
         line = raw_line.strip()
@@ -62,7 +68,7 @@ def stage_config(user: Path) -> None:
 
     [Analytics] PermissionAsked evita el dialogo "Allow Usage Statistics Reporting" que en batch
     bloquea el arranque; [Interface] ConfirmStop evita el "Do you want to stop the current
-    emulation?" al cerrar. El logging va por overrides `-C Logger.*` (LogManager.cpp).
+    emulation?" al cerrar.
     """
     config = user / "Config"
     config.mkdir(parents=True, exist_ok=True)
@@ -117,40 +123,50 @@ def run_scenario(scenario, out: Path) -> Path:
     # sin SD previa Dolphin crea la imagen con el tamaño de WiiSDCardFilesize al insertar la SD
     (user / "Load" / "WiiSD.raw").unlink(missing_ok=True)
 
-    log_path = user / "Logs" / "dolphin.log"
-    log_path.unlink(missing_ok=True)
     cmd = [
         str(DOLPHIN_EXE),
         "-u", str(user),
         "-C", f"Dolphin.Core.WiiSDCardFilesize={SD_FILESIZE_BYTES}",
         "-C", "Dolphin.Core.WiiSDCardEnableFolderSync=True",
-        # OSReport del juego a <user>/Logs/dolphin.log (Common/Logging/LogManager.cpp: LOGGER_* y
-        # el bloque "Logs" de LogManager.cpp); el file listener escribe con flush por linea
-        "-C", "Logger.Options.WriteToFile=True",
-        "-C", "Logger.Options.Verbosity=6",
-        "-C", "Logger.Logs.OSREPORT=True",
-        "-C", "Logger.Logs.OSREPORT_HLE=True",
+        "-C", f"Dolphin.Core.SerialPort2={GECKO_DEVICE}",
         "-b", "-e", str(dol),
     ]
     proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     deadline = time.monotonic() + scenario.limits.max_seconds
-    crash = ""
-    while proc.poll() is None and time.monotonic() < deadline:
-        time.sleep(10)
-        if proc.poll() is not None:
-            break
+    stream = bytearray()
+    sock = None
+    while proc.poll() is None and time.monotonic() < deadline and b"VN_QUIT" not in stream:
+        # el servidor del gecko aparece al arrancar la emulacion (la SD se sincroniza primero)
+        if sock is None:
+            try:
+                sock = socket.create_connection(("127.0.0.1", GECKO_PORT), timeout=1)
+            except OSError:
+                time.sleep(2)
+                continue
+        try:
+            chunk = sock.recv(65536)
+        except (socket.timeout, TimeoutError):
+            chunk = b""
+        if chunk:
+            stream.extend(chunk)
+            continue
         warning, text = _scan_windows(proc.pid)
         if warning:
-            crash = text
-            break
+            if sock is not None:
+                sock.close()
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                           capture_output=True, check=False)
+            proc.wait()
+            raise ScenarioError("dolphin", f"boot.dol crasheo al arrancar: {text}")
+        time.sleep(2)
     # cerrar la ventana de render con WM_CLOSE no detiene el batch: solo queda el corte forzoso
     if proc.poll() is None:
         subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, check=False)
         proc.wait()
-    if crash:
-        raise ScenarioError("dolphin", f"boot.dol crasheo al arrancar: {crash}")
+    if sock is not None:
+        sock.close()
 
-    log = log_path.read_text(encoding="utf-8", errors="replace") if log_path.is_file() else ""
     trace_path = out / "trace.txt"
-    trace_path.write_text(extract_trace(log), encoding="utf-8", newline="\n")
+    trace_path.write_text(extract_trace(stream.decode("utf-8", errors="replace")),
+                          encoding="utf-8", newline="\n")
     return trace_path

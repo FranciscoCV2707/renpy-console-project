@@ -5,7 +5,11 @@
 #include <string.h>
 #include <ctype.h>
 
+#ifdef _EE
+static char root[512] = "host:disc";
+#else
 static char root[512] = ".";
+#endif
 static char filename[600];
 volatile uint32_t cd_sync_vblanks, cd_wait_vblanks;
 int cd_init(void)

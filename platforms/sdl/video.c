@@ -73,12 +73,19 @@ void video_init(void)
 		if (headless_surface)
 			renderer = SDL_CreateSoftwareRenderer(headless_surface);
 	} else {
+#ifdef _EE
+		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 448,
+		                          SDL_WINDOW_SHOWN);
+		if (window)
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+#else
 		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720,
 		                          SDL_WINDOW_SHOWN);
 		if (window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 		if (!renderer && window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+#endif
 	}
 	if (renderer) {
 		SDL_RenderSetLogicalSize(renderer, SCREEN_W, SCREEN_H);

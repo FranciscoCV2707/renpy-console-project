@@ -58,6 +58,30 @@ mips64r5900el-ps2-elf-gcc -T.../linkfile -O2 -o hello.elf main.o \
 
 Solo se verificó que compila y enlaza en la imagen Docker indicada. No se ha ejecutado el `hello.elf` resultante en PCSX2 ni en hardware PS2.
 
+## Snoot con el backend SDL
+
+`python platforms/ps2/build.py --trace` copia las fuentes a `build/ps2/src/`, genera la configuración de Snoot y las
+compila con la misma imagen fijada arriba. El resultado es `build/ps2/snoot.elf`; no se necesita `make` ni
+`pkg-config` en Windows.
+
+El adapter prepara `build/ps2/disc/` copiando los archivos planos de `build/ctl/ps1/disc/` y escribiendo ahí
+`AUTOTEST.BIN`. PCSX2 ejecuta el ELF directamente; `host:disc` accede a la carpeta hermana `disc/` desde el ELF.
+La opción **Host Filesystem** de PCSX2 debe estar habilitada para que funcione `host:`; la documentación de PCSX2
+explica el inicio ELF y sus opciones CLI, pero no ofrece un parámetro CLI para activar HostFS. [HostFS en PCSX2](https://github.com/PCSX2/pcsx2/issues/10259).
+La pantalla SDL usa 640×448 y mantiene el lienzo lógico 320×240; SDL conserva la proporción 4:3 y deja bandas
+laterales para llenar la salida 10:7.
+
+PCSX2 se inicia con `-portable -nogui -fastboot -elf <archivo> -logfile <archivo> -earlyconsolelog`. La documentación
+oficial indica que `-nogui` también activa batch, que `-elf` sustituye el ELF de arranque, y que `-logfile` guarda el
+log de la aplicación. La BIOS se selecciona mediante la configuración portable ya instalada; el CLI de PCSX2 no
+ofrece una opción de ruta de BIOS. `-earlyconsolelog` envía los mensajes tempranos del emulador a la consola. [Opciones
+de línea de comandos de PCSX2](https://pcsx2.net/docs/advanced/cli/).
+
+El adapter combina el log de PCSX2 y su salida de consola y conserva las líneas `T|`. Se debe habilitar y confirmar
+que el `printf` del EE se reenvía al stdio del emulador (`ConsoleToStdio`); `-logfile` documenta el log del emulador,
+no garantiza por sí solo la salida del programa invitado. Esa opción y HostFS no se pudieron verificar en una corrida
+con la instancia portable de este equipo.
+
 ## Problemas encontrados
 
 - La imagen no trae `make` ni `pkg-config`: el `Makefile` fija las rutas de include/lib a mano y el comando de build instala `make` con `apk`.

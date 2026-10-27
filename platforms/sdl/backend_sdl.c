@@ -16,7 +16,11 @@ static FILE *open_file(const char *n)
 {
 	const char *root = getenv("VN_DATA_DIR");
 	char p[600];
+#ifdef _EE
+	snprintf(p, sizeof(p), "%s/%s", root && *root ? root : "host:disc", n);
+#else
 	snprintf(p, sizeof(p), "%s/%s", root && *root ? root : ".", n);
+#endif
 	return fopen(p, "rb");
 }
 static int file_size(const char *n)

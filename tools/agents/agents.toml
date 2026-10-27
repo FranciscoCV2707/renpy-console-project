@@ -18,7 +18,8 @@ timeout_min = 90          # T-302 corre Ren'Py de verdad
 [agents.codex]
 cmd = ["codex", "exec", "--sandbox", "workspace-write", "-C", "{worktree}", "{prompt}"]
 # Su sandbox de Windows no deja escribir en .git ni en .agents (ni con --add-dir) ni usar el temporal global:
-# el commit lo hace dispatch.py y las pruebas usan .tmp/ del worktree
+# el commit lo hace dispatch.py y las pruebas usan .tmp/ del worktree. Tampoco llega a Docker (pipe denegado, T-502):
+# las tareas que compilan en Docker van a Kilo o Beam
 auto_commit = true
 env = { TMP = "{worktree}/.tmp", TEMP = "{worktree}/.tmp" }
 max_parallel = 1

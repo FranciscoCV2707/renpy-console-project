@@ -3,8 +3,8 @@
 ## Fecha: 2026-10-27
 
 ## Fase actual
-Fases 4-7 en paralelo (D20). `chapter_x2` PASS contra Ren'Py en PS1, PC, PSP, PS2, Vita, 3DS, Wii y PS4. PS3 corre
-el juego pero aún sin veredicto; DS arranca título y diálogo; GBA muestra un CG. G1, G2 y G3 cumplidas; G5 en medición
+Fases 4-7 en paralelo (D20). `chapter_x2` PASS contra Ren'Py en PS1, PC, PSP, PS2, Vita, 3DS, Wii, PS4 y DS. PS3
+corre el juego pero aún sin veredicto; GBA muestra un CG. G1, G2 y G3 cumplidas; G5 en medición
 (T-620).
 
 ## Hecho
@@ -50,8 +50,9 @@ el juego pero aún sin veredicto; DS arranca título y diálogo; GBA muestra un 
     con el Null el juego espera el flip (T-621).
   - Xbox clásica y Switch compilan; esperan MCPX/BIOS y claves del usuario.
 - [ ] Fase 7: GBA muestra un CG y texto en mGBA (T-705; LZ77 arreglado: banderas de GBATEK y distancia ≥ 2 para VRAM).
-  DS: empaquetador (T-707, 107 MB de 512) y backend con el núcleo compartido (T-708: título, menú y diálogo); falta
-  la escena arriba y la traza por la SD de melonDS (T-709). GB/GBC: presupuesto y empaquetador hechos.
+  DS: empaquetador (T-707, 107 MB de 512) y backend con el núcleo compartido (T-708); `chapter_x2` PASS en melonDS
+  con traza por la SD (DLDI, T-709). Falta confirmar a ojo la escena arriba durante el diálogo: las capturas de
+  T-708/T-709 incluyen la barra de menú de melonDS y la de arriba salió negra en un cuadro de fecha. GB/GBC: presupuesto y empaquetador hechos.
 - [x] Licencias y `CREDITS.md` (T-901), guía para jugadores `docs/instalar.md` (T-902), factibilidad del nivel R
   (T-R01, D23: Xbox One/Series, PS4 y PS3 entran; PS5 y Xbox 360 fuera por ahora).
 - Emuladores en `E:\snoot` (ver `CLAUDE.md`); faltan MCPX y BIOS de Xbox y claves de Switch (del usuario).

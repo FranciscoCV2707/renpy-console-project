@@ -46,8 +46,9 @@ corre el juego pero aún sin veredicto; GBA muestra un CG. G1, G2 y G3 cumplidas
   - PS4: `chapter_x2` PASS en shadPS4 (T-614, T-616, T-618: dlmalloc propio con `MMAP_CLEARS=0`, traza `[stdin]`,
     Makefile con dependencias de headers y objetos por modo).
   - 3DS: `chapter_x2` PASS en Azahar (T-610, T-619: traza por `svcOutputDebugString`, título visible).
-  - PS3: SDL2 desde la fuente del port de ps3dev con audio funcional (T-615); en RPCS3 el renderer OpenGL truena y
-    con el Null el juego espera el flip (T-621).
+  - PS3 (en pausa): SDL2 desde la fuente del port de ps3dev con audio funcional (T-615). En RPCS3, `--headless` no
+    sirve (SDL_PSL1GHT espera el flip del RSX) y con "Force CPU Blit" ya no truena el caché de texturas, pero en esta
+    PC el RSX deja de completar flips a los ~10 cuadros (T-621). Probar tras reiniciar o actualizar el driver de GPU.
   - Xbox clásica y Switch compilan; esperan MCPX/BIOS y claves del usuario.
 - [ ] Fase 7: GBA muestra un CG y texto en mGBA (T-705; LZ77 arreglado: banderas de GBATEK y distancia ≥ 2 para VRAM).
   DS: empaquetador (T-707, 107 MB de 512) y backend con el núcleo compartido (T-708); `chapter_x2` PASS en melonDS

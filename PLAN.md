@@ -376,6 +376,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-708 | 7 | agy | DS corre el guion con el núcleo compartido (datos de PS1 en NitroFS) | T-706, T-707 |
 | T-709 | 7 | agy | DS: escena arriba durante el diálogo; traza por la SD (DLDI) de melonDS | T-708 |
 | T-710 | 7 | agy | GBA corre el guion con el núcleo compartido (datos de PS1 en el ROM); `chapter_x2` en mGBA | T-705, T-709 |
+| T-711 | 7 | vibe | DS: confirmar y arreglar la escena de arriba durante el diálogo (captura medida contra PC) | T-709 |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
 | T-902 | — | vibe | Guía de instalación para jugadores, por consola | — |
 

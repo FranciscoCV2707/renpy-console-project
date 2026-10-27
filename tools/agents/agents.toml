@@ -11,7 +11,7 @@ default_timeout_min = 45
 prompt_template = "Eres el agente {agent} del proyecto renpy-console-project. Primero lee AGENTS.md. Luego lee tu tarea en .agents/inbox/{task}.md y ejecutala. Trabaja solo dentro de este directorio. Al terminar corre las verificaciones que pide la tarea, haz commit en tu rama actual y escribe tu reporte en reports/{task}.md usando la plantilla .agents/templates/REPORT.md. No hagas push, merge ni rebase. Si te bloqueas, describe el bloqueo en el reporte y termina."
 
 [agents.beam]
-cmd = ["opencode", "run", "-m", "opencode-go/beam-free", "--auto", "{prompt}"]
+cmd = ["opencode", "run", "--auto", "{prompt}"]   # modelo: el predeterminado de ~/.config/opencode/opencode.jsonc
 max_parallel = 5          # enjambre de 5 (PLAN.md D10); bajar si aparecen errores 429 o timeouts
 timeout_min = 90          # T-302 corre Ren'Py de verdad
 

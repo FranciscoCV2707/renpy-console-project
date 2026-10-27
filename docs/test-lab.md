@@ -12,10 +12,18 @@ música ignoran diferencias de mayúsculas y barras de ruta. Las líneas repetid
 traducción en Ren'Py cuentan una sola vez, igual que en `renpy`.
 
 En Snoot, `rec`, `viewfinder` y `photoviewfinder` son superposiciones aunque Ren'Py las emita con `attrs=` vacío;
-siguen en `sprites` y no reemplazan el fondo. Las imágenes con el tag `bg` o `background`, y las imágenes de
-escena como `room anon day alt`, se comparan como fondo. El atributo Ren'Py `flip` se omite de la identidad del
-sprite: el compilador lo representa con una bandera de dibujo, que TRACE aún no expone. Por eso `renpy_full`
-compara expresión y presencia, pero no certifica la orientación reflejada.
+siguen en `sprites` y no reemplazan el fondo. Para Ren'Py, la imagen que sigue a `scene` llega al hook como `SHOW`
+con el tag y atributos de la imagen; se compara como fondo. En el motor se usa el estado de `SCENE`, sin dejar que
+un `SHOW` de overlay cambie ese fondo. El tag de fondo `room` también es una imagen de escena.
+
+El atributo `flip` se quita del nombre de sprite en ambos lados. Snoot define las imágenes `flip` como envolturas
+espejadas y el compilador las reduce a la imagen base más una bandera; el motor dibuja esa bandera, pero TRACE no la
+expone. Por tanto, `renpy_full` compara expresión y presencia, pero no certifica la orientación reflejada.
+
+La captura Ren'Py de Snoot no registra el `show black` temporal que aparece en algunos guiones. El normalizador
+ignora ese tag del motor para no convertirlo en fondo y conservar la misma cobertura que la traza de referencia;
+esto no valida la presencia de esa capa negra. `tools.ctl.full_diff` agrupa las diferencias por campo y par de
+valores para revisar una traza completa, por ejemplo `python -m tools.ctl.full_diff tests/reference/traces/ps4/chapter_x2.trace`.
 
 Las diferencias intencionales se declaran por índice de `SAY`, campo y valores exactos de ambas trazas:
 

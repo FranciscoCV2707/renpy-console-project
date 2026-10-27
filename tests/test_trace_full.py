@@ -1,4 +1,7 @@
 """Pruebas de comparación de estado completo Ren'Py (T-623)."""
+from pathlib import Path
+
+from tools.ctl.full_diff import compare_files
 from tools.ctl.scenario import Scenario, ScenarioError
 from tools.ctl.trace import (
     compare_renpy_full,
@@ -115,3 +118,22 @@ def test_scenario_accepts_renpy_full_exceptions():
         assert "compare.exceptions[0].field" in str(error)
     else:
         raise AssertionError("invalid exception field was accepted")
+
+
+def test_chapter_x2_ps4_and_ds_only_differ_in_music():
+    expected = [{
+        "field": "music",
+        "actual": "audio/ost/bayside bumming it.ogg",
+        "reference": "audio/ost/fuck you i like this chick.ogg",
+        "count": 1,
+    }, {
+        "field": "music",
+        "actual": None,
+        "reference": "audio/ost/fuck you i like this chick.ogg",
+        "count": 7,
+    }]
+    for platform in ("ps4", "ds"):
+        difference_count, rows = compare_files(
+            Path(f"tests/reference/traces/{platform}/chapter_x2.trace"))
+        assert difference_count == 8
+        assert rows == expected

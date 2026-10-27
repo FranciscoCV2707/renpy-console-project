@@ -1,31 +1,31 @@
-# Diferencias de `renpy_full`
+# Fidelidad de `renpy_full`: `chapter_x2`
 
-Análisis de `chapter_x2` contra Ren'Py. La referencia disponible en este worktree es
-`tests/reference/traces/snoot/chapter_x2.trace`; las trazas indicadas por el líder
-(`build/ctl/ps4/trace.txt` y `build/ctl/ds/trace.txt`) no están presentes, así que los conteos posteriores
-a la normalización quedan pendientes de reproducir.
+Comparación de las referencias PS4 y DS contra `tests/reference/traces/snoot/chapter_x2.trace` (97 SAY alineados en
+cada caso). Las dos trazas del motor producen las mismas diferencias agrupadas.
 
-## Tipos reportados
+## Diferencias antes y después de normalizar
 
-| Diferencia observada | Causa y evidencia | ¿Bug real? | Dónde se corrige |
+| Estado | Campo | Diferencia agrupada | PS4 | DS |
+|---|---|---|---:|---:|
+| Antes | `bg` | `rec` vs. `room anon day alt` (69), `rec` vs. `skinrow` (12), `None` vs. `room anon day alt` (16) | 97 | 97 |
+| Antes | `sprites` | overlays `rec`/`viewfinder` ausentes en motor (81 estados); `flip` en nombres del motor (14 estados) | 95 | 95 |
+| Antes | `music` | `None` o `bayside bumming it.ogg` vs. `fuck you i like this chick.ogg` | 8 | 8 |
+| Después | `music` | `None` vs. `fuck you i like this chick.ogg` (7); `bayside bumming it.ogg` vs. `fuck you i like this chick.ogg` (1) | 8 | 8 |
+
+Antes había 200 diferencias de campo por plataforma; después quedan 8, todas de música. Los conteos pueden
+reproducirse con `python -m tools.ctl.full_diff <traza>`.
+
+## Causas y clasificación
+
+| Diferencia | Causa con evidencia | ¿Bug real del port? | Dónde se arregla |
 |---|---|---|---|
-| `bg`: motor `rec`, Ren'Py `viewfinder` (81 SAY, según la medición del líder) | Son overlays de la escena: `show viewfinder` y `show rec` ocurren después de `scene room anon day alt` en `E:/snoot/snootgame/game/script/x2-the-mous-pad.rpy:74-83`. El hook emite ambos sin atributos (`chapter_x2.trace:15,17`), y el normalizador antiguo los confundía con fondo. | No; es clasificación errónea del comparador. | `tools/ctl/trace.py`, normalización Ren'Py. |
-| `room anon day alt` figura como sprite Ren'Py y falta en el estado de motor | El guion usa `scene room anon day alt` (`x2-the-mous-pad.rpy:74`), no `show`; el hook lo representa como `SHOW tag=room;attrs=anon day alt` (`chapter_x2.trace:38`). `room` identifica un fondo, aunque tenga atributos. | No; es diferencia de representación. | `tools/ctl/trace.py`, tag `room` normalizado como fondo. |
-| Ren'Py agrega o quita `flip` en `fang happy` / `anon shrug` | Las imágenes son espejos horizontales: `image_definitions.rpy:518,617`. El compilador resuelve el espejo (`tools/script_compiler/images.py:297-311`) y pone `FLAG_FLIP` en `SHOW` (`lower.py:628-655`; también en `show` sin ATL, `lower.py:801`). El núcleo guarda la bandera (`engine/core/scene.c:75,156`) y el bucle la pasa al dibujado (`engine/app/main.c:981-984`); PS1 y DS exponen `img_draw_flip` (`platforms/ps1/img.c:175`, `platforms/ds/source/img.c:309-312`). TRACE solo informa `tag` e `img` (`engine/core/vm.c:394-396`). | No hay evidencia de un bug de orientación; el bytecode sí conserva la bandera. La traza no permite validar el resultado visual. | Comparador: ignorar el token de nombre `flip`. Para medir orientación, proponer `flip=0/1` en TRACE SHOW como cambio de contrato. |
-| Ren'Py tiene `fuck you i like this chick.ogg` y el motor ninguno (7 SAY); una línea muestra `bayside bumming it.ogg` en el motor | El guion inicia la primera pista en `x2-the-mous-pad.rpy:33` y la segunda en `:266`. El compilador resuelve la ruta (`tools/script_compiler/project.py:112-113`) y `play_music` emite `MUSIC_PLAY` (`lower.py:855-878`); la VM emite TRACE `PLAY` al ejecutar esa instrucción (`engine/core/vm.c:421-423`). La normalización de nombres ya ignora mayúsculas y separadores. | Sí: es una diferencia real de estado de música, no de nombre. La evidencia disponible no separa fallo de compilación, ejecución o registro de evento sin las trazas del líder. | Revisar compilador de snoot-ps1 y ejecución/TRACE del motor; componente concreto pendiente de aislar. |
+| `bg` toma `rec`, falta o usa otro nombre | El hook Ren'Py emite la imagen de `scene skinrow`/`scene room anon day alt` como `SHOW` de imagen (traza Ren'Py, SAY 0 y 12). El motor emite `SCENE` seguido de `SHOW rec`/`SHOW viewfinder`; el normalizador anterior convertía el overlay vacío en fondo. | No; era asignación incorrecta de roles y nombres en el comparador. | Comparador, `trace.py`: comparar el `SCENE` del motor con el `SHOW` de fondo Ren'Py; overlays simétricos. |
+| `rec` y `viewfinder` faltan en sprites del motor | El guion coloca `show viewfinder` y `show rec` después de cada escena (`E:/snoot/snootgame/game/script/x2-the-mous-pad.rpy:13-21`, `75-84`). TRACE Ren'Py conserva tags vacíos y el compilador asigna tags propios (`E:/Dev/snoot-ps1/tools/script_compiler/lower.py:623-660`). | No; ambos son overlays presentes en las trazas. | Comparador, `trace.py`, reconocerlos como overlays por su tag. |
+| Diferencias de nombre con `flip` | El guion usa `anon neutral flip`, `anon shrug flip` y `fang happy flip` (`E:/snoot/snootgame/game/script/x2-the-mous-pad.rpy:10,55,286`). `images.py:294-311` reduce la envoltura a imagen base más booleano; `lower.py:623-660` coloca ese booleano en `FLAG_FLIP`; `scene.c:70-76,131-135` lo conserva y `main.c:890` lo entrega al dibujador. | No hay bug de render confirmado; la traza no expone la orientación efectiva. | Para certificarlo, TRACE necesita un campo de flip en `SHOW`; propuesta en reporte, contrato C3 sin cambios aquí. |
+| 7 SAY con motor sin música y Ren'Py con `fuck you i like this chick.ogg` | El guion inicia esa pista en línea 33 y la detiene con `stop music fadeout 3` en línea 238. El motor registra `PLAY track=55`, luego `STOP`; el hook de referencia no emite el `STOP`, por lo que su normalizador conserva la pista hasta el siguiente PLAY. | No confirmado; la evidencia apunta a una omisión del hook Ren'Py. | Recapturar o reparar el hook en `renpy-port-kit` (repo hermano, solo propuesta). No normalizar esta diferencia a ciegas. |
+| 1 SAY: motor `bayside bumming it.ogg`, Ren'Py aún `fuck you...` | El guion cambia a `bayside bumming it.ogg` en línea 266. El compilador genera PLAY para la fuente en `lower.py:828-882`, y procesa STOP del canal en `lower.py:890-904`. El motor registra `PLAY track=50`, que el mapa resuelve a `bayside bumming it.ogg`; Ren'Py registra el nuevo PLAY pero no el STOP anterior. | No; el cambio coincide con la fuente y el compilador. | Hook Ren'Py / recaptura de referencia en repo hermano. |
+| `show black` transitorio no está en la referencia Ren'Py | El guion lo muestra en línea 12 y lo oculta en línea 34; no aparece como SHOW en la traza de referencia. Se excluye del estado comparable para no tratarlo como fondo. | Sin verificación visual del hook, no se concluye si la capa falta en el juego o solo en la captura. | Mejorar captura Ren'Py; no se modifica el motor en esta tarea. |
 
-## Tabla antes/después de normalizar
-
-Los valores “antes” son los conteos comunicados por el líder; no se recalcularon porque faltan las trazas PS4 y DS.
-“Después” describe la regla aplicada, no un resultado medido.
-
-| Plataforma | Antes | Después de las reglas | Estado de verificación |
-|---|---|---|---|
-| PS4 | 81 SAY con fondo `rec` vs `viewfinder`; discrepancias de `flip`; 7 SAY con música solo en Ren'Py y 1 con `bayside bumming it.ogg` solo en motor. | Los overlays dejan de sobrescribir `bg`; `room anon day alt` se trata como fondo; `flip` no altera el nombre del sprite. Las diferencias de música permanecen como fallos. | Pendiente: falta `build/ctl/ps4/trace.txt`. |
-| DS | Conteo no disponible en este worktree. | Aplican las mismas reglas; no se declaran conteos ni PASS sin comparar las trazas. | Pendiente: falta `build/ctl/ds/trace.txt`. |
-
-## Evidencia y límite de TRACE
-
-La traza Ren'Py confirma el evento `room` y los overlays (`chapter_x2.trace:15-17,38`). En el árbol actual no hay
-traza del motor para asociar cada `SAY` con el ID de pista o la bandera de flip. Añadir el bit de flip a TRACE es una
-propuesta al dueño del contrato C3; este cambio no modifica el protocolo.
+La regla para `room anon day alt` se apoya en `scene room anon day alt` en el guion, línea 74: es fondo, no sprite. Los
+8 residuos de música son todos diferencias de estado derivadas del STOP no capturado; la evidencia actual no apunta
+a una falla de compilación del port. La traza no permite validar el flip efectivo ni la capa `black` transitoria.

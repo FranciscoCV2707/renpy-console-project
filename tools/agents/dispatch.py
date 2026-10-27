@@ -264,10 +264,14 @@ def run_one(cfg: dict, agent: str, task: str) -> dict:
                       flush=True)
             log.flush()
             timed_out = False
+            proc = subprocess.Popen(cmd, cwd=wt, env=env, stdin=subprocess.DEVNULL, stdout=log,
+                                    stderr=subprocess.STDOUT)
             try:
-                code = subprocess.run(cmd, cwd=wt, env=env, stdin=subprocess.DEVNULL, stdout=log,
-                                      stderr=subprocess.STDOUT, timeout=timeout_min * 60).returncode
+                code = proc.wait(timeout=timeout_min * 60)
             except subprocess.TimeoutExpired:
+                # .CMD lanza el CLI como nieto: matar solo al hijo lo dejaba vivo tocando el worktree
+                subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, check=False)
+                proc.wait()
                 timed_out, code = True, -1
             if acfg.get("auto_commit") and git("status", "--porcelain", cwd=wt, check=False).stdout.strip():
                 # Agentes cuyo sandbox no deja escribir en .git (Codex en Windows): el commit lo hace el despachador

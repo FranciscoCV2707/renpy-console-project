@@ -34,6 +34,7 @@ py -3.12 -m venv .venv
 - Estado por consola y pendientes: `STATUS.md`.
 - Plan, decisiones (D1-D25) y tabla de tareas (sección 6): `PLAN.md`.
 - Historia de lo hecho y de los errores: `docs/bitacora.md`.
+- Plan de trabajo siguiente (sprints por plataforma, D26): `docs/sprints.md`.
 - Comparación contra Ren'Py: `docs/test-lab.md`, `docs/fidelidad.md`, `docs/g5.md`.
 - Cada consola: `docs/platforms/<consola>.md`.
 

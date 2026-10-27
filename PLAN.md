@@ -370,7 +370,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-623 | 3+ | codex | `compare.mode: renpy_full`: fondo, personajes y música por línea contra Ren'Py | T-303, T-304 |
 | T-624 | 3+ | codex | `renpy_full`: separar diferencias de nombre de bugs reales (fondo, flip, música) | T-623 |
 | T-625 | 6–7 | beam | Chat del teléfono (capítulo 4) jugable y legible en cada consola | — |
-| T-626 | 6–7 | beam | Teclado del anuario (capítulo 13D) en cada consola, táctil en DS/3DS/Vita | — |
+| T-626 | 6–7 | vibe | Teclado del anuario (capítulo 13D) en cada consola, táctil en DS/3DS/Vita | — |
 | T-627 | 6 | beam | PS3: por qué el flip del RSX se detiene en RPCS3 (secuencia de SDL_PSL1GHT contra PSL1GHT) | T-621 |
 | T-628 | 3+ | codex | `renpy_full` en las 14 rutas: reglas de nombre simétricas y lista de bugs reales | T-624 |
 | T-629 | 5–6 | kilo | Backend SDL: imágenes solo mientras se ven (D25) y panorámicas en mosaicos; ruta-1 PASS en PSP | T-622 |

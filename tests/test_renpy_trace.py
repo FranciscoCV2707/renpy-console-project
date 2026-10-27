@@ -41,6 +41,7 @@ class FakeRenpy:
         self.exports = SimpleNamespace(display_menu=_display_menu)
         self.store = SimpleNamespace(_last_say_who=None)
         self.music = SimpleNamespace(get_playing=lambda channel: self._music)
+        self.game = SimpleNamespace(context=lambda: SimpleNamespace(translate_identifier="start_1a2b3c4d"))
 
     def get_filename_line(self):
         return self._loc
@@ -115,7 +116,7 @@ def test_sequence_produces_expected_lines(tmp_path, monkeypatch):
         "T|2|1|SHOW|tag=bg;attrs=",
         "T|3|1|SHOW|tag=sayori;attrs=smile happy",
         "T|4|1|PLAY|music=song.ogg",
-        "T|5|1|SAY|who=Eileen;loc=game/script.rpy:20",
+        "T|5|1|SAY|who=Eileen;id=start_1a2b3c4d;loc=game/script.rpy:20",
         "T|6|2|SCENE",
         "T|7|2|SHOW|tag=room;attrs=",
         "T|8|2|STOP|music=song.ogg",
@@ -137,8 +138,8 @@ def test_say_who_from_store_contract(tmp_path, monkeypatch):
     config.all_character_callbacks[0]("begin", interact=False)
     lines = out.read_text(encoding="utf-8").splitlines()
     assert lines == [
-        "T|1|1|SAY|who=Eileen;loc=game/script.rpy:12",
-        "T|2|1|SAY|who=;loc=game/script.rpy:12",
+        "T|1|1|SAY|who=Eileen;id=start_1a2b3c4d;loc=game/script.rpy:12",
+        "T|2|1|SAY|who=;id=start_1a2b3c4d;loc=game/script.rpy:12",
     ]
 
 
@@ -151,7 +152,7 @@ def test_escape(tmp_path, monkeypatch):
     config.all_character_callbacks[0]("begin", interact=True)
     config.start_interact_callbacks[0]()
     lines = out.read_text(encoding="utf-8").splitlines()
-    assert lines == ["T|1|1|SAY|who=a\\|b;loc=x\\;y\\=z\\nline.rpy:1"]
+    assert lines == ["T|1|1|SAY|who=a\\|b;id=start_1a2b3c4d;loc=x\\;y\\=z\\nline.rpy:1"]
 
 
 def test_escape_function():

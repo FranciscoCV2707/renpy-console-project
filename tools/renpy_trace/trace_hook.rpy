@@ -110,8 +110,8 @@ init -999 python:
 
             pending = _rcp_pending_say[0]
             if pending is not None:
-                who, loc = pending
-                _rcp_emit("SAY", who=who, loc=loc)
+                who, tid, loc = pending
+                _rcp_emit("SAY", who=who, id=tid, loc=loc)
                 _rcp_pending_say[0] = None
         except Exception as e:
             _rcp_emit("ERROR", msg=str(e))
@@ -122,11 +122,13 @@ init -999 python:
         if event not in (None, "begin"):
             return
         who = _rcp_get_who()
+        # id de traduccion de la linea (PLAN.md D17): el mismo que el compilador VNB guarda por texto
+        tid = getattr(renpy.game.context(), "translate_identifier", None) or ""
         loc = _rcp_loc()
         if interact is False:
-            _rcp_emit("SAY", who=who, loc=loc)
+            _rcp_emit("SAY", who=who, id=tid, loc=loc)
             return
-        _rcp_pending_say[0] = (who, loc)
+        _rcp_pending_say[0] = (who, tid, loc)
 
     _rcp_original_display_menu = renpy.exports.display_menu
 

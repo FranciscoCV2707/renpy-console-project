@@ -134,8 +134,19 @@ int input_stick_y(void)
 
 int input_touch_down(int *x, int *y)
 {
-	/* tactil basico no implementado; devuelve 0 */
-	(void)x;
-	(void)y;
+	uint32_t keys = keysHeld();
+	if (keys & KEY_TOUCH) {
+		touchPosition touch;
+		touchRead(&touch);
+		if (x)
+			*x = touch.px;
+		if (y)
+			*y = touch.py;
+		return 1;
+	}
+	if (x)
+		*x = 0;
+	if (y)
+		*y = 0;
 	return 0;
 }

@@ -262,15 +262,12 @@ int input_stick_y(void)
 
 int input_touch_down(int *x, int *y)
 {
-	/* Intento basico con eventos de raton/tactil en SDL */
-	static int touching = 0;
-	static int lx = 0, ly = 0;
-	/* usamos variables estaticas simples; input_update ya se llamo antes */
-	(void)touching;
-	/* Por simplicidad, devolvemos 0 si no hay API especifica; los backends pueden implementar */
+	int mx = 0, my = 0;
+	Uint32 buttons = SDL_GetMouseState(&mx, &my);
+	int down = (buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
 	if (x)
-		*x = lx;
+		*x = mx;
 	if (y)
-		*y = ly;
-	return 0;
+		*y = my;
+	return down;
 }

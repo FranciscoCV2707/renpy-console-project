@@ -68,8 +68,11 @@ void res_release_snapshot(void)
 void res_prefetch(const uint16_t *ids, int n)
 {
 	int i;
+	/* RES_SOUND: look_ahead mezcla sonidos ambientales con las imagenes (en PS1 van a la cache de RAM); aqui el
+	 * audio los lee solo al sonar. Tratarlos como imagen buscaba I32770.IMG y demas en cada vistazo. */
 	for (i = 0; i < n; i++)
-		res_preload(ids[i]);
+		if (!(ids[i] & RES_SOUND))
+			res_preload(ids[i]);
 }
 int res_prefetch_busy(void)
 {
@@ -77,7 +80,8 @@ int res_prefetch_busy(void)
 }
 int res_have(int id)
 {
-	return res_peek(id) != NULL;
+	/* un sonido no espera a esta cache: con 0 el motor volvia a pedir toda la precarga en cada linea */
+	return (id & RES_SOUND) || res_peek(id) != NULL;
 }
 const uint8_t *res_cached_file(int id, int *n)
 {

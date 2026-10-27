@@ -367,6 +367,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-621 | 6 | vibe | PS3: que el juego avance en RPCS3 (flip con renderer Null, crash del caché GL); `chapter_x2` PASS | T-615 |
 | T-622 | 5–6 | kilo | Backend SDL: caché de imágenes acotado y negativo; ruta-1 PASS en PSP | T-620 |
 | T-623 | 3+ | codex | `compare.mode: renpy_full`: fondo, personajes y música por línea contra Ren'Py | T-303, T-304 |
+| T-624 | 3+ | codex | `renpy_full`: separar diferencias de nombre de bugs reales (fondo, flip, música) | T-623 |
 | T-407 | 6 | beam | `sdl_target.h` y fusión de 3DS, Wii, Xbox y Switch | T-601..T-605 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |

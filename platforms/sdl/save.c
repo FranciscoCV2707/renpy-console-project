@@ -1,20 +1,10 @@
 #include "save.h"
+#include "sdl_target.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#ifdef _WIN32
-#include <direct.h>
-#define make_dir(path) _mkdir(path)
-#else
-#define make_dir(path) mkdir(path, 0777)
-#endif
 
-#ifdef __PSP__
-static char dir[512] = "ms0:/PSP/GAME/SNOOT/SAVE";
-#else
-static char dir[512] = "build/pc/save";
-#endif
+static char dir[512] = SDL_TARGET_SAVE_DIR;
 static unsigned seq;
 static int last = -1;
 static unsigned checksum(const uint8_t *p)

@@ -131,3 +131,20 @@ def test_alias_problems_flag_aliases_and_all_outside_init():
     assert problems == ["tools/x/lib.py:1: __all__ fuera de __init__.py; borralo",
                         "tools/x/lib.py:8: alias de scan; deja un solo nombre"]
     assert dispatch.alias_problems("tools/x/__init__.py", '__all__ = ["scan"]\n') == []
+
+
+def test_allowed_files_expand_braces():
+    task = "## Archivos permitidos\n- `platforms/{psp,vita}/**`, `docs/platforms/*.md`\n"
+    assert dispatch.allowed_files(task) == ["platforms/psp/**", "platforms/vita/**", "docs/platforms/*.md"]
+
+
+def test_escape_is_flagged_by_changes_staged_in_main(tmp_path):
+    import subprocess
+    run = lambda *a: subprocess.run(["git", *a], cwd=tmp_path, check=True, capture_output=True)
+    run("init", "-q")
+    run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "base")
+    head = dispatch.git("rev-parse", "HEAD", cwd=tmp_path).stdout.strip()
+    assert not dispatch.escaped_worktree("T-900", head, tmp_path)
+    (tmp_path / "leak.txt").write_text("x\n", encoding="utf-8")
+    run("add", "leak.txt")
+    assert dispatch.escaped_worktree("T-900", head, tmp_path)

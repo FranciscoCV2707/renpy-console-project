@@ -87,6 +87,7 @@ menús, 3 ranuras, galería; es la referencia de UI para todos los ports).
 | D20 | **El backend SDL (T-401) arranca ya**, en paralelo a la Fase 3: no depende de ella. La compuerta G3 sigue siendo requisito para dar por buena la Fase 4 | Claude (líder), 2026-10-26 | La Fase 4 es el cuello de botella de las 8 consolas SDL |
 | D21 | **PC corre primero los datos del disco de PS1** (VNB, IMG1, SPU/XA, a 320×240 escalado): el backend SDL implementa la misma API por enlace y lee los archivos de la carpeta del disco. Los recursos en alta resolución (assetpipe + coordenadas por perfil, D12) vienen después, sobre un backend que ya pasa las rutas | Claude (líder), 2026-10-26 | PC de punta a punta cuanto antes y comparable con las mismas trazas |
 | D22 | **Cuadros solo contra la misma plataforma**: cada consola tiene sus tiempos de carga; su humo se compara con una traza propia (`tests/reference/traces/<plataforma>/`). Entre plataformas y contra Ren'Py se compara por eventos (`compare.mode: renpy`, D17) | Claude (líder), 2026-10-26 | PC llegaba 10 cuadros tarde al primer SCENE sin ningún error de lógica |
+| D23 | **Nivel R según T-R01**: Xbox One/Series (UWP en modo desarrollador, esfuerzo S), PS4 (OpenOrbis, M) y PS3 (PSL1GHT, M) entran al plan después de la Fase 6; PS5 y Xbox 360 quedan fuera por ahora (sin SDL2 maduro ni emulador que corra homebrew) | Claude (líder), 2026-10-27 | `docs/platforms/research/README.md` |
 
 Descartado de v2.0: el submódulo `upstream/` (D2/inventario), la rama `integration` mientras trabaje un solo agente
 (se crea en la Fase 4), y las tablas de cronograma por meses de v0.1 (no eran verificables).
@@ -248,7 +249,7 @@ cargar, teclado, chat, créditos) **idéntico píxel a píxel** a la referencia 
 2. Trazas de todas las rutas y finales de Snoot, en español (D16), con el juego publicado → `tests/reference/traces/snoot/`.
 3. `ctl compare` de PS1 contra la referencia; las diferencias aceptadas se documentan.
 
-**[GATE G3]** Trazas de referencia de todas las rutas; PS1 coincide en eventos o cada diferencia está explicada.
+**[GATE G3]** `[cumplida 2026-10-27: PS1 y PC coinciden con Ren'Py en 13 de 14 rutas; chapter_x6 = "Trevor & Tana" sin traducir, corregido en el compilador de snoot-ps1 (bd822da)]` Trazas de referencia de todas las rutas; PS1 coincide en eventos o cada diferencia está explicada.
 
 ### Fase 4 — Backend SDL2 en PC (y arranque de la pista de agentes)
 1. `platforms/sdl` con SDL2 2.32 de MSYS2; perfil de recursos PC en `tools/assetpipe`.
@@ -347,9 +348,22 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-603 | 6 | beam | Wii con el backend SDL (devkitPPC) | T-405 |
 | T-604 | 6 | beam | Xbox clásica con nxdk | T-405 |
 | T-605 | 6 | beam | Switch con el backend SDL (devkitA64) | T-405 |
+| T-606 | 6 | agy | PS4 con el backend SDL (OpenOrbis en Docker) | T-R01 |
+| T-608 | 6 | agy | `ctl run --target vita` con Vita3K | T-601 |
+| T-609 | 6 | beam | PS4 en `sdl_target.h` (fusión de T-606) | T-606, T-407 |
+| T-607 | 6 | beam | PS3 con el backend SDL (PSL1GHT) | T-407 |
+| T-610 | 6 | beam | `ctl run --target 3ds` con Azahar | T-602 |
+| T-611 | 6 | beam | `ctl run --target wii` con Dolphin | T-603 |
+| T-612 | 6 | agy | Vita sin `libshacccg.suprx` (renderer GXM de SDL2) | T-608 |
+| T-407 | 6 | beam | `sdl_target.h` y fusión de 3DS, Wii, Xbox y Switch | T-601..T-605 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |
+| T-702 | 7 | codex | Empaquetador de recursos de GBA (LZ77, modo 4, PCM 8 kHz) | T-701 |
+| T-703 | 7 | vibe | Presupuesto del demake de GB/GBC (ROM MBC5 de 8 MB) | T-701 |
+| T-704 | 7 | codex | Empaquetador de recursos de GB/GBC (tiles 2bpp, paletas GBC) | T-702, T-703 |
+| T-705 | 7 | beam | Motor mínimo de GBA: fondo y una línea en mGBA | T-702 |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |
+| T-902 | — | vibe | Guía de instalación para jugadores, por consola | — |
 
 **Primera oleada de Beam (5 en paralelo, tras la prueba de humo):** T-101, T-202, T-205, T-301, T-402; T-206 entra
 en cuanto se libere uno. Claude sigue con T-102..T-105 en cuanto llegue T-101. Si aparecen errores 429 o

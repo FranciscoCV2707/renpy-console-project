@@ -1,13 +1,10 @@
 #include "vn_platform.h"
 #include "cd.h"
+#include "sdl_target.h"
 #include "video.h"
-#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef __PSP__
-#include <pspkernel.h>
-#endif
 
 extern SDL_Renderer *sdl_renderer(void);
 extern SDL_Texture *sdl_font_texture(void);
@@ -15,7 +12,7 @@ extern void sdl_set_font(SDL_Texture *);
 extern void sdl_draw_texture(SDL_Texture *, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int,
                              int);
 static uint32_t started;
-#ifdef __PSP__
+#if SDL_TARGET_PSP_MODULE_INFO
 /* Sin SDL2main (el main es el del motor): la info de modulo y la pila de user_main van aqui (crt0 de pspsdk). */
 PSP_MODULE_INFO("snoot", 0, 1, 0);
 int sce_newlib_stack_kb_size = 1024;
@@ -23,13 +20,7 @@ int sce_newlib_stack_kb_size = 1024;
 static FILE *open_file(const char *n)
 {
 	const char *root = getenv("VN_DATA_DIR");
-#ifdef _EE
-	const char *base = root && *root ? root : "host:disc";
-#elif defined(__PSP__)
-	const char *base = root && *root ? root : "ms0:/PSP/GAME/SNOOT/DATA";
-#else
-	const char *base = root && *root ? root : ".";
-#endif
+	const char *base = root && *root ? root : SDL_TARGET_DATA_DIR;
 	char p[600];
 	snprintf(p, sizeof(p), "%s/%s", base, n);
 	return fopen(p, "rb");
@@ -96,9 +87,7 @@ static void glyphs_end(int l)
 static void log_line(const char *s)
 {
 	puts(s);
-#ifdef __PSP__
-	fflush(stdout);
-#endif
+	SDL_TARGET_FLUSH_STDOUT();
 }
 static unsigned int time_ms(void)
 {
@@ -120,6 +109,7 @@ static const VnPlatformOps ops = {.file_size = file_size,
                                   .sleep_ms = sleep_ms};
 const VnPlatformOps *vn_platform_default_ops(void)
 {
+	SDL_TARGET_FAT_INIT();
 	started = SDL_GetTicks();
 	return &ops;
 }

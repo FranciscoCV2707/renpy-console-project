@@ -26,8 +26,11 @@ Claude es el arquitecto y orquestador: escribe contratos, divide tareas, revisa 
 - PSn00bSDK vía MSYS2 en `C:\msys64\usr\local\psn00bsdk`; gcc y SDL2 2.32 de host en `C:\msys64\ucrt64`.
 - Docker Desktop + WSL2 para las toolchains de otras consolas (Docker Desktop hay que abrirlo).
 - Emuladores, BIOS y SDKs de Ren'Py en `E:\snoot`: PCSX-Redux y DuckStation (PS1), `ppsspp-1.20.4` (PSP),
-  `pcsx2-2.8.2` (PS2, portable, con la BIOS `scph39001.bin` en su `bios\`; el resto de BIOS en `ps2 bios\`).
-  Repos hermanos en `E:\Dev`.
+  `pcsx2-2.8.2` (PS2, portable, con la BIOS `scph39001.bin` en su `bios\`; el resto de BIOS en `ps2 bios\`),
+  `vita3k-continuous` (firmware 3.74 y fuentes en `vita firmware\`), `azahar-2126.2` (3DS), `dolphin-2609a` (Wii),
+  `xemu-0.8.139` (Xbox clásica; falta MCPX y BIOS del usuario), `rpcs3-*` (PS3; firmware 4.93 en `ps3 firmware\`),
+  `shadps4-*` (PS4), `mgba-0.10.5` (GBA), `melonds-1.1` (DS), `sameboy-1.0.4` (GB/GBC). Switch: sin emulador hasta
+  tener claves y firmware del usuario. Xbox 360: Xenia no corre homebrew (T-R01). Repos hermanos en `E:\Dev`.
 - CLIs de agentes con login: codex, opencode (Beam), kilo (MiMo), vibe, agy. Orca instalado; su CLI está en
   `C:\Users\Pako\AppData\Local\Programs\orca\resources\bin\orca.exe` (en el PATH al activar "Orca CLI").
 - Agentes: `python tools/agents/dispatch.py list-agents|run|batch|status|remove`; skills propias en

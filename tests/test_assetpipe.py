@@ -109,8 +109,19 @@ def _make_console_game(tmp_path: Path) -> Path:
     return game
 
 
-@pytest.mark.parametrize("profile, size, rate, channels", [("psp", (480, 270), 22050, 1), ("ps2", (640, 360), 22050, 1)])
-def test_console_profiles_reduce_resources(tmp_path, profile, size, rate, channels):
+@pytest.mark.parametrize(
+    "profile, size, rate, channels, skips_video",
+    [
+        ("psp", (480, 270), 22050, 1, True),
+        ("ps2", (640, 360), 22050, 1, True),
+        ("vita", (960, 540), 22050, 1, False),
+        ("3ds", (400, 225), 22050, 1, True),
+        ("wii", (640, 360), 22050, 1, True),
+        ("xbox", (640, 360), 22050, 1, False),
+        ("switch", (1280, 720), 44100, 1, False),
+    ],
+)
+def test_console_profiles_reduce_resources(tmp_path, profile, size, rate, channels, skips_video):
     import wave
 
     from PIL import Image
@@ -127,7 +138,12 @@ def test_console_profiles_reduce_resources(tmp_path, profile, size, rate, channe
         assert img.size == (100, 50)
     with wave.open(str(tmp_path / "out" / "audio" / "beep.wav")) as w:
         assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (rate, channels, 2)
-    assert manifest["skipped"] == [{"source": "video/intro.webm"}]
+    if skips_video:
+        assert manifest["skipped"] == [{"source": "video/intro.webm"}]
+        assert not (tmp_path / "out" / "video" / "intro.webm").exists()
+    else:
+        assert manifest["skipped"] == []
+        assert (tmp_path / "out" / "video" / "intro.webm").read_bytes() == b"webm-bytes"
     first = (tmp_path / "out" / "manifest.json").read_bytes()
     run(profile, game, tmp_path / "out2")
     assert (tmp_path / "out2" / "manifest.json").read_bytes() == first
@@ -164,12 +180,30 @@ def _make_audio_duration_game(tmp_path: Path) -> Path:
     return game
 
 
-@pytest.mark.parametrize("profile", ["psp", "ps2"])
-def test_console_audio_split_by_duration(tmp_path, profile):
+@pytest.mark.parametrize(
+    "profile, music_rate, music_channels, quality, sound_rate",
+    [
+        ("psp", 44100, 2, 0, 22050),
+        ("ps2", 44100, 2, 2, 22050),
+        ("vita", 44100, 2, 4, 22050),
+        ("3ds", 32000, 2, 1, 22050),
+        ("wii", 32000, 2, 2, 22050),
+        ("xbox", 44100, 2, 3, 22050),
+        ("switch", 44100, 2, 5, 44100),
+    ],
+)
+def test_console_audio_split_by_duration(
+    tmp_path, profile, music_rate, music_channels, quality, sound_rate
+):
     import wave
 
     from tools.assetpipe.manifest import run
+    from tools.assetpipe.profiles import PROFILES
 
+    assert PROFILES[profile]["music_rate"] == music_rate
+    assert PROFILES[profile]["music_channels"] == music_channels
+    assert PROFILES[profile]["music_quality"] == quality
+    assert PROFILES[profile]["music_threshold"] == 10
     game = _make_audio_duration_game(tmp_path)
     out = tmp_path / "out"
     manifest = run(profile, game, out)
@@ -181,14 +215,14 @@ def test_console_audio_split_by_duration(tmp_path, profile):
     assert (out / "audio" / "long.ogg").is_file()
     assert (out / "audio" / "short.wav").is_file()
     with wave.open(str(out / "audio" / "short.wav")) as w:
-        assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (22050, 1, 2)
+        assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (sound_rate, 1, 2)
     # OGG de musica: 44100 Hz estereo
     probe = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries",
          "stream=sample_rate,channels", "-of", "csv=p=0", str(out / "audio" / "long.ogg")],
         capture_output=True, text=True, check=True,
     )
-    assert probe.stdout.strip() == "44100,2"
+    assert probe.stdout.strip() == f"{music_rate},{music_channels}"
     # determinismo del manifest
     out2 = tmp_path / "out2"
     run(profile, game, out2)

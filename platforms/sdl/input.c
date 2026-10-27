@@ -12,13 +12,17 @@ static int count, choice_at, frame;
 static uint8_t done[2800];
 static uint16_t cur, prev;
 static int shot_pending;
+#ifndef __PSP__
 static SDL_GameController *controller;
+#endif
 extern void sdl_shot_request(void);
 void input_init(int card)
 {
 	(void)card;
+#ifndef __PSP__
 	if (SDL_NumJoysticks() > 0 && SDL_IsGameController(0))
 		controller = SDL_GameControllerOpen(0);
+#endif
 }
 void input_set_script(const uint8_t *p, int n)
 {
@@ -62,6 +66,7 @@ void input_update(void)
 	KEY(SDLK_F1, BTN_START);
 	KEY(SDLK_F2, BTN_SELECT);
 #undef KEY
+#ifndef __PSP__
 	if (controller) {
 		SDL_GameControllerUpdate();
 #define PAD(button, bit)                                                                                               \
@@ -85,6 +90,7 @@ void input_update(void)
 		if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 16000)
 			cur |= BTN_R2;
 	}
+#endif
 	for (i = 0; i < count; i++) {
 		const uint8_t *p = script + 6 * i;
 		uint32_t at = p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);

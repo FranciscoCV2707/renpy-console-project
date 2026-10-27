@@ -37,6 +37,7 @@ RATE_LIMIT_HINTS = ("429 too many requests", "status code 429", "http 429", "err
                     "rate_limit_exceeded", "ratelimiterror", "rate limit reached",
                     "timed out waiting for response headers")
 PYTHON = Path(sys.executable)
+CLANG_FORMAT = Path("C:/msys64/ucrt64/bin/clang-format.exe")
 TEXT_SUFFIXES = {".py", ".c", ".h", ".md", ".toml", ".yaml", ".yml", ".txt", ".rpy", ".json", ".cmake"}
 FIX_PROMPT = ("Eres el agente {agent} del proyecto renpy-console-project. Ya trabajaste la tarea {task} en este "
               "directorio, pero el despachador encontro problemas. Lee .agents/inbox/{task}-fix.md, corrige cada "
@@ -144,6 +145,8 @@ def alias_problems(name: str, source: str) -> list[str]:
 def quality_problems(wt: Path, base: str, allowed: list[str] | None = None) -> list[str]:
     """Lo que la revisión rechazaría siempre: archivos fuera de los permitidos, errores de ruff, código muerto
     (vulture), falta de salto de línea final y pruebas rotas. Solo mira lo que la rama cambió respecto de `base`."""
+    # Contra el punto donde nació la rama: lo que main avanzó mientras tanto no es del agente
+    base = git("merge-base", base, "HEAD", cwd=wt, check=False).stdout.strip() or base
     touched = git("diff", "--name-only", base, cwd=wt, check=False).stdout.split()
     touched += git("ls-files", "--others", "--exclude-standard", cwd=wt, check=False).stdout.split()
     touched = list(dict.fromkeys(touched))
@@ -167,7 +170,14 @@ def quality_problems(wt: Path, base: str, allowed: list[str] | None = None) -> l
         problems += [line for line in out.splitlines() if Path(line.split(":", 1)[0]) in mine]
         for c in py:
             problems += alias_problems(c, (wt / c).read_text(encoding="utf-8"))
-    tests =subprocess.run([str(PYTHON), "-m", "pytest", "-q", "-x"], cwd=wt, text=True, capture_output=True,
+    # C nuevo con el estilo del motor (.clang-format); el C que ya existía no se reformatea
+    added = set(git("diff", "--name-only", "--diff-filter=A", base, cwd=wt, check=False).stdout.split())
+    added |= set(git("ls-files", "--others", "--exclude-standard", cwd=wt, check=False).stdout.split())
+    for c in sorted(c for c in added if c.endswith((".c", ".h")) and (wt / c).is_file()):
+        formatted = subprocess.run([str(CLANG_FORMAT), "--style=file", c], cwd=wt, capture_output=True).stdout
+        if formatted != (wt / c).read_bytes():
+            problems.append(f"{c}: no sigue el estilo del motor; corre {CLANG_FORMAT} --style=file -i {c}")
+    tests = subprocess.run([str(PYTHON), "-m", "pytest", "-q", "-x"], cwd=wt, text=True, capture_output=True,
                            encoding="utf-8", errors="replace")
     if tests.returncode not in (0, 5):  # 5: no hay pruebas
         problems.append("pytest falla:\n" + "\n".join(tests.stdout.splitlines()[-25:]))

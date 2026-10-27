@@ -85,8 +85,12 @@ int img_load(Image *img, const uint8_t *file, int file_size, int vram_x, int vra
 	}
 
 	uint8_t *indices = (uint8_t *)malloc(raw);
-	if (!indices)
-		return -1;
+	if (!indices) {
+		res_evict_undrawn();
+		indices = (uint8_t *)malloc(raw);
+		if (!indices)
+			return -1;
+	}
 
 	if (lz4_decode(file + 544, (int)comp, indices, (int)raw) != (int)raw) {
 		free(indices);
@@ -220,6 +224,8 @@ static void draw_ex(const Image *img, int layer, int screen_x, int screen_y, int
 {
 	if (!img || !img->loaded)
 		return;
+
+	res_mark_drawn(img);
 
 	int is_title = (layer == LAYER_TEXT && screen_y < 120);
 	if (is_title)

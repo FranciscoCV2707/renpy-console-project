@@ -1,15 +1,17 @@
 #include "res.h"
 #include "cd.h"
+#include "video.h"
 #include "gba_internal.h"
 #include <stdio.h>
 #include <string.h>
 
-#define RES_MAX 12
+#define RES_MAX 8
 
 static struct {
 	int id;
 	Image image;
 	uint32_t last_used;
+	int last_draw;
 } cache[RES_MAX] __attribute__((section(".sbss")));
 
 static uint32_t tick_counter = 0;
@@ -17,11 +19,58 @@ volatile uint32_t res_trace_tag = 0;
 
 void res_new_scene(void)
 {
+	/* D25: al cambiar de escena, liberar todas las imágenes de la escena anterior */
+	for (int i = 0; i < RES_MAX; i++) {
+		if (cache[i].id) {
+			gba_free_texture(cache[i].image.vram_x);
+			cache[i].id = 0;
+			cache[i].last_used = 0;
+			cache[i].last_draw = 0;
+		}
+	}
 }
 
 void res_tick(void)
 {
 	tick_counter++;
+	int now = video_frames();
+	/* D25: liberar imágenes que dejaron de verse (HIDE o cambio de expresión) */
+	for (int i = 0; i < RES_MAX; i++) {
+		if (cache[i].id && cache[i].last_draw > 0) {
+			if (now - cache[i].last_draw > 2) {
+				gba_free_texture(cache[i].image.vram_x);
+				cache[i].id = 0;
+				cache[i].last_used = 0;
+				cache[i].last_draw = 0;
+			}
+		}
+	}
+}
+
+void res_mark_drawn(const Image *img)
+{
+	if (!img)
+		return;
+	int now = video_frames();
+	for (int i = 0; i < RES_MAX; i++) {
+		if (cache[i].id && &cache[i].image == img) {
+			cache[i].last_draw = now;
+			break;
+		}
+	}
+}
+
+void res_evict_undrawn(void)
+{
+	int now = video_frames();
+	for (int i = 0; i < RES_MAX; i++) {
+		if (cache[i].id && cache[i].last_draw != now) {
+			gba_free_texture(cache[i].image.vram_x);
+			cache[i].id = 0;
+			cache[i].last_used = 0;
+			cache[i].last_draw = 0;
+		}
+	}
 }
 
 const Image *res_get(int id)
@@ -50,14 +99,16 @@ const Image *res_get(int id)
 	}
 
 	if (slot < 0) {
+		int now = video_frames();
 		uint32_t oldest = 0xFFFFFFFF;
-		slot = 0;
 		for (i = 0; i < RES_MAX; i++) {
-			if (cache[i].last_used < oldest) {
+			if (cache[i].last_draw != now && cache[i].last_used < oldest) {
 				oldest = cache[i].last_used;
 				slot = i;
 			}
 		}
+		if (slot < 0)
+			slot = 0;
 		if (cache[slot].id) {
 			gba_free_texture(cache[slot].image.vram_x);
 			cache[slot].id = 0;
@@ -72,6 +123,7 @@ const Image *res_get(int id)
 
 	cache[slot].id = id + 1;
 	cache[slot].last_used = ++tick_counter;
+	cache[slot].last_draw = 0;
 	return &cache[slot].image;
 }
 

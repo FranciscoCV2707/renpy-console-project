@@ -17,41 +17,36 @@ docker pull devkitpro/devkitarm@sha256:116afba8df8453961de2936ffab20dd441edf4d68
 - Compilador: `arm-none-eabi-gcc (GCC) 16.1.0` (`/opt/devkitpro/devkitARM/bin/`).
 - SDK GBA: **libtonc 1.4.5** en `/opt/devkitpro/libtonc` (cabeceras en
   `/opt/devkitpro/libtonc/include`, biblioteca en `/opt/devkitpro/libtonc/lib/libtonc.a`).
-  Se usa libtonc por su envoltura de llamadas BIOS (`tonc_bios.h`), incluida `LZ77UnCompVram`.
+  Se usa libtonc por macros de registros GBA y funciones DMA (`dma3_cpy`).
 - Empaquetado: `gbafix` (en `/opt/devkitpro/tools/bin`) corrige la cabecera del ROM.
 - `make` y `cmake` incluidos.
 
 ## Compilación
 
 ```sh
-E:/Dev/renpy-console-project/.venv/Scripts/python.exe -m tools.demake.gba_pack --game E:/snoot/snootgame/game --out build/demake/gba/assets
 E:/Dev/renpy-console-project/.venv/Scripts/python.exe platforms/gba/build.py
 ```
 
-Salida: `build/gba/snoot.gba`. El fondo se toma del primer archivo de `build/demake/gba/assets/bg/*.bin`
-(generado por `gba_pack.py`).
+Salida: `build/gba/snoot.gba`. Los recursos de juego (`build/ctl/ps1/disc`) se empaquetan en
+formato GBFS v1 alineado a 256 bytes y se anexan a la ROM.
 
-## Hardware y descompresión
+## Hardware y arquitectura del backend
 
-- Modo de video 4: 240×160, 8 bpp (un índice de color por píxel), paleta de 256 colores BGR555
-  (GBATEK, "Video Mode 4").
-- El fondo comprimido se descomprime en VRAM con la llamada BIOS `LZ77UnCompVram` (SWI 12h, GBATEK
-  "BIOS Decompression Functions"); el formato es LZ77 tipo 0x10 con ventana de 4096 bytes.
-- La paleta BGR555 sigue al flujo comprimido en el mismo archivo y se copia a `MEM_PAL`.
-- Fuente propia de 8×8 embebida en `platforms/gba/main.c`; el texto se dibuja píxel a píxel en el
-  framebuffer de modo 4.
+- Modo de video 3: 240×160 píxeles, 16 bpp BGR555 directo (GBATEK, "Video Mode 3").
+- Framebuffer doble: `gba_backbuffer` en EWRAM renderiza capas por orden z; en VBlank se copia a `vid_mem` (`0x06000000`) vía DMA3 (`dma3_cpy`).
+- Layout de pantalla (D19): 240×160. Escena y sprites arriba (y=0..111), caja de diálogo translúcida abajo (y=112..159).
+- Memoria RAM: 256 KB EWRAM + 32 KB IWRAM. El núcleo compartido (`engine/core` + `engine/app`) cabe completamente: ~176 KB bss en EWRAM (67%) y ~6.5 KB en IWRAM (20%), con ~85 KB libres para heap y pila.
+- Gestión de imágenes (D25): carga bajo demanda en `res_get` y liberación inmediata al dejar de verse (cambio de escena en `res_new_scene`, o `HIDE`/cambio de expresión en `res_tick`).
 
-## Emulador para verificar
+## Emulador y traza para verificar
 
 - mGBA 0.10.5 en `E:\snoot\mgba-0.10.5\mGBA-0.10.5-win64\`.
-- Ejecución sin interfaz: `mgba-sdl.exe` con un script Lua pasado mediante `-C script=<ruta>` (mGBA 0.10
-  expone `emu:screenshot()` y el callback `frame` en su API de scripting; ver
-  https://mgba.io/docs/scripting.html). El script guarda `screenshot()` tras unos fotogramas y el
-  proceso se detiene después.
-- Captura manual: menú "Tools → Scripting" en la interfaz gráfica y botón de captura.
+- Traza de depuración: canal homebrew de mGBA usando registros de I/O `REG_DEBUG_*` (0x4FFF600-0x4FFF780).
+- Ejecución CLI sin interfaz: `mgba-sdl.exe` con `-C fastForward=1 -C audioSync=0 -C videoSync=0 -C fpsTarget=0 -C logToFile=1 -C logFile=<ruta> -l 31`.
+- Integración con `tools/ctl`: adapter `tools/ctl/gba.py` implementa `run_scenario` y extrae las líneas `T|` para comparar con la referencia.
 
 ## Lo que falta
 
-- Entrada de botones, audio (FIFO PCM) y guardado: no incluidos en este ROM mínimo.
-- Integración con `tools/ctl`: sin adapter todavía.
-- Perfil de recursos de GBA en `tools/assetpipe` (T-506) y audio por duración (D18).
+- Audio (FIFO PCM / timers).
+- Recursos comprimidos específicos de GBA (`tools/demake/gba_pack.py`).
+- Perfil de recursos de GBA en `tools/assetpipe` (T-506).

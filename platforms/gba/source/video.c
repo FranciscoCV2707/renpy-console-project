@@ -318,8 +318,8 @@ void video_flip(void)
 	while (REG_VCOUNT < 160) {
 	}
 
-	/* Copiar a VRAM en modo 3 con DMA */
-	dma3_cpy(vid_mem, gba_backbuffer, GBA_SCREEN_W * GBA_SCREEN_H * 2 / 4);
+	/* Copiar a VRAM en modo 3 con DMA (dma3_cpy espera tamaño en bytes y divide por 4 internamente) */
+	dma3_cpy(vid_mem, gba_backbuffer, sizeof(gba_backbuffer));
 
 	while (REG_VCOUNT >= 160) {
 	}

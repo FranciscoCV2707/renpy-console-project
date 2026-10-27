@@ -25,3 +25,5 @@ void gba_queue_snapshot(int layer, int blend, int bright, int band_y, int band_b
 const void *cd_file_ptr(const char *path, int *size);
 void mgba_log(const char *msg);
 const uint8_t *gba_get_font_atlas(void);
+void res_mark_drawn(const Image *img);
+void res_evict_undrawn(void);

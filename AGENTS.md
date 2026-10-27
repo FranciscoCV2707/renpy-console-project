@@ -36,8 +36,8 @@ Lo leen solos Codex, OpenCode (Beam) y Kilo; a Claude, Vibe y Antigravity se lo 
 - Lo mínimo que pide la tarea: sin alias ("por si se busca con otro nombre"), sin funciones, parámetros ni datos que
   nadie use, sin reexportar en `__init__.py`, sin `try/except` que se trague errores, sin código para APIs que no
   verificaste que existen. Cada archivo termina con salto de línea. La revisión rechaza todo eso.
-- C nuevo con el estilo de `.clang-format` (el de `platforms/ps1`): `C:msys64Crt64binang-format.exe --style=file -i <archivo>`.
-  Una sentencia por línea; nada de código compactado.
+- C nuevo con el estilo de `.clang-format` (el de `platforms/ps1`):
+  `C:/msys64/ucrt64/bin/clang-format.exe --style=file -i <archivo>`. Una sentencia por línea; nada de código compactado.
 - Documentación en español; código y nombres en inglés.
 
 ## Al terminar

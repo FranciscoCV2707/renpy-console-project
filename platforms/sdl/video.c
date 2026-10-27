@@ -24,6 +24,24 @@ static int shot_requested, shot_number;
 static int output_w = SCREEN_W, output_h = SCREEN_H;
 void sdl_snapshot_to(const char *path);
 
+/* PS1 usa 128 como tinte neutro (1.0); SDL usa 255. La GPU de PS1 hace texel * tinte/128,
+ * SDL hace texel * mod/255. Para aclarar por encima de 1.0 (tinte >128) SDL no puede
+ * pasar de 255 con ColorMod, asi que se recorta. En Snoot Wani ningun SHOW/anim usa
+ * valores >128 (grep de las claves ANIM en los VNB de build/ctl/snoot-ps1-data da max 128),
+ * por eso recortar es correcto; si apareciera un brillo >1.0 habria que hacer una
+ * segunda pasada aditiva con SDL_BLENDMODE_ADD. */
+static int ps1_to_sdl(int v)
+{
+	if (v <= 0)
+		return 0;
+	if (v >= 255)
+		return 255;
+	{
+		int s = v * 255 / 128;
+		return s > 255 ? 255 : s;
+	}
+}
+
 /* Mapeo de coordenadas del motor (320x240) a la ventana de la consola. */
 static void map_pos(int *mx, int *my, int x, int y)
 {
@@ -230,12 +248,25 @@ void video_flip(void)
 					SDL_RenderFillRect(renderer, &tr);
 #endif
 				} else if (d->type == 3) {
-					SDL_SetTextureColorMod(d->texture, d->r, d->g, d->b);
+					int sr = ps1_to_sdl(d->r);
+					int sg = ps1_to_sdl(d->g);
+					int sb = ps1_to_sdl(d->b);
+					SDL_SetTextureColorMod(d->texture, sr, sg, sb);
 					SDL_SetTextureBlendMode(d->texture,
 					                        d->blend ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 					SDL_RenderCopy(renderer, d->texture, &d->src, &dst);
 				} else if (d->texture) {
-					SDL_SetTextureColorMod(d->texture, d->r, d->g, d->b);
+					int sr, sg, sb;
+					if (d->texture == font) {
+						sr = d->r > 255 ? 255 : d->r;
+						sg = d->g > 255 ? 255 : d->g;
+						sb = d->b > 255 ? 255 : d->b;
+					} else {
+						sr = ps1_to_sdl(d->r);
+						sg = ps1_to_sdl(d->g);
+						sb = ps1_to_sdl(d->b);
+					}
+					SDL_SetTextureColorMod(d->texture, sr, sg, sb);
 					SDL_SetTextureBlendMode(d->texture,
 					                        d->blend ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_BLEND);
 					SDL_RenderCopyEx(renderer, d->texture, &d->src, &dst, d->angle, NULL,
@@ -310,10 +341,16 @@ void sdl_draw_texture(SDL_Texture *t, int layer, int x, int y, int w, int h, int
 	d.h = h * zoom / 64;
 	d.texture = t;
 	d.src = (SDL_Rect){sx, sy, sw, sh};
-	/* SDL_SetTextureColorMod toma Uint8: el tinte normal de la PS1 (128) duplicado da 256, que se volvia 0 (negro) */
-	d.r = r > 255 ? 255 : r;
-	d.g = g > 255 ? 255 : g;
-	d.b = b > 255 ? 255 : b;
+	/* r/g/b vienen en escala PS1 (128 = neutro); font ya viene en escala SDL (r*2) y se guarda tal cual */
+	if (t == font) {
+		d.r = r > 255 ? 255 : r < 0 ? 0 : r;
+		d.g = g > 255 ? 255 : g < 0 ? 0 : g;
+		d.b = b > 255 ? 255 : b < 0 ? 0 : b;
+	} else {
+		d.r = r < 0 ? 0 : r > 255 ? 255 : r;
+		d.g = g < 0 ? 0 : g > 255 ? 255 : g;
+		d.b = b < 0 ? 0 : b > 255 ? 255 : b;
+	}
 	d.blend = blend;
 	d.flip = flip;
 	d.angle = (double)angle * 360.0 / 4096.0;

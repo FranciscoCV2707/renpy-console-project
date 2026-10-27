@@ -8,7 +8,6 @@ Por lo tanto, la extracción de trazas en melonDS 1.1 no está soportada.
 """
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -26,14 +25,6 @@ def extract_trace(log: str) -> str:
             if rest.startswith("T|"):
                 lines.append(rest)
     return "".join(f"{line}\n" for line in lines)
-
-
-def stage_nitrofs(nitrofs: Path, disc: Path, autotest: bytes) -> Path:
-    """Copia los archivos del disco en el árbol NitroFS y escribe AUTOTEST.BIN."""
-    nitrofs.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(disc, nitrofs, dirs_exist_ok=True)
-    (nitrofs / "AUTOTEST.BIN").write_bytes(autotest)
-    return nitrofs
 
 
 def run_scenario(scenario, out: Path) -> Path:

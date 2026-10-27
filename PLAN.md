@@ -87,6 +87,7 @@ menús, 3 ranuras, galería; es la referencia de UI para todos los ports).
 | D20 | **El backend SDL (T-401) arranca ya**, en paralelo a la Fase 3: no depende de ella. La compuerta G3 sigue siendo requisito para dar por buena la Fase 4 | Claude (líder), 2026-10-26 | La Fase 4 es el cuello de botella de las 8 consolas SDL |
 | D21 | **PC corre primero los datos del disco de PS1** (VNB, IMG1, SPU/XA, a 320×240 escalado): el backend SDL implementa la misma API por enlace y lee los archivos de la carpeta del disco. Los recursos en alta resolución (assetpipe + coordenadas por perfil, D12) vienen después, sobre un backend que ya pasa las rutas | Claude (líder), 2026-10-26 | PC de punta a punta cuanto antes y comparable con las mismas trazas |
 | D22 | **Cuadros solo contra la misma plataforma**: cada consola tiene sus tiempos de carga; su humo se compara con una traza propia (`tests/reference/traces/<plataforma>/`). Entre plataformas y contra Ren'Py se compara por eventos (`compare.mode: renpy`, D17) | Claude (líder), 2026-10-26 | PC llegaba 10 cuadros tarde al primer SCENE sin ningún error de lógica |
+| D23 | **Nivel R según T-R01**: Xbox One/Series (UWP en modo desarrollador, esfuerzo S), PS4 (OpenOrbis, M) y PS3 (PSL1GHT, M) entran al plan después de la Fase 6; PS5 y Xbox 360 quedan fuera por ahora (sin SDL2 maduro ni emulador que corra homebrew) | Claude (líder), 2026-10-27 | `docs/platforms/research/README.md` |
 
 Descartado de v2.0: el submódulo `upstream/` (D2/inventario), la rama `integration` mientras trabaje un solo agente
 (se crea en la Fase 4), y las tablas de cronograma por meses de v0.1 (no eran verificables).
@@ -347,6 +348,7 @@ Orca; Superpowers es opcional y solo para Claude.
 | T-603 | 6 | beam | Wii con el backend SDL (devkitPPC) | T-405 |
 | T-604 | 6 | beam | Xbox clásica con nxdk | T-405 |
 | T-605 | 6 | beam | Switch con el backend SDL (devkitA64) | T-405 |
+| T-606 | 6 | agy | PS4 con el backend SDL (OpenOrbis en Docker) | T-R01 |
 | T-R01 | R | agy | Factibilidad de PS3, PS4, PS5, Xbox 360 y Xbox One/Series | — |
 | T-701 | 7 | vibe | Presupuesto del demake de GBA (cabe en 32 MB) | — |
 | T-901 | — | vibe | Auditoría de licencias y `CREDITS.md` (antes de cada publicación) | G3 |

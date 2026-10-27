@@ -24,7 +24,11 @@
 
 /* PC */
 #if !defined(__PSP__) && !defined(__vita__) && !defined(__3DS__) && !defined(__WII__) && !defined(NXDK) &&             \
+<<<<<<< HEAD
     !defined(__SWITCH__) && !defined(_EE)
+=======
+    !defined(__SWITCH__) && !defined(__ORBIS__)
+>>>>>>> agent/beam/T-609
 #define SDL_TARGET_DATA_DIR             "."
 #define SDL_TARGET_SAVE_DIR             "build/pc/save"
 #define SDL_TARGET_WINDOW_W             960
@@ -35,6 +39,7 @@
 #define SDL_TARGET_SET_MAIN_READY       0
 #define SDL_TARGET_RENDERER_FLAGS       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 #define SDL_TARGET_HAS_GAME_CONTROLLER  1
+#define SDL_TARGET_HAS_JOYSTICK         0
 #define SDL_TARGET_FLUSH_STDOUT_ENABLED 0
 #define SDL_TARGET_PSP_MODULE_INFO      0
 #define SDL_TARGET_NEEDS_FAT_INIT       0
@@ -53,6 +58,7 @@
 #define SDL_TARGET_SET_MAIN_READY       1
 #define SDL_TARGET_RENDERER_FLAGS       0
 #define SDL_TARGET_HAS_GAME_CONTROLLER  0
+#define SDL_TARGET_HAS_JOYSTICK         0
 #define SDL_TARGET_FLUSH_STDOUT_ENABLED 1
 #define SDL_TARGET_PSP_MODULE_INFO      1
 #define SDL_TARGET_NEEDS_FAT_INIT       0
@@ -93,6 +99,7 @@
 #define SDL_TARGET_SET_MAIN_READY       1
 #define SDL_TARGET_RENDERER_FLAGS       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 #define SDL_TARGET_HAS_GAME_CONTROLLER  1
+#define SDL_TARGET_HAS_JOYSTICK         0
 #define SDL_TARGET_FLUSH_STDOUT_ENABLED 1
 #define SDL_TARGET_PSP_MODULE_INFO      0
 #define SDL_TARGET_NEEDS_FAT_INIT       0
@@ -115,6 +122,7 @@
 #define SDL_TARGET_SET_MAIN_READY       0
 #define SDL_TARGET_RENDERER_FLAGS       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 #define SDL_TARGET_HAS_GAME_CONTROLLER  1
+#define SDL_TARGET_HAS_JOYSTICK         0
 #define SDL_TARGET_FLUSH_STDOUT_ENABLED 0
 #define SDL_TARGET_PSP_MODULE_INFO      0
 #define SDL_TARGET_NEEDS_FAT_INIT       0
@@ -133,6 +141,7 @@
 #define SDL_TARGET_SET_MAIN_READY       0
 #define SDL_TARGET_RENDERER_FLAGS       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 #define SDL_TARGET_HAS_GAME_CONTROLLER  1
+#define SDL_TARGET_HAS_JOYSTICK         0
 #define SDL_TARGET_FLUSH_STDOUT_ENABLED 0
 #define SDL_TARGET_PSP_MODULE_INFO      0
 #define SDL_TARGET_NEEDS_FAT_INIT       1
@@ -151,6 +160,7 @@
 #define SDL_TARGET_SET_MAIN_READY       0
 #define SDL_TARGET_RENDERER_FLAGS       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 #define SDL_TARGET_HAS_GAME_CONTROLLER  1
+#define SDL_TARGET_HAS_JOYSTICK         0
 #define SDL_TARGET_FLUSH_STDOUT_ENABLED 0
 #define SDL_TARGET_PSP_MODULE_INFO      0
 #define SDL_TARGET_NEEDS_FAT_INIT       0
@@ -169,14 +179,42 @@
 #define SDL_TARGET_SET_MAIN_READY       0
 #define SDL_TARGET_RENDERER_FLAGS       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)
 #define SDL_TARGET_HAS_GAME_CONTROLLER  1
+#define SDL_TARGET_HAS_JOYSTICK         0
 #define SDL_TARGET_FLUSH_STDOUT_ENABLED 0
 #define SDL_TARGET_PSP_MODULE_INFO      0
 #define SDL_TARGET_NEEDS_FAT_INIT       0
 #define SDL_TARGET_HAS_RENDER_GEOMETRY  1
 #define SDL_TARGET_MKDIR_WITH_MODE      1
 
+/* PS4 (OpenOrbis) */
+#elif defined(__ORBIS__)
+#define SDL_TARGET_DATA_DIR             "/data/snoot"
+#define SDL_TARGET_SAVE_DIR             "/data/snoot/save"
+#define SDL_TARGET_WINDOW_W             1920
+#define SDL_TARGET_WINDOW_H             1080
+#define SDL_TARGET_MANUAL_SCALE         1
+#define SDL_TARGET_USE_LOGICAL_SIZE     0
+#define SDL_TARGET_INIT_FLAGS           (SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO)
+#define SDL_TARGET_SET_MAIN_READY       1
+#define SDL_TARGET_RENDERER_FLAGS       0
+#define SDL_TARGET_HAS_GAME_CONTROLLER  0
+#define SDL_TARGET_HAS_JOYSTICK         1
+#define SDL_TARGET_FLUSH_STDOUT_ENABLED 1
+#define SDL_TARGET_PSP_MODULE_INFO      0
+#define SDL_TARGET_NEEDS_FAT_INIT       0
+#define SDL_TARGET_HAS_RENDER_GEOMETRY  1
+#define SDL_TARGET_MKDIR_WITH_MODE      1
+#define SDL_TARGET_VIEW_X               320
+#define SDL_TARGET_VIEW_Y               60
+#define SDL_TARGET_VIEW_W               1280
+#define SDL_TARGET_VIEW_H               960
+
 #else
+<<<<<<< HEAD
 #error "Consola SDL no soportada: define __PSP__, _EE, __vita__, __3DS__, __WII__, NXDK o __SWITCH__"
+=======
+#error "Consola SDL no soportada: define __PSP__, __vita__, __3DS__, __WII__, NXDK, __SWITCH__ o __ORBIS__"
+>>>>>>> agent/beam/T-609
 #endif
 
 #if SDL_TARGET_SET_MAIN_READY

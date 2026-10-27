@@ -4,6 +4,7 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from .autotest import autotest_bin, scenario_steps
@@ -16,6 +17,11 @@ def extract_trace(text: str) -> str:
     # PCSX2 antepone la hora a cada linea de la consola del EE: "[    1.1670] T|0|0|..."
     lines = (line.split("] ", 1)[1] if line.startswith("[") and "] " in line else line for line in text.splitlines())
     return "".join(f"{line}\n" for line in lines if line.startswith("T|"))
+
+
+def game_quit(text: str) -> bool:
+    """VN_QUIT es la marca que el juego imprime antes de exit(0); PCSX2 no se cierra solo al salir el ELF."""
+    return "VN_QUIT" in text
 
 
 def run_scenario(scenario, out: Path) -> Path:
@@ -34,20 +40,31 @@ def run_scenario(scenario, out: Path) -> Path:
                    cwd=ROOT, check=True)
     executable = ROOT / "build" / "ps2" / "snoot.elf"
     log = out / "pcsx2.log"
+    stdout_path = out / "stdout.txt"
     command = [
         str(PCSX2), "-portable", "-nogui", "-fastboot", "-elf", str(executable),
         "-logfile", str(log), "-earlyconsolelog",
     ]
-    proc = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
-                          errors="replace", timeout=scenario.limits.max_seconds, check=False)
+    with stdout_path.open("w", encoding="utf-8", newline="\n") as stdout_file:
+        proc = subprocess.Popen(command, cwd=ROOT, stdout=stdout_file, stderr=subprocess.STDOUT)
+        deadline = time.monotonic() + scenario.limits.max_seconds
+        while proc.poll() is None and time.monotonic() < deadline:
+            text = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
+            if game_quit(text):
+                break
+            time.sleep(0.5)
+        timed_out = proc.poll() is None
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True)
+        proc.wait(timeout=10)
     log_text = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
-    console_text = proc.stdout + proc.stderr
-    (out / "stdout.txt").write_text(console_text, encoding="utf-8", newline="\n")
+    console_text = stdout_path.read_text(encoding="utf-8", errors="replace")
     trace = extract_trace(log_text + "\n" + console_text)
     trace_path = out / "trace.txt"
     trace_path.write_text(trace, encoding="utf-8", newline="\n")
-    if proc.returncode:
-        raise subprocess.CalledProcessError(proc.returncode, command, output=console_text, stderr=log_text)
+    if not game_quit(log_text + "\n" + console_text):
+        if timed_out:
+            raise subprocess.TimeoutExpired(command, scenario.limits.max_seconds)
+        raise subprocess.CalledProcessError(proc.returncode or 1, command, output=console_text, stderr=log_text)
     if not trace:
-        raise RuntimeError(f"PCSX2 no produjo líneas TRACE; revisa {log} y {out / 'stdout.txt'}")
+        raise RuntimeError(f"PCSX2 no produjo líneas TRACE; revisa {log} y {stdout_path}")
     return trace_path

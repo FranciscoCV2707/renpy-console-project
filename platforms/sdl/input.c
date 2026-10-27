@@ -113,8 +113,14 @@ void input_update(void)
 		sdl_shot_request();
 		shot_pending = 0;
 	}
-	if (autotest_quit)
+	if (autotest_quit) {
+#ifdef _EE
+		/* tools/ctl/ps2.py ve esta linea en el log y cierra PCSX2: el ELF sale, pero el emulador no */
+		printf("VN_QUIT\n");
+		fflush(stdout);
+#endif
 		exit(0);
+	}
 }
 int input_down(uint16_t m)
 {

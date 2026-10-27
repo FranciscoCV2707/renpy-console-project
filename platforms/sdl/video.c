@@ -3,6 +3,10 @@
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _EE
+#include <sbv_patches.h>
+#include <sifrpc.h>
+#endif
 
 #define COMMANDS 8192
 typedef struct {
@@ -99,6 +103,14 @@ void video_init(void)
 {
 #ifdef __PSP__
 	SDL_SetMainReady();
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != 0)
+		return;
+#elif defined(_EE)
+	/* El driver de audio de SDL2 para PS2 carga libsd.irx y audsrv.irx por SIF (init_audio_driver): sin
+	 * SifInitRpc y los parches SBV la llamada se queda esperando al IOP para siempre */
+	SifInitRpc(0);
+	sbv_patch_enable_lmb();
+	sbv_patch_disable_prefix_check();
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != 0)
 		return;
 #else

@@ -117,6 +117,96 @@ int img_load_big(Image *img, const uint8_t *file, int file_size, int vram_x, int
 	return ok;
 }
 
+void ds_render_img_top(const Image *img, int screen_x, int screen_y, int flip, int zoom, int r, int g, int b, int angle,
+                       int brightness, int is_title)
+{
+	(void)r;
+	(void)g;
+	(void)b;
+	(void)angle;
+
+	if (!img || !img->loaded)
+		return;
+
+	if (img->kind == 2) {
+		int w = img->full_w * zoom / 64;
+		int h = img->full_h * zoom / 64;
+		ds_queue_top_rect(LAYER_BG, screen_x, screen_y, w, h, img->solid[0], img->solid[1], img->solid[2], 0);
+		return;
+	}
+	if (img->kind == 3)
+		return;
+
+	int slot = img->vram_x;
+	if (slot >= DS_MAX_TEXTURES || !textures[slot].in_use)
+		return;
+
+	DsTexture *tex = &textures[slot];
+	int dst_x, dst_y, dst_w, dst_h;
+
+	if (is_title) {
+		dst_w = (img->w * zoom / 64) * 4 / 5;
+		dst_h = (img->h * zoom / 64) * 4 / 5;
+		dst_x = (DS_SCREEN_W - dst_w) / 2;
+		dst_y = (DS_SCREEN_H - dst_h) / 2;
+	} else {
+		int fw = img->full_w;
+		int eff_x = screen_x + (flip ? (fw - img->x - img->w) * zoom / 64 : img->x * zoom / 64);
+		int eff_y = screen_y + img->y * zoom / 64;
+		dst_x = eff_x * 4 / 5;
+		dst_y = eff_y * 4 / 5;
+		dst_w = (img->w * zoom / 64) * 4 / 5;
+		dst_h = (img->h * zoom / 64) * 4 / 5;
+	}
+
+	if (dst_w <= 0 || dst_h <= 0)
+		return;
+
+	int x0 = dst_x < 0 ? 0 : dst_x;
+	int y0 = dst_y < 0 ? 0 : dst_y;
+	int x1 = dst_x + dst_w > DS_SCREEN_W ? DS_SCREEN_W : dst_x + dst_w;
+	int y1 = dst_y + dst_h > DS_SCREEN_H ? DS_SCREEN_H : dst_y + dst_h;
+
+	for (int py = y0; py < y1; py++) {
+		int dy = py - dst_y;
+		int sy = dy * img->h / dst_h;
+		if (sy >= img->h)
+			sy = img->h - 1;
+
+		const uint8_t *src_row = tex->indices + sy * img->w;
+		uint16_t *dst_row = top_fb + py * DS_SCREEN_W;
+
+		for (int px = x0; px < x1; px++) {
+			int dx = px - dst_x;
+			int sx = flip ? (img->w - 1 - (dx * img->w / dst_w)) : (dx * img->w / dst_w);
+			if (sx < 0)
+				sx = 0;
+			if (sx >= img->w)
+				sx = img->w - 1;
+
+			uint8_t idx = src_row[sx];
+			if (idx == 0 && (img->flags & 1))
+				continue;
+			uint16_t c = tex->palette[idx];
+			if (!(c & 0x8000))
+				continue;
+
+			if (brightness < 256) {
+				int cr = ((c & 31) * brightness) >> 8;
+				int cg = (((c >> 5) & 31) * brightness) >> 8;
+				int cb = (((c >> 10) & 31) * brightness) >> 8;
+				c = (uint16_t)ARGB16(1, cr, cg, cb);
+			}
+
+			if (img->flags & IMG_TRANSLUCENT) {
+				dst_row[px] = ds_blend50(dst_row[px], c);
+			} else {
+				dst_row[px] = c;
+			}
+		}
+	}
+}
+
 static void draw_ex(const Image *img, int layer, int screen_x, int screen_y, int flip, int zoom, int r, int g, int b,
                     int angle)
 {
@@ -125,8 +215,17 @@ static void draw_ex(const Image *img, int layer, int screen_x, int screen_y, int
 	(void)b;
 	(void)angle;
 
-	if (!img->loaded)
+	if (!img || !img->loaded)
 		return;
+
+	int is_title = (layer == LAYER_TEXT && screen_y < 120);
+	if (is_title)
+		ds_in_title = 1;
+
+	if (is_title || layer >= LAYER_FX) {
+		ds_queue_top_img(img, layer, screen_x, screen_y, flip, zoom, r, g, b, angle, img_brightness, is_title);
+		return;
+	}
 
 	if (img->kind == 2) {
 		video_rect(layer, screen_x, screen_y, img->full_w * zoom / 64, img->full_h * zoom / 64, img->solid[0],
@@ -141,44 +240,33 @@ static void draw_ex(const Image *img, int layer, int screen_x, int screen_y, int
 		return;
 
 	DsTexture *tex = &textures[slot];
-	int dst_x, dst_y, dst_w, dst_h;
-
-	if (layer == LAYER_TEXT && screen_y < 120) {
-		ds_in_title = 1;
-		dst_w = (img->w * zoom / 64) * 4 / 5;
-		dst_h = (img->h * zoom / 64) * 4 / 5;
-		dst_x = (DS_SCREEN_W - dst_w) / 2;
-		dst_y = (DS_SCREEN_H - dst_h) / 2;
-	} else {
-		int fw = img->full_w;
-		int eff_x = screen_x + (flip ? (fw - img->x - img->w) * zoom / 64 : img->x * zoom / 64);
-		int eff_y = screen_y + img->y * zoom / 64;
-		dst_x = eff_x * 4 / 5;
-		dst_y = ds_in_title ? ((eff_y - 35) * 4 / 5) : (eff_y * 4 / 5);
-		dst_w = (img->w * zoom / 64) * 4 / 5;
-		dst_h = (img->h * zoom / 64) * 4 / 5;
-	}
+	int fw = img->full_w;
+	int eff_x = screen_x + (flip ? (fw - img->x - img->w) * zoom / 64 : img->x * zoom / 64);
+	int eff_y = screen_y + img->y * zoom / 64;
+	int dst_x = eff_x * 4 / 5;
+	int dst_y = (eff_y - 35) * 4 / 5;
+	int dst_w = (img->w * zoom / 64) * 4 / 5;
+	int dst_h = (img->h * zoom / 64) * 4 / 5;
 
 	if (dst_w <= 0 || dst_h <= 0)
 		return;
 
-	for (int dy = 0; dy < dst_h; dy++) {
-		int py = dst_y + dy;
-		if (py < 0 || py >= DS_SCREEN_H)
-			continue;
+	int x0 = dst_x < 0 ? 0 : dst_x;
+	int y0 = dst_y < 0 ? 0 : dst_y;
+	int x1 = dst_x + dst_w > DS_SCREEN_W ? DS_SCREEN_W : dst_x + dst_w;
+	int y1 = dst_y + dst_h > DS_SCREEN_H ? DS_SCREEN_H : dst_y + dst_h;
+
+	for (int py = y0; py < y1; py++) {
+		int dy = py - dst_y;
 		int sy = dy * img->h / dst_h;
 		if (sy >= img->h)
 			sy = img->h - 1;
 
 		const uint8_t *src_row = tex->indices + sy * img->w;
-		uint16_t *dst_base =
-		    ((layer == LAYER_TEXT && screen_y >= 120) || layer == LAYER_BOX) ? bottom_fb : top_fb;
-		uint16_t *dst_row = dst_base + py * DS_SCREEN_W;
+		uint16_t *dst_row = bottom_fb + py * DS_SCREEN_W;
 
-		for (int dx = 0; dx < dst_w; dx++) {
-			int px = dst_x + dx;
-			if (px < 0 || px >= DS_SCREEN_W)
-				continue;
+		for (int px = x0; px < x1; px++) {
+			int dx = px - dst_x;
 			int sx = flip ? (img->w - 1 - (dx * img->w / dst_w)) : (dx * img->w / dst_w);
 			if (sx < 0)
 				sx = 0;

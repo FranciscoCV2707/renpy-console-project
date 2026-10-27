@@ -75,6 +75,17 @@ contenedor y deja el ROM en `build/ds/snoot.nds`.
   color de fondo (layout por defecto: vertical, sin hueco, escala 1:1). Salida: `build/ds/snoot-screens.png`
   (arriba 256×192, debajo 256×192).
 
+## Traza por DLDI en melonDS 1.1 (T-709)
+
+melonDS 1.1 no implementa la consola de depuración del puerto NO$GBA (0x04FFFA1C) en el ARM9 (GitHub Issue #2374).
+Para la extracción automatizada de trazas en `tools.ctl`:
+- La ROM usa `libfat` (`fatInitDefault()`) de BlocksDS para inicializar el driver DLDI.
+- Las líneas del protocolo `TRACE` se escriben a `fat:/trace.txt` por `vn_ops->log`.
+- `melonDS.toml` configura la sincronización de carpeta en la sección `[DLDI]`:
+  `Enable = true`, `FolderSync = true`, `FolderPath = "<sd>"`, `ImagePath = "<dldi.bin>"`, `ReadOnly = false`, `ImageSize = 1`.
+- Al terminar el recorrido o alcanzar `autotest_quit`, el ejecutable cierra la traza y emite `fat:/done.txt`.
+- El arnés cierra melonDS limpiamente con el mensaje Win32 `WM_CLOSE`, lo cual desencadena el volcado de `FolderSync` hacia `<sd>/trace.txt` en el disco anfitrión.
+
 ## Prueba
 
 `tests/test_ds_build.py` (marcada `consoles`) corre `platforms/ds/build.py` y comprueba que queda
@@ -82,4 +93,10 @@ contenedor y deja el ROM en `build/ds/snoot.nds`.
 
 ```
 E:/Dev/renpy-console-project/.venv/Scripts/python.exe -m pytest -m consoles -k ds
+```
+
+Y el escenario de prueba de traza en melonDS:
+
+```
+E:/Dev/renpy-console-project/.venv/Scripts/python.exe -m tools.ctl run --target ds --scenario tests/scenarios/snoot-route-chapter_x2.yaml
 ```

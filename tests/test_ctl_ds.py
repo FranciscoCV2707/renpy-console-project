@@ -61,12 +61,12 @@ def test_run_exit_code_fail(monkeypatch, tmp_path):
     assert main(["run", "--target", "ds", "--scenario", str(scen)]) == 1
 
 
-def test_run_exit_code_unsupported_error(monkeypatch, tmp_path):
+def test_run_exit_code_missing_disc(monkeypatch, tmp_path):
     scen = tmp_path / "s.yaml"
     scen.write_text(
         "id: t\nreference: " + str(tmp_path / "no.trace") + "\ninputs: []\nexpect: []\n"
         "compare:\n  events: [SAY]\nlimits:\n  max_seconds: 10\n",
         encoding="utf-8",
     )
-    # The actual run_scenario raises OSError because melonDS 1.1 ARM9 trace is unsupported
+    monkeypatch.setattr("tools.ctl.ds.DISC", tmp_path / "missing_disc")
     assert main(["run", "--target", "ds", "--scenario", str(scen)]) == 2

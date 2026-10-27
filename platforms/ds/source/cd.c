@@ -1,6 +1,7 @@
 #include "cd.h"
 #include <nds.h>
 #include <filesystem.h>
+#include <fat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +14,8 @@ int cd_init(void)
 {
 	if (!nitro_ok) {
 		nitro_ok = nitroFSInit(NULL);
+		bool ok = fatInitDefault();
+		(void)ok;
 	}
 	return nitro_ok ? 1 : 0;
 }
@@ -44,9 +47,17 @@ int cd_find(const char *path, int *lba, int *size)
 	if (!f) {
 		make_path(filename, sizeof(filename), "nitro:/DATA/", path);
 		f = fopen(filename, "rb");
-		if (!f)
-			return -1;
 	}
+	if (!f) {
+		make_path(filename, sizeof(filename), "fat:/", path);
+		f = fopen(filename, "rb");
+	}
+	if (!f) {
+		make_path(filename, sizeof(filename), "fat:/DATA/", path);
+		f = fopen(filename, "rb");
+	}
+	if (!f)
+		return -1;
 	fseek(f, 0, SEEK_END);
 	long n = ftell(f);
 	fclose(f);
@@ -67,9 +78,17 @@ int cd_read_file(const char *path, void *buf, int buf_bytes)
 	if (!f) {
 		make_path(filename, sizeof(filename), "nitro:/DATA/", path);
 		f = fopen(filename, "rb");
-		if (!f)
-			return -1;
 	}
+	if (!f) {
+		make_path(filename, sizeof(filename), "fat:/", path);
+		f = fopen(filename, "rb");
+	}
+	if (!f) {
+		make_path(filename, sizeof(filename), "fat:/DATA/", path);
+		f = fopen(filename, "rb");
+	}
+	if (!f)
+		return -1;
 	fseek(f, 0, SEEK_END);
 	long n = ftell(f);
 	rewind(f);

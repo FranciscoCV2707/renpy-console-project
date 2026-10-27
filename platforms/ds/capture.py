@@ -121,13 +121,24 @@ def capture(out_path: Path | None = None, boot_seconds: int = BOOT_SECONDS) -> P
         hwnd = find_window(process.pid)
         shot = grab_window(hwnd)
     finally:
-        process.terminate()
-        process.wait()
+        user32 = ctypes.windll.user32
+        WM_CLOSE = 0x0010
+        try:
+            hwnd = find_window(process.pid)
+            if hwnd:
+                user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+            process.wait(timeout=5)
+        except (RuntimeError, subprocess.TimeoutExpired):
+            process.terminate()
+            process.wait()
 
     w, h = shot.size
     if w == SCREEN_WIDTH and h == SCREEN_HEIGHT * 2 + 22:
         top_crop = shot.crop((0, 22, SCREEN_WIDTH, SCREEN_HEIGHT + 22))
         bot_crop = shot.crop((0, SCREEN_HEIGHT + 22, SCREEN_WIDTH, h))
+    elif w == SCREEN_WIDTH and h == SCREEN_HEIGHT * 2:
+        top_crop = shot.crop((0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+        bot_crop = shot.crop((0, SCREEN_HEIGHT, SCREEN_WIDTH, h))
     else:
         top_rect, bottom_rect = screen_rects(shot)
         top_crop = shot.crop(top_rect)

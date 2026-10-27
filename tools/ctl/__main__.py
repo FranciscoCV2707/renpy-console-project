@@ -54,6 +54,8 @@ def main(argv=None) -> int:
             from .ps2 import run_scenario
         elif args.target == "psp":
             from .psp import run_scenario
+        elif args.target == "ps3":
+            from .ps3 import run_scenario
         elif args.target == "vita":
             from .vita import run_scenario
         else:

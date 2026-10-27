@@ -50,6 +50,32 @@ def test_full_state_matches_background_sprites_and_music():
     assert compare_renpy_full(actual, reference).verdict == "PASS"
 
 
+def test_renpy_scene_image_and_overlay_keep_background_and_sprite_roles():
+    reference = parse_trace(
+        "T|1|1|SCENE\n"
+        "T|2|1|SHOW|tag=room;attrs=anon day alt\n"
+        "T|3|1|SHOW|tag=viewfinder;attrs=\n"
+        "T|4|1|SHOW|tag=rec;attrs=\n"
+        "T|5|2|SAY|who=Anon;id=line_1\n"
+    )
+
+    state = normalize_renpy_full(reference, SPANISH)[0]
+
+    assert state.fields["bg"] == "room anon day alt"
+    assert state.fields["sprites"] == ["rec", "viewfinder"]
+
+
+def test_renpy_flip_attribute_is_represented_by_compiled_render_flag():
+    reference = parse_trace(
+        "T|1|1|SHOW|tag=anon;attrs=happy flip\n"
+        "T|2|2|SAY|who=Anon;id=line_1\n"
+    )
+
+    state = normalize_renpy_full(reference, SPANISH)[0]
+
+    assert state.fields["sprites"] == ["anon happy"]
+
+
 def test_full_state_reports_first_divergent_visual_or_audio_field():
     for kwargs, field in (({"bg": "hallway"}, "bg"), ({"expression": "sad"}, "sprites"),
                           ({"music": "audio/other.ogg"}, "music")):

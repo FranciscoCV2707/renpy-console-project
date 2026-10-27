@@ -11,6 +11,12 @@ reconstruye el estado acumulando `SCENE`, `SHOW`, `HIDE`, `PLAY` y `STOP` hasta 
 música ignoran diferencias de mayúsculas y barras de ruta. Las líneas repetidas consecutivas con el mismo ID de
 traducción en Ren'Py cuentan una sola vez, igual que en `renpy`.
 
+En Snoot, `rec`, `viewfinder` y `photoviewfinder` son superposiciones aunque Ren'Py las emita con `attrs=` vacío;
+siguen en `sprites` y no reemplazan el fondo. Las imágenes con el tag `bg` o `background`, y las imágenes de
+escena como `room anon day alt`, se comparan como fondo. El atributo Ren'Py `flip` se omite de la identidad del
+sprite: el compilador lo representa con una bandera de dibujo, que TRACE aún no expone. Por eso `renpy_full`
+compara expresión y presencia, pero no certifica la orientación reflejada.
+
 Las diferencias intencionales se declaran por índice de `SAY`, campo y valores exactos de ambas trazas:
 
 ```yaml

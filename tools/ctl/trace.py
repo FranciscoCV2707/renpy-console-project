@@ -184,6 +184,16 @@ def _is_background_tag(tag):
     return tag in ("bg", "background")
 
 
+def _is_renpy_overlay_tag(tag):
+    """Snoot draws these tag-only images over the current scene background."""
+    return tag in ("rec", "viewfinder", "photoviewfinder")
+
+
+def _is_renpy_background_tag(tag):
+    """Snoot also uses ``room`` as the tag for named room backgrounds."""
+    return _is_background_tag(tag) or tag == "room"
+
+
 def _state_event(seq, who, text, bg, sprites, music):
     return TraceEvent(seq=seq, frame=0, ev="SAY", fields={
         "who": who,
@@ -249,14 +259,15 @@ def normalize_renpy_full(events, spanish) -> list[TraceEvent]:
         elif event.ev == "SHOW":
             tag = fields["tag"]
             attrs = fields.get("attrs", "").split()
-            if attrs and not _is_background_tag(tag):
-                sprites[tag] = " ".join(attrs)
-                if bg is not None and bg[0] == tag:
-                    bg = None
-            else:
-                bg_name = " ".join([tag, *attrs]) if _is_background_tag(tag) else tag
+            if _is_renpy_background_tag(tag) or (not attrs and not _is_renpy_overlay_tag(tag)):
+                bg_name = " ".join([tag, *attrs])
                 bg = (tag, _background_name(bg_name))
                 sprites.pop(tag, None)
+            else:
+                expression = " ".join(attribute for attribute in attrs if attribute != "flip")
+                sprites[tag] = expression
+                if bg is not None and bg[0] == tag:
+                    bg = None
         elif event.ev == "HIDE":
             tag = fields["tag"]
             sprites.pop(tag, None)

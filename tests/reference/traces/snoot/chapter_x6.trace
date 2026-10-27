@@ -28,375 +28,535 @@ T|27|14|SAY|who=;id=chapter_x6_5718fc73;loc=game/tl/es/script/x6-passion-of-the-
 T|28|16|SAY|who=Anon;id=chapter_x6_5188d194;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:43
 T|29|17|SAY|who=Anon;id=chapter_x6_5f73e99c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:49
 T|30|20|SAY|who=;id=chapter_x6_43668660;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:55
-T|31|22|SAY|who=Fang;id=chapter_x6_8de86d73;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:61
-T|32|24|SAY|who=Anon;id=chapter_x6_daa6400f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:67
-T|33|27|SAY|who=;id=chapter_x6_59bf3388;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:73
-T|34|30|SAY|who=Reed;id=chapter_x6_3bab379c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:79
-T|35|31|SAY|who=Reed;id=chapter_x6_c913f147;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:85
-T|36|33|SAY|who=Reed;id=chapter_x6_c2ebd8a2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:91
-T|37|35|SAY|who=Anon;id=chapter_x6_2467df82;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:97
-T|38|36|SAY|who=Reed;id=chapter_x6_c95e8f20;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:103
-T|39|38|SAY|who=Anon;id=chapter_x6_24772fe8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:109
-T|40|40|SAY|who=Fang;id=chapter_x6_687b6fb9;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:115
-T|41|42|SAY|who=Fang;id=chapter_x6_31be58df;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:121
-T|42|44|SAY|who=Reed;id=chapter_x6_ce36adb4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:127
-T|43|46|SAY|who=Reed;id=chapter_x6_907d23ef;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:133
-T|44|47|SAY|who=Reed;id=chapter_x6_ea33d22e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:139
-T|45|49|SAY|who=Rosa;id=chapter_x6_816fa37a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:145
-T|46|51|SAY|who=Rosa;id=chapter_x6_f270361f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:151
-T|47|53|SAY|who=Stella;id=chapter_x6_862366c0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:157
-T|48|55|SAY|who=Reed;id=chapter_x6_9a5ec3dc;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:163
-T|49|57|SAY|who=Anon;id=chapter_x6_d69e0a13;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:169
-T|50|59|SAY|who=Fang;id=chapter_x6_c38b7ec3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:175
-T|51|61|SAY|who=Anon;id=chapter_x6_f8e99f61;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:181
-T|52|62|SAY|who=Fang;id=chapter_x6_8a1d2099;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:187
-T|53|65|SAY|who=Fang;id=chapter_x6_ca3a6987;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:193
-T|54|67|SCENE
-T|55|67|SHOW|tag=black;attrs=
-T|56|68|SAY|who=;id=chapter_x6_20875ab7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:199
-T|57|71|SAY|who=Rosa;id=chapter_x6_c5c3fe17;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:205
-T|58|73|SAY|who=;id=chapter_x6_2d022a24;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:211
-T|59|75|SCENE
-T|60|75|SHOW|tag=anon;attrs=neutral
-T|61|75|SHOW|tag=fang;attrs=nonxmas pendant neutral
-T|62|75|SHOW|tag=reed;attrs=neutral
-T|63|75|SHOW|tag=rosa;attrs=considering
-T|64|75|SHOW|tag=stella;attrs=neutral
-T|65|75|SHOW|tag=trishhome;attrs=
-T|66|76|SAY|who=;id=chapter_x6_e5015378;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:217
-T|67|78|SAY|who=Reed;id=chapter_x6_142c65a5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:223
-T|68|80|SAY|who=Anon;id=chapter_x6_36ea4204;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:229
-T|69|81|SAY|who=;id=chapter_x6_64b905e0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:235
-T|70|84|SAY|who=;id=chapter_x6_23159838;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:241
-T|71|87|SAY|who=Trish;id=chapter_x6_6f1cc292;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:247
-T|72|88|SAY|who=Trish;id=chapter_x6_994132a0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:253
-T|73|90|SAY|who=;id=chapter_x6_416b7a33;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:259
-T|74|92|SAY|who=;id=chapter_x6_853000ed;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:265
-T|75|94|SAY|who=;id=chapter_x6_e4d24782;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:271
-T|76|96|SHOW|tag=trish;attrs=neutral flip
-T|77|97|SAY|who=Trish;id=chapter_x6_6149dff8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:277
-T|78|99|SAY|who=Trish;id=chapter_x6_a8fa3848;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:283
-T|79|102|SHOW|tag=riley;attrs=neutral flip
-T|80|103|SAY|who=(???);id=chapter_x6_64cddfde;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:289
-T|81|104|PLAY|music=audio/ost/bayside bumming it.ogg
-T|82|105|SAY|who=Trish;id=chapter_x6_59d4f5ce;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:295
-T|83|107|SAY|who=Trish;id=chapter_x6_85d168fa;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:301
-T|84|110|SAY|who=Anon;id=chapter_x6_19a8cb81;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:307
-T|85|111|SAY|who=Fang;id=chapter_x6_23a335af;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:313
-T|86|112|SAY|who=Fang;id=chapter_x6_89511148;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:319
-T|87|114|SAY|who=Riley;id=chapter_x6_4c376b11;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:325
-T|88|115|SAY|who=Riley;id=chapter_x6_76ede48c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:331
-T|89|116|SAY|who=Stella;id=chapter_x6_bc9e5e4c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:337
-T|90|118|SAY|who=Rosa;id=chapter_x6_e3750e44;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:343
-T|91|120|SAY|who=Fang;id=chapter_x6_6d4c6843;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:349
-T|92|122|SAY|who=Trish;id=chapter_x6_f5267c0a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:355
-T|93|124|SAY|who=Reed;id=chapter_x6_502ba5f3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:361
-T|94|126|SAY|who=Rosa;id=chapter_x6_3cfa86be;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:367
-T|95|129|SAY|who=Anon;id=chapter_x6_2dd92f66;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:373
-T|96|130|SAY|who=Riley;id=chapter_x6_5bb8d991;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:379
-T|97|132|SAY|who=Riley;id=chapter_x6_87781329;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:385
-T|98|134|SAY|who=Trish;id=chapter_x6_4b2049ac;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:391
-T|99|136|SAY|who=Fang;id=chapter_x6_9295af78;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:397
-T|100|138|SAY|who=Trish;id=chapter_x6_abab66a1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:403
-T|101|141|SAY|who=;id=chapter_x6_1a008196;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:409
-T|102|143|HIDE|tag=riley
-T|103|143|HIDE|tag=trish
-T|104|143|HIDE|tag=trishhome
-T|105|143|SHOW|tag=courtyard;attrs=
-T|106|144|SAY|who=;id=chapter_x6_4596312e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:415
-T|107|146|SAY|who=Reed;id=chapter_x6_6a4f9fd5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:421
-T|108|147|PLAY|music=audio/ost/appreciating the moment.ogg
-T|109|148|SAY|who=;id=chapter_x6_f77bb80d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:427
-T|110|150|SAY|who=;id=chapter_x6_c0e4336b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:433
-T|111|151|SAY|who=Anon;id=chapter_x6_5674e033;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:439
-T|112|153|SAY|who=Reed;id=chapter_x6_c60a6e61;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:445
-T|113|154|SAY|who=Fang;id=chapter_x6_8c09a53f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:451
-T|114|157|SAY|who=Reed;id=chapter_x6_31a9bd95;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:457
-T|115|159|SAY|who=Reed;id=chapter_x6_9d70ee79;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:463
-T|116|160|SAY|who=Anon;id=chapter_x6_5d14c4b5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:469
-T|117|162|SAY|who=;id=chapter_x6_4a774eec;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:475
-T|118|165|SAY|who=;id=chapter_x6_a3085faf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:481
-T|119|168|SHOW|tag=trish;attrs=annoyed
-T|120|169|SAY|who=Trish;id=chapter_x6_a48cea3f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:487
-T|121|171|SAY|who=Stella;id=chapter_x6_c5940bac;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:493
-T|122|173|SAY|who=Trish;id=chapter_x6_ac3feb51;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:499
-T|123|175|SAY|who=Trish;id=chapter_x6_d7e7c925;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:505
-T|124|177|SAY|who=Fang;id=chapter_x6_ea2ef2b1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:511
-T|125|179|SAY|who=Fang;id=chapter_x6_fca8801d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:517
-T|126|180|SAY|who=Trish;id=chapter_x6_0f3d70b7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:523
-T|127|181|SAY|who=Trish;id=chapter_x6_5d171b35;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:529
-T|128|182|SAY|who=Trish;id=chapter_x6_62e8ff4b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:535
-T|129|185|SAY|who=Riley;id=chapter_x6_271ef1d8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:541
-T|130|186|SAY|who=Reed;id=chapter_x6_9e871e85;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:547
-T|131|188|SAY|who=Reed;id=chapter_x6_27da3818;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:553
-T|132|189|SAY|who=Fang;id=chapter_x6_4ad79701;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:559
-T|133|192|SAY|who=;id=chapter_x6_d649b28e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:565
-T|134|195|SAY|who=Rosa;id=chapter_x6_663b5eec;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:571
-T|135|196|SAY|who=Fang;id=chapter_x6_68db1a05;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:577
-T|136|197|SAY|who=Fang;id=chapter_x6_573a136d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:583
-T|137|200|SAY|who=Reed;id=chapter_x6_511b6fe1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:589
-T|138|201|SAY|who=Stella;id=chapter_x6_44407e0a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:595
-T|139|203|SAY|who=Anon;id=chapter_x6_76250b74;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:601
-T|140|205|SAY|who=Trish;id=chapter_x6_43c99740;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:607
-T|141|207|SAY|who=Rosa;id=chapter_x6_cc02088a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:613
-T|142|209|SAY|who=Reed;id=chapter_x6_3d39ca54;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:619
-T|143|212|SAY|who=Reed;id=chapter_x6_3449b6e3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:625
-T|144|214|SAY|who=Fang;id=chapter_x6_93fe009c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:631
-T|145|216|SAY|who=;id=chapter_x6_a4db0bc4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:637
-T|146|218|SAY|who=;id=chapter_x6_6eb4dae9;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:643
-T|147|219|SAY|who=Anon;id=chapter_x6_2c23493f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:649
-T|148|221|HIDE|tag=reed
-T|149|221|HIDE|tag=rosa
-T|150|221|HIDE|tag=stella
-T|151|221|SHOW|tag=tana;attrs=neutral
-T|152|221|SHOW|tag=trevor;attrs=neutral
-T|153|222|SAY|who=;id=chapter_x6_cecd67ad;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:655
-T|154|225|SAY|who=Trevor;id=chapter_x6_7d283b18;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:661
-T|155|227|SAY|who=Anon;id=chapter_x6_8c20635f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:667
-T|156|228|SAY|who=Tana;id=chapter_x6_b8b2014e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:673
-T|157|231|SAY|who=;id=chapter_x6_b9afec6d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:679
-T|158|234|SAY|who=Anon;id=chapter_x6_bfd06625;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:685
-T|159|236|SAY|who=Anon;id=chapter_x6_1f2eea85;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:691
-T|160|237|SAY|who=Trevor y Tana;id=chapter_x6_5cb75974;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:697
-T|161|238|SAY|who=Trevor y Tana;id=chapter_x6_3c28ce00;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:703
-T|162|240|SAY|who=;id=chapter_x6_66aec96f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:709
-T|163|241|SAY|who=Anon;id=chapter_x6_104e07c3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:715
-T|164|243|SAY|who=Fang;id=chapter_x6_a8bc1cfa;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:721
-T|165|244|SAY|who=Anon;id=chapter_x6_047ca4c5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:727
-T|166|246|SAY|who=;id=chapter_x6_0b130de0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:733
-T|167|248|SAY|who=Trevor y Tana;id=chapter_x6_5204bb8c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:739
-T|168|250|SAY|who=;id=chapter_x6_f670655c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:745
-T|169|253|SAY|who=;id=chapter_x6_df85f987;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:751
-T|170|254|SAY|who=Anon;id=chapter_x6_ab3b3aa7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:757
-T|171|256|SAY|who=;id=chapter_x6_aa9a7f7a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:763
-T|172|257|SAY|who=;id=chapter_x6_671aa2ff;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:769
-T|173|260|SAY|who=;id=chapter_x6_791f1d4f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:775
-T|174|262|SAY|who=Tana;id=chapter_x6_359263c6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:781
-T|175|263|SAY|who=Trish;id=chapter_x6_0c4ac4fd;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:787
-T|176|266|SAY|who=Trevor;id=chapter_x6_8dc13f0c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:793
-T|177|268|SAY|who=;id=chapter_x6_d0a91998;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:799
-T|178|269|SAY|who=Trish;id=chapter_x6_cb4a3da4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:805
-T|179|272|SAY|who=Trish;id=chapter_x6_bf619d4e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:811
-T|180|274|SAY|who=Tana;id=chapter_x6_c135a66c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:817
-T|181|275|SAY|who=Trish;id=chapter_x6_2f4c740a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:823
-T|182|278|HIDE|tag=tana
-T|183|278|HIDE|tag=trevor
-T|184|278|SAY|who=;id=chapter_x6_ec3d95fd;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:829
-T|185|281|SAY|who=;id=chapter_x6_85e41244;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:835
-T|186|283|SAY|who=Reed;id=chapter_x6_fee42696;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:841
-T|187|284|SHOW|tag=reed;attrs=neutral flip
-T|188|284|SHOW|tag=rosa;attrs=considering flip
-T|189|284|SHOW|tag=stella;attrs=neutral flip
-T|190|285|SAY|who=Reed;id=chapter_x6_3e141391;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:847
-T|191|287|SAY|who=Fang;id=chapter_x6_cd652b05;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:853
-T|192|288|SAY|who=Reed;id=chapter_x6_5c47ac5a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:859
-T|193|289|SAY|who=Rosa;id=chapter_x6_6b9097e3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:865
-T|194|292|SCENE
-T|195|292|SHOW|tag=black;attrs=
-T|196|293|SAY|who=;id=chapter_x6_f1638dc1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:871
-T|197|295|SAY|who=;id=chapter_x6_288af298;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:877
-T|198|297|SCENE
-T|199|297|SHOW|tag=anon;attrs=neutral flip
-T|200|297|SHOW|tag=chondra;attrs=neutral
-T|201|297|SHOW|tag=courtyard;attrs=
-T|202|297|SHOW|tag=fang;attrs=pneutral flip
-T|203|297|SHOW|tag=reed;attrs=neutral
-T|204|297|SHOW|tag=stella;attrs=neutral
-T|205|297|SHOW|tag=tana;attrs=neutral
-T|206|298|SAY|who=Stella;id=chapter_x6_c6869e33;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:883
-T|207|300|SAY|who=Reed;id=chapter_x6_0fe87c36;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:889
-T|208|303|SAY|who=;id=chapter_x6_0b1bf2c0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:895
-T|209|305|SAY|who=;id=chapter_x6_22958e12;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:901
-T|210|306|SAY|who=;id=chapter_x6_027bf6b2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:907
-T|211|308|SAY|who=;id=chapter_x6_aefcf961;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:913
-T|212|311|SAY|who=;id=chapter_x6_7d3d48a8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:919
-T|213|313|SAY|who=Anon;id=chapter_x6_78c8f492;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:925
-T|214|315|SAY|who=Tana;id=chapter_x6_99b48f0e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:931
-T|215|316|SAY|who=Fang;id=chapter_x6_402748c9;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:937
-T|216|318|SAY|who=;id=chapter_x6_4d2c504e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:943
-T|217|319|SAY|who=;id=chapter_x6_3cdcec5c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:949
-T|218|321|SAY|who=Reed;id=chapter_x6_e67e1de9;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:955
-T|219|323|SAY|who=Reed;id=chapter_x6_d50342f8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:961
-T|220|324|SAY|who=;id=chapter_x6_f5c0df16;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:967
-T|221|327|SAY|who=Anon;id=chapter_x6_baf38f73;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:973
-T|222|330|SAY|who=Anon;id=chapter_x6_ea74cc03;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:979
-T|223|333|SCENE
-T|224|333|SHOW|tag=black;attrs=
-T|225|334|SAY|who=;id=chapter_x6_c56ab274;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:985
-T|226|336|SAY|who=;id=chapter_x6_89edf9fe;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:991
-T|227|338|SAY|who=;id=chapter_x6_f9fb6ac1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:997
-T|228|340|SAY|who=;id=chapter_x6_23cca078;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1003
-T|229|342|SCENE
-T|230|342|SHOW|tag=anon;attrs=neutral
-T|231|342|SHOW|tag=chondra;attrs=neutral flip
-T|232|342|SHOW|tag=fang;attrs=pneutral flip
-T|233|342|SHOW|tag=reed;attrs=neutral flip
-T|234|342|SHOW|tag=riley;attrs=neutral flip
-T|235|342|SHOW|tag=rosa;attrs=considering flip
-T|236|342|SHOW|tag=stella;attrs=neutral flip
-T|237|342|SHOW|tag=tali;attrs=neutral flip
-T|238|342|SHOW|tag=tana;attrs=neutral flip
-T|239|342|SHOW|tag=trevor;attrs=neutral flip
-T|240|342|SHOW|tag=trish;attrs=neutral flip
-T|241|342|SHOW|tag=trishhome;attrs=
-T|242|343|SAY|who=Trish;id=chapter_x6_bf825b87;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1009
-T|243|345|SAY|who=Stella;id=chapter_x6_4f3e536b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1015
-T|244|348|SAY|who=Anon;id=chapter_x6_bd7ddf47;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1021
-T|245|350|SAY|who=;id=chapter_x6_28a7311b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1027
-T|246|354|PLAY|music=audio/ost/bayside_revamp.ogg
-T|247|354|SAY|who=Trish;id=chapter_x6_6d5bb2b7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1033
-T|248|356|SAY|who=Fang;id=chapter_x6_e09eb1d7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1039
-T|249|358|SAY|who=Reed;id=chapter_x6_afb29d39;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1045
-T|250|361|SAY|who=;id=chapter_x6_9a81f5d3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1051
-T|251|363|SAY|who=Anon;id=chapter_x6_5386d2a0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1057
-T|252|365|SAY|who=Anon;id=chapter_x6_8eea2901;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1063
-T|253|368|HIDE|tag=fang
-T|254|369|HIDE|tag=reed
-T|255|370|SAY|who=;id=chapter_x6_8e5beef2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1069
-T|256|372|SAY|who=;id=chapter_x6_3f23bed0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1075
-T|257|374|SAY|who=Tana;id=chapter_x6_6b21f4c6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1081
-T|258|376|SAY|who=Trish;id=chapter_x6_ce66cfdb;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1087
-T|259|379|HIDE|tag=trish
-T|260|380|SAY|who=;id=chapter_x6_c26a74ff;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1093
-T|261|383|SCENE
-T|262|383|SHOW|tag=black;attrs=
-T|263|384|SAY|who=;id=chapter_x6_7c0b0477;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1099
-T|264|386|SAY|who=;id=chapter_x6_d8d21c77;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1105
-T|265|388|SAY|who=Anon;id=chapter_x6_96d06e0f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1111
-T|266|389|SAY|who=Tana;id=chapter_x6_e3efda0d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1117
-T|267|390|SAY|who=;id=chapter_x6_90a86f3f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1123
-T|268|392|SAY|who=Trish;id=chapter_x6_37ee4bf8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1129
-T|269|394|SAY|who=Trish;id=chapter_x6_58c32498;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1135
-T|270|396|SAY|who=Trish;id=chapter_x6_0e53cb0e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1141
-T|271|398|SAY|who=;id=chapter_x6_0af67969;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1147
-T|272|399|SAY|who=;id=chapter_x6_37ccd412;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1153
-T|273|402|SCENE
-T|274|402|SHOW|tag=trailerconcert;attrs=
-T|275|403|PLAY|music=audio/ost/fuck you I like these weirdos.ogg
-T|276|403|SAY|who=Fang;id=chapter_x6_56749388;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1159
-T|277|405|SAY|who=Fang;id=chapter_x6_2a1ff88d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1165
-T|278|406|SAY|who=Fang;id=chapter_x6_8603417f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1171
-T|279|408|SAY|who=;id=chapter_x6_a780fcf7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1177
-T|280|410|SAY|who=Fang;id=chapter_x6_70506b9a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1183
-T|281|411|SAY|who=Fang;id=chapter_x6_eb3ca528;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1189
-T|282|412|SAY|who=Fang;id=chapter_x6_9a4fe648;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1195
-T|283|413|SAY|who=Fang;id=chapter_x6_f069c30c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1201
-T|284|415|SAY|who=;id=chapter_x6_f5bdf5cd;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1207
-T|285|416|SAY|who=;id=chapter_x6_df46c8c5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1213
-T|286|418|SAY|who=;id=chapter_x6_6deaa860;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1219
-T|287|419|SAY|who=Fang;id=chapter_x6_2655305f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1225
-T|288|420|SAY|who=Fang;id=chapter_x6_4ad663d0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1231
-T|289|421|SAY|who=Fang;id=chapter_x6_b328c04c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1237
-T|290|422|SAY|who=Fang;id=chapter_x6_467bb90b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1243
-T|291|424|SAY|who=;id=chapter_x6_2a9c21dc;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1249
-T|292|426|SAY|who=Fang;id=chapter_x6_52117725;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1255
-T|293|427|SAY|who=Fang;id=chapter_x6_1f26e5a7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1261
-T|294|428|SAY|who=Fang;id=chapter_x6_8f08bb90;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1267
-T|295|429|SAY|who=Fang;id=chapter_x6_68a99c14;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1273
-T|296|430|SAY|who=Fang;id=chapter_x6_9475f229;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1279
-T|297|432|SAY|who=;id=chapter_x6_8f75d7ea;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1285
-T|298|434|SAY|who=;id=chapter_x6_5724d5ec;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1291
-T|299|436|SAY|who=;id=chapter_x6_f6fdac01;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1297
-T|300|437|SAY|who=;id=chapter_x6_69a5b201;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1303
-T|301|439|SAY|who=;id=chapter_x6_50f2d9d2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1309
-T|302|441|SAY|who=;id=chapter_x6_f8c9abbf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1315
-T|303|443|SAY|who=Fang;id=chapter_x6_0ae5a537;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1321
-T|304|444|SAY|who=Fang;id=chapter_x6_a6b135ae;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1327
-T|305|445|SAY|who=Fang;id=chapter_x6_2512b6af;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1333
-T|306|446|SAY|who=Fang;id=chapter_x6_497da98e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1339
-T|307|447|SAY|who=Fang;id=chapter_x6_35358649;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1345
-T|308|449|SAY|who=;id=chapter_x6_7d5d8053;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1351
-T|309|451|SAY|who=;id=chapter_x6_aca1b3ee;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1357
-T|310|453|SAY|who=Trish;id=chapter_x6_198c86ec;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1363
-T|311|454|SAY|who=Trish;id=chapter_x6_c991eed6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1369
-T|312|456|SAY|who=Fang;id=chapter_x6_56b24260;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1375
-T|313|457|SAY|who=Trish;id=chapter_x6_f3a603b6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1381
-T|314|458|SAY|who=Trish;id=chapter_x6_b5e65781;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1387
-T|315|459|SAY|who=Trish;id=chapter_x6_bcee21eb;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1393
-T|316|460|SAY|who=Reed;id=chapter_x6_7f3d5a14;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1399
-T|317|462|SAY|who=Trish;id=chapter_x6_c730efc4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1405
-T|318|464|SAY|who=Trish;id=chapter_x6_a09254db;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1411
-T|319|466|SCENE
-T|320|466|SHOW|tag=black;attrs=
-T|321|467|SAY|who=;id=chapter_x6_c3739b85;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1417
-T|322|470|SAY|who=;id=chapter_x6_0712a08d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1423
-T|323|472|SCENE
-T|324|472|SHOW|tag=anon;attrs=neutral flip
-T|325|472|SHOW|tag=fang;attrs=phappy flip
-T|326|472|SHOW|tag=reed;attrs=neutral
-T|327|472|SHOW|tag=trish;attrs=neutral
-T|328|472|SHOW|tag=trishhome;attrs=
-T|329|472|PLAY|music=audio/ost/appreciating the atmosphere.ogg
-T|330|473|SAY|who=Reed;id=chapter_x6_7e04faa6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1429
-T|331|475|SAY|who=Anon;id=chapter_x6_edb51d13;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1435
-T|332|476|SAY|who=Fang;id=chapter_x6_c25573cf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1441
-T|333|478|SAY|who=Trish;id=chapter_x6_954c5e61;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1447
-T|334|480|SAY|who=Fang;id=chapter_x6_64d11baf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1453
-T|335|482|SAY|who=Anon;id=chapter_x6_7d7e845c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1459
-T|336|483|SAY|who=;id=chapter_x6_080272c2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1465
-T|337|484|SAY|who=Anon;id=chapter_x6_7d93bf91;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1471
-T|338|485|SAY|who=Trish;id=chapter_x6_5782dffa;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1477
-T|339|487|SAY|who=;id=chapter_x6_90e7f28e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1483
-T|340|490|SAY|who=;id=chapter_x6_3632afa4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1489
-T|341|491|SAY|who=;id=chapter_x6_590f1cad;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1495
-T|342|493|SAY|who=Anon;id=chapter_x6_b936b63c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1501
-T|343|495|SAY|who=;id=chapter_x6_7e10f6ce;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1507
-T|344|498|SAY|who=Anon;id=chapter_x6_c0aef5a6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1513
-T|345|499|SAY|who=Anon;id=chapter_x6_af27fa2e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1519
-T|346|500|SAY|who=Trish;id=chapter_x6_8acaad73;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1525
-T|347|502|SAY|who=Trish;id=chapter_x6_6b16a356;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1531
-T|348|504|SAY|who=;id=chapter_x6_7606e5f6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1537
-T|349|505|SAY|who=;id=chapter_x6_382067c1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1543
-T|350|507|SAY|who=;id=chapter_x6_a9cd3357;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1549
-T|351|509|SAY|who=Anon;id=chapter_x6_434d94e4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1555
-T|352|510|SAY|who=Anon;id=chapter_x6_f6b3871a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1561
-T|353|511|SAY|who=;id=chapter_x6_1f3a2447;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1567
-T|354|513|SAY|who=Trish;id=chapter_x6_9ac6fbcf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1573
-T|355|514|SAY|who=Anon;id=chapter_x6_d749a0af;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1579
-T|356|515|SAY|who=;id=chapter_x6_bdcdbec7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1585
-T|357|518|SAY|who=Naser;id=chapter_x6_e90848a7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1591
-T|358|519|SAY|who=;id=chapter_x6_99edf8ac;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1597
-T|359|521|SHOW|tag=naser;attrs=happy
-T|360|522|SAY|who=Naser;id=chapter_x6_9f61f4e0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1603
-T|361|524|SAY|who=;id=chapter_x6_3309394f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1609
-T|362|526|SAY|who=;id=chapter_x6_6055ea2c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1615
-T|363|529|SHOW|tag=chondra;attrs=neutral flip
-T|364|529|SHOW|tag=riley;attrs=neutral
-T|365|529|SHOW|tag=rosa;attrs=neutral flip
-T|366|529|SHOW|tag=stella;attrs=neutral
-T|367|529|SHOW|tag=tali;attrs=neutral flip
-T|368|530|SAY|who=;id=chapter_x6_eadd7aa2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1621
-T|369|533|SAY|who=;id=chapter_x6_82a162d7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1627
-T|370|535|SAY|who=;id=chapter_x6_14538c24;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1633
-T|371|537|SAY|who=Rosa;id=chapter_x6_0673e88c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1639
-T|372|540|SAY|who=Anon;id=chapter_x6_381d3937;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1645
-T|373|542|SAY|who=;id=chapter_x6_24266be3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1651
-T|374|545|SAY|who=Fang;id=chapter_x6_4f6025a7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1657
-T|375|547|SAY|who=Anon;id=chapter_x6_936c6697;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1663
-T|376|549|SAY|who=;id=chapter_x6_63d0358f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1669
-T|377|551|SAY|who=Anon;id=chapter_x6_d067aa7a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1675
-T|378|553|SAY|who=;id=chapter_x6_3174ea30;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1681
-T|379|556|SAY|who=;id=chapter_x6_9b9f5b2b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1687
-T|380|557|SAY|who=;id=chapter_x6_97ab65df;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1693
-T|381|559|SAY|who=;id=chapter_x6_31559073;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1699
-T|382|560|SAY|who=;id=chapter_x6_3e980f7f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1705
-T|383|561|SAY|who=Reed;id=chapter_x6_f9026cf4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1711
-T|384|563|SAY|who=Trish;id=chapter_x6_c88ac642;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1717
-T|385|565|SAY|who=Riley;id=chapter_x6_2e6b8da7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1723
-T|386|567|SAY|who=Trish;id=chapter_x6_72a14802;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1729
-T|387|569|SAY|who=Trish;id=chapter_x6_0843d83a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1735
-T|388|571|SAY|who=Trish;id=chapter_x6_c1a55a01;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1741
-T|389|573|SAY|who=;id=chapter_x6_4483e65d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1747
-T|390|575|SAY|who=Rosa;id=chapter_x6_743a2af5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1753
-T|391|577|SAY|who=Rosa;id=chapter_x6_0ac7df5c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1759
-T|392|579|SAY|who=;id=chapter_x6_25a1c340;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1765
-T|393|581|SAY|who=;id=chapter_x6_139ad968;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1771
-T|394|582|SAY|who=Naser;id=chapter_x6_65b58067;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1777
-T|395|584|SAY|who=;id=chapter_x6_a7ba528f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1783
-T|396|585|SAY|who=Rosa;id=chapter_x6_77706e93;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1789
-T|397|586|SAY|who=Stella;id=chapter_x6_73783362;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1795
-T|398|588|SAY|who=Trish;id=chapter_x6_818d3fc5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1801
-T|399|590|SCENE
-T|400|590|SHOW|tag=black;attrs=
-T|401|591|SAY|who=;id=chapter_x6_f1638dc1_1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1807
-T|402|593|LABEL|name=_kit_capture_end
+T|31|22|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|32|22|SAY|who=Fang;id=chapter_x6_8de86d73;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:61
+T|33|24|SHOW|tag=anon;attrs=shrug
+T|34|24|SAY|who=Anon;id=chapter_x6_daa6400f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:67
+T|35|26|SHOW|tag=anon;attrs=neutral
+T|36|26|SHOW|tag=reed;attrs=shocked flip
+T|37|26|SHOW|tag=rosa;attrs=considering flip
+T|38|26|SHOW|tag=stella;attrs=sad flip
+T|39|27|SAY|who=;id=chapter_x6_59bf3388;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:73
+T|40|30|SAY|who=Reed;id=chapter_x6_3bab379c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:79
+T|41|31|SAY|who=Reed;id=chapter_x6_c913f147;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:85
+T|42|33|SAY|who=Reed;id=chapter_x6_c2ebd8a2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:91
+T|43|35|SAY|who=Anon;id=chapter_x6_2467df82;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:97
+T|44|36|SHOW|tag=reed;attrs=unimpressed flip
+T|45|36|SAY|who=Reed;id=chapter_x6_c95e8f20;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:103
+T|46|38|SHOW|tag=anon;attrs=concerned
+T|47|38|SAY|who=Anon;id=chapter_x6_24772fe8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:109
+T|48|40|SHOW|tag=fang;attrs=nonxmas pendant unimpressed
+T|49|40|SAY|who=Fang;id=chapter_x6_687b6fb9;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:115
+T|50|42|SHOW|tag=fang;attrs=nonxmas pendant sad
+T|51|42|SAY|who=Fang;id=chapter_x6_31be58df;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:121
+T|52|44|SHOW|tag=reed;attrs=considering flip
+T|53|44|SAY|who=Reed;id=chapter_x6_ce36adb4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:127
+T|54|46|SAY|who=Reed;id=chapter_x6_907d23ef;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:133
+T|55|47|SAY|who=Reed;id=chapter_x6_ea33d22e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:139
+T|56|49|SHOW|tag=rosa;attrs=neutral flip
+T|57|49|SAY|who=Rosa;id=chapter_x6_816fa37a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:145
+T|58|51|SAY|who=Rosa;id=chapter_x6_f270361f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:151
+T|59|52|SHOW|tag=anon;attrs=neutral
+T|60|52|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|61|52|SHOW|tag=reed;attrs=neutral flip
+T|62|52|SHOW|tag=rosa;attrs=considering flip
+T|63|52|SHOW|tag=stella;attrs=considering flip
+T|64|53|SAY|who=Stella;id=chapter_x6_862366c0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:157
+T|65|55|SHOW|tag=reed;attrs=happy flip
+T|66|55|SAY|who=Reed;id=chapter_x6_9a5ec3dc;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:163
+T|67|57|SHOW|tag=reed;attrs=neutral flip
+T|68|57|SAY|who=Anon;id=chapter_x6_d69e0a13;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:169
+T|69|59|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|70|59|SAY|who=Fang;id=chapter_x6_c38b7ec3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:175
+T|71|61|SAY|who=Anon;id=chapter_x6_f8e99f61;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:181
+T|72|62|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|73|62|SAY|who=Fang;id=chapter_x6_8a1d2099;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:187
+T|74|65|SAY|who=Fang;id=chapter_x6_ca3a6987;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:193
+T|75|67|SCENE
+T|76|67|SHOW|tag=black;attrs=
+T|77|67|STOP|music=audio/OST/west_coast_kicking.ogg
+T|78|68|SAY|who=;id=chapter_x6_20875ab7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:199
+T|79|71|SAY|who=Rosa;id=chapter_x6_c5c3fe17;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:205
+T|80|73|SAY|who=;id=chapter_x6_2d022a24;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:211
+T|81|75|SCENE
+T|82|75|SHOW|tag=anon;attrs=neutral
+T|83|75|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|84|75|SHOW|tag=reed;attrs=neutral
+T|85|75|SHOW|tag=rosa;attrs=considering
+T|86|75|SHOW|tag=stella;attrs=neutral
+T|87|75|SHOW|tag=trishhome;attrs=
+T|88|76|SAY|who=;id=chapter_x6_e5015378;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:217
+T|89|78|SHOW|tag=reed;attrs=considering
+T|90|78|SAY|who=Reed;id=chapter_x6_142c65a5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:223
+T|91|80|SAY|who=Anon;id=chapter_x6_36ea4204;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:229
+T|92|81|SHOW|tag=reed;attrs=neutral
+T|93|81|SAY|who=;id=chapter_x6_64b905e0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:235
+T|94|84|SAY|who=;id=chapter_x6_23159838;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:241
+T|95|87|SAY|who=Trish;id=chapter_x6_6f1cc292;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:247
+T|96|88|SAY|who=Trish;id=chapter_x6_994132a0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:253
+T|97|90|SAY|who=;id=chapter_x6_416b7a33;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:259
+T|98|92|SAY|who=;id=chapter_x6_853000ed;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:265
+T|99|94|SAY|who=;id=chapter_x6_e4d24782;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:271
+T|100|96|SHOW|tag=trish;attrs=neutral flip
+T|101|97|SHOW|tag=trish;attrs=indignant flip
+T|102|97|SAY|who=Trish;id=chapter_x6_6149dff8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:277
+T|103|99|SHOW|tag=trish;attrs=annoyed flip
+T|104|99|SAY|who=Trish;id=chapter_x6_a8fa3848;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:283
+T|105|102|SHOW|tag=riley;attrs=neutral flip
+T|106|103|PLAY|music=audio/ost/bayside bumming it.ogg
+T|107|103|SAY|who=(???);id=chapter_x6_64cddfde;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:289
+T|108|105|SHOW|tag=trish;attrs=unimpressed flip
+T|109|105|SAY|who=Trish;id=chapter_x6_59d4f5ce;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:295
+T|110|107|SHOW|tag=trish;attrs=neutral flip
+T|111|107|SAY|who=Trish;id=chapter_x6_85d168fa;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:301
+T|112|110|SAY|who=Anon;id=chapter_x6_19a8cb81;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:307
+T|113|111|SAY|who=Fang;id=chapter_x6_23a335af;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:313
+T|114|112|SAY|who=Fang;id=chapter_x6_89511148;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:319
+T|115|114|SAY|who=Riley;id=chapter_x6_4c376b11;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:325
+T|116|115|SAY|who=Riley;id=chapter_x6_76ede48c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:331
+T|117|116|SHOW|tag=stella;attrs=sad
+T|118|116|SAY|who=Stella;id=chapter_x6_bc9e5e4c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:337
+T|119|118|SHOW|tag=rosa;attrs=neutral
+T|120|118|SAY|who=Rosa;id=chapter_x6_e3750e44;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:343
+T|121|120|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|122|120|SAY|who=Fang;id=chapter_x6_6d4c6843;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:349
+T|123|122|SHOW|tag=trish;attrs=unimpressed flip
+T|124|122|SAY|who=Trish;id=chapter_x6_f5267c0a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:355
+T|125|124|SHOW|tag=reed;attrs=explanatory
+T|126|124|SAY|who=Reed;id=chapter_x6_502ba5f3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:361
+T|127|126|SHOW|tag=reed;attrs=neutral
+T|128|126|SHOW|tag=rosa;attrs=considering
+T|129|126|SAY|who=Rosa;id=chapter_x6_3cfa86be;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:367
+T|130|129|SAY|who=Anon;id=chapter_x6_2dd92f66;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:373
+T|131|130|SHOW|tag=riley;attrs=conspiratorial flip
+T|132|130|SAY|who=Riley;id=chapter_x6_5bb8d991;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:379
+T|133|132|SAY|who=Riley;id=chapter_x6_87781329;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:385
+T|134|133|SHOW|tag=riley;attrs=neutral flip
+T|135|134|SHOW|tag=trish;attrs=annoyed flip
+T|136|134|SAY|who=Trish;id=chapter_x6_4b2049ac;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:391
+T|137|136|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|138|136|SAY|who=Fang;id=chapter_x6_9295af78;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:397
+T|139|138|SHOW|tag=stella;attrs=neutral
+T|140|138|SHOW|tag=trish;attrs=considering flip
+T|141|138|SAY|who=Trish;id=chapter_x6_abab66a1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:403
+T|142|141|SAY|who=;id=chapter_x6_1a008196;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:409
+T|143|143|HIDE|tag=riley
+T|144|143|HIDE|tag=trish
+T|145|143|HIDE|tag=trishhome
+T|146|143|SHOW|tag=courtyard;attrs=
+T|147|143|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|148|143|SHOW|tag=reed;attrs=neutral flip
+T|149|143|SHOW|tag=rosa;attrs=neutral flip
+T|150|143|SHOW|tag=stella;attrs=neutral flip
+T|151|143|STOP|music=audio/ost/bayside bumming it.ogg
+T|152|144|SAY|who=;id=chapter_x6_4596312e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:415
+T|153|146|SHOW|tag=reed;attrs=happy flip
+T|154|146|PLAY|music=audio/ost/appreciating the moment.ogg
+T|155|146|SAY|who=Reed;id=chapter_x6_6a4f9fd5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:421
+T|156|148|SHOW|tag=reed;attrs=neutral flip
+T|157|148|SAY|who=;id=chapter_x6_f77bb80d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:427
+T|158|150|SAY|who=;id=chapter_x6_c0e4336b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:433
+T|159|151|SHOW|tag=fang;attrs=nonxmas pendant surprised
+T|160|151|SAY|who=Anon;id=chapter_x6_5674e033;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:439
+T|161|153|SAY|who=Reed;id=chapter_x6_c60a6e61;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:445
+T|162|154|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|163|154|SAY|who=Fang;id=chapter_x6_8c09a53f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:451
+T|164|157|SAY|who=Reed;id=chapter_x6_31a9bd95;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:457
+T|165|159|SAY|who=Reed;id=chapter_x6_9d70ee79;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:463
+T|166|160|SAY|who=Anon;id=chapter_x6_5d14c4b5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:469
+T|167|162|SAY|who=;id=chapter_x6_4a774eec;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:475
+T|168|165|SAY|who=;id=chapter_x6_a3085faf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:481
+T|169|168|SHOW|tag=trish;attrs=annoyed
+T|170|169|SAY|who=Trish;id=chapter_x6_a48cea3f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:487
+T|171|171|SHOW|tag=stella;attrs=considering flip
+T|172|171|SAY|who=Stella;id=chapter_x6_c5940bac;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:493
+T|173|173|SHOW|tag=stella;attrs=neutral flip
+T|174|173|SHOW|tag=trish;attrs=neutral
+T|175|173|SAY|who=Trish;id=chapter_x6_ac3feb51;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:499
+T|176|175|SHOW|tag=trish;attrs=considering
+T|177|175|SAY|who=Trish;id=chapter_x6_d7e7c925;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:505
+T|178|177|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|179|177|SAY|who=Fang;id=chapter_x6_ea2ef2b1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:511
+T|180|179|SAY|who=Fang;id=chapter_x6_fca8801d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:517
+T|181|180|SAY|who=Trish;id=chapter_x6_0f3d70b7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:523
+T|182|181|SAY|who=Trish;id=chapter_x6_5d171b35;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:529
+T|183|182|SHOW|tag=trish;attrs=neutral
+T|184|182|SAY|who=Trish;id=chapter_x6_62e8ff4b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:535
+T|185|185|SAY|who=Riley;id=chapter_x6_271ef1d8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:541
+T|186|186|SHOW|tag=reed;attrs=explanatory flip
+T|187|186|SAY|who=Reed;id=chapter_x6_9e871e85;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:547
+T|188|188|SAY|who=Reed;id=chapter_x6_27da3818;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:553
+T|189|189|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|190|189|SHOW|tag=reed;attrs=neutral flip
+T|191|189|SAY|who=Fang;id=chapter_x6_4ad79701;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:559
+T|192|192|SAY|who=;id=chapter_x6_d649b28e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:565
+T|193|195|SAY|who=Rosa;id=chapter_x6_663b5eec;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:571
+T|194|196|SAY|who=Fang;id=chapter_x6_68db1a05;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:577
+T|195|197|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|196|197|SAY|who=Fang;id=chapter_x6_573a136d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:583
+T|197|200|SAY|who=Reed;id=chapter_x6_511b6fe1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:589
+T|198|201|SHOW|tag=stella;attrs=explanatory flip
+T|199|201|SAY|who=Stella;id=chapter_x6_44407e0a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:595
+T|200|203|SHOW|tag=anon;attrs=shrug
+T|201|203|SHOW|tag=stella;attrs=neutral flip
+T|202|203|SAY|who=Anon;id=chapter_x6_76250b74;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:601
+T|203|205|SHOW|tag=trish;attrs=considering
+T|204|205|SAY|who=Trish;id=chapter_x6_43c99740;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:607
+T|205|207|SHOW|tag=anon;attrs=neutral
+T|206|207|SHOW|tag=rosa;attrs=considering flip
+T|207|207|SHOW|tag=trish;attrs=neutral
+T|208|207|SAY|who=Rosa;id=chapter_x6_cc02088a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:613
+T|209|209|SHOW|tag=reed;attrs=considering flip
+T|210|209|SAY|who=Reed;id=chapter_x6_3d39ca54;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:619
+T|211|211|SHOW|tag=reed;attrs=neutral flip
+T|212|212|SAY|who=Reed;id=chapter_x6_3449b6e3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:625
+T|213|214|SHOW|tag=fang;attrs=nonxmas pendant surprised
+T|214|214|SAY|who=Fang;id=chapter_x6_93fe009c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:631
+T|215|216|SAY|who=;id=chapter_x6_a4db0bc4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:637
+T|216|218|SAY|who=;id=chapter_x6_6eb4dae9;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:643
+T|217|219|SHOW|tag=anon;attrs=neutral flip
+T|218|219|SAY|who=Anon;id=chapter_x6_2c23493f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:649
+T|219|221|HIDE|tag=reed
+T|220|221|HIDE|tag=rosa
+T|221|221|HIDE|tag=stella
+T|222|221|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|223|221|SHOW|tag=tana;attrs=neutral
+T|224|221|SHOW|tag=trevor;attrs=neutral
+T|225|222|SAY|who=;id=chapter_x6_cecd67ad;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:655
+T|226|225|SAY|who=Trevor;id=chapter_x6_7d283b18;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:661
+T|227|227|SAY|who=Anon;id=chapter_x6_8c20635f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:667
+T|228|228|SAY|who=Tana;id=chapter_x6_b8b2014e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:673
+T|229|230|SHOW|tag=fang;attrs=pneutral flip
+T|230|230|SHOW|tag=trish;attrs=neutral flip
+T|231|231|SAY|who=;id=chapter_x6_b9afec6d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:679
+T|232|234|SAY|who=Anon;id=chapter_x6_bfd06625;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:685
+T|233|236|SAY|who=Anon;id=chapter_x6_1f2eea85;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:691
+T|234|237|SAY|who=Trevor y Tana;id=chapter_x6_5cb75974;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:697
+T|235|238|SHOW|tag=tana;attrs=neutral flip
+T|236|238|SHOW|tag=trevor;attrs=neutral flip
+T|237|238|SAY|who=Trevor y Tana;id=chapter_x6_3c28ce00;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:703
+T|238|240|SAY|who=;id=chapter_x6_66aec96f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:709
+T|239|241|SAY|who=Anon;id=chapter_x6_104e07c3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:715
+T|240|243|SAY|who=Fang;id=chapter_x6_a8bc1cfa;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:721
+T|241|244|SAY|who=Anon;id=chapter_x6_047ca4c5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:727
+T|242|246|SAY|who=;id=chapter_x6_0b130de0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:733
+T|243|248|SAY|who=Trevor y Tana;id=chapter_x6_5204bb8c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:739
+T|244|250|SHOW|tag=tana;attrs=neutral
+T|245|250|SHOW|tag=trevor;attrs=neutral
+T|246|250|SAY|who=;id=chapter_x6_f670655c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:745
+T|247|253|SAY|who=;id=chapter_x6_df85f987;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:751
+T|248|254|SHOW|tag=anon;attrs=grin flip
+T|249|254|SAY|who=Anon;id=chapter_x6_ab3b3aa7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:757
+T|250|256|SAY|who=;id=chapter_x6_aa9a7f7a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:763
+T|251|257|SAY|who=;id=chapter_x6_671aa2ff;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:769
+T|252|259|SHOW|tag=fang;attrs=phappy flip
+T|253|259|SHOW|tag=tana;attrs=cheer
+T|254|259|SHOW|tag=trevor;attrs=awe
+T|255|260|SAY|who=;id=chapter_x6_791f1d4f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:775
+T|256|262|SAY|who=Tana;id=chapter_x6_359263c6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:781
+T|257|263|SHOW|tag=trish;attrs=explanatory flip
+T|258|263|SAY|who=Trish;id=chapter_x6_0c4ac4fd;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:787
+T|259|265|SHOW|tag=trish;attrs=neutral flip
+T|260|266|SHOW|tag=anon;attrs=neutral flip
+T|261|266|SHOW|tag=tana;attrs=neutral
+T|262|266|SHOW|tag=trevor;attrs=neutral
+T|263|266|SAY|who=Trevor;id=chapter_x6_8dc13f0c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:793
+T|264|268|SAY|who=;id=chapter_x6_d0a91998;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:799
+T|265|269|SHOW|tag=trish;attrs=unimpressed flip
+T|266|269|SAY|who=Trish;id=chapter_x6_cb4a3da4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:805
+T|267|272|SHOW|tag=trish;attrs=neutral flip
+T|268|272|SAY|who=Trish;id=chapter_x6_bf619d4e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:811
+T|269|274|SAY|who=Tana;id=chapter_x6_c135a66c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:817
+T|270|275|SHOW|tag=trish;attrs=explanatory flip
+T|271|275|SAY|who=Trish;id=chapter_x6_2f4c740a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:823
+T|272|277|SHOW|tag=trish;attrs=neutral flip
+T|273|278|HIDE|tag=tana
+T|274|278|HIDE|tag=trevor
+T|275|278|SAY|who=;id=chapter_x6_ec3d95fd;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:829
+T|276|281|SAY|who=;id=chapter_x6_85e41244;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:835
+T|277|283|SAY|who=Reed;id=chapter_x6_fee42696;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:841
+T|278|284|SHOW|tag=anon;attrs=neutral
+T|279|284|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|280|284|SHOW|tag=reed;attrs=neutral flip
+T|281|284|SHOW|tag=rosa;attrs=considering flip
+T|282|284|SHOW|tag=stella;attrs=neutral flip
+T|283|284|SHOW|tag=trish;attrs=neutral
+T|284|285|SAY|who=Reed;id=chapter_x6_3e141391;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:847
+T|285|287|SAY|who=Fang;id=chapter_x6_cd652b05;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:853
+T|286|288|SAY|who=Reed;id=chapter_x6_5c47ac5a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:859
+T|287|289|SHOW|tag=rosa;attrs=neutral flip
+T|288|289|SAY|who=Rosa;id=chapter_x6_6b9097e3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:865
+T|289|292|SCENE
+T|290|292|SHOW|tag=black;attrs=
+T|291|293|SAY|who=;id=chapter_x6_f1638dc1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:871
+T|292|295|SAY|who=;id=chapter_x6_288af298;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:877
+T|293|297|SCENE
+T|294|297|SHOW|tag=anon;attrs=neutral flip
+T|295|297|SHOW|tag=chondra;attrs=neutral
+T|296|297|SHOW|tag=courtyard;attrs=
+T|297|297|SHOW|tag=fang;attrs=pneutral flip
+T|298|297|SHOW|tag=reed;attrs=neutral
+T|299|297|SHOW|tag=stella;attrs=neutral
+T|300|297|SHOW|tag=tana;attrs=neutral
+T|301|298|SHOW|tag=stella;attrs=explanatory
+T|302|298|SAY|who=Stella;id=chapter_x6_c6869e33;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:883
+T|303|300|SHOW|tag=reed;attrs=explanatory
+T|304|300|SHOW|tag=stella;attrs=neutral
+T|305|300|SAY|who=Reed;id=chapter_x6_0fe87c36;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:889
+T|306|302|SHOW|tag=reed;attrs=neutral
+T|307|303|SAY|who=;id=chapter_x6_0b1bf2c0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:895
+T|308|305|SAY|who=;id=chapter_x6_22958e12;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:901
+T|309|306|SHOW|tag=fang;attrs=phappy flip
+T|310|306|SAY|who=;id=chapter_x6_027bf6b2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:907
+T|311|308|SAY|who=;id=chapter_x6_aefcf961;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:913
+T|312|310|SHOW|tag=chondra;attrs=happy flip
+T|313|310|SHOW|tag=tana;attrs=cheer flip
+T|314|311|SHOW|tag=fang;attrs=pshocked flip
+T|315|311|SAY|who=;id=chapter_x6_7d3d48a8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:919
+T|316|313|SHOW|tag=anon;attrs=grin flip
+T|317|313|SAY|who=Anon;id=chapter_x6_78c8f492;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:925
+T|318|315|SAY|who=Tana;id=chapter_x6_99b48f0e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:931
+T|319|316|SHOW|tag=fang;attrs=embarass flip
+T|320|316|SAY|who=Fang;id=chapter_x6_402748c9;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:937
+T|321|318|SAY|who=;id=chapter_x6_4d2c504e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:943
+T|322|319|SHOW|tag=tana;attrs=neutral flip
+T|323|319|SAY|who=;id=chapter_x6_3cdcec5c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:949
+T|324|321|SHOW|tag=reed;attrs=explanatory
+T|325|321|STOP|music=audio/ost/appreciating the moment.ogg
+T|326|321|SAY|who=Reed;id=chapter_x6_e67e1de9;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:955
+T|327|323|SAY|who=Reed;id=chapter_x6_d50342f8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:961
+T|328|324|SHOW|tag=reed;attrs=neutral
+T|329|324|SAY|who=;id=chapter_x6_f5c0df16;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:967
+T|330|327|SAY|who=Anon;id=chapter_x6_baf38f73;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:973
+T|331|329|SHOW|tag=fang;attrs=nonxmas pendant surprised
+T|332|330|SAY|who=Anon;id=chapter_x6_ea74cc03;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:979
+T|333|333|SCENE
+T|334|333|SHOW|tag=black;attrs=
+T|335|334|SAY|who=;id=chapter_x6_c56ab274;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:985
+T|336|336|SAY|who=;id=chapter_x6_89edf9fe;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:991
+T|337|338|SAY|who=;id=chapter_x6_f9fb6ac1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:997
+T|338|340|SAY|who=;id=chapter_x6_23cca078;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1003
+T|339|342|SCENE
+T|340|342|SHOW|tag=anon;attrs=neutral
+T|341|342|SHOW|tag=chondra;attrs=neutral flip
+T|342|342|SHOW|tag=fang;attrs=pneutral flip
+T|343|342|SHOW|tag=reed;attrs=neutral flip
+T|344|342|SHOW|tag=riley;attrs=neutral flip
+T|345|342|SHOW|tag=rosa;attrs=considering flip
+T|346|342|SHOW|tag=stella;attrs=neutral flip
+T|347|342|SHOW|tag=tali;attrs=neutral flip
+T|348|342|SHOW|tag=tana;attrs=neutral flip
+T|349|342|SHOW|tag=trevor;attrs=neutral flip
+T|350|342|SHOW|tag=trish;attrs=neutral flip
+T|351|342|SHOW|tag=trishhome;attrs=
+T|352|343|SHOW|tag=trish;attrs=explanatory flip
+T|353|343|SAY|who=Trish;id=chapter_x6_bf825b87;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1009
+T|354|345|SHOW|tag=stella;attrs=explanatory flip
+T|355|345|SHOW|tag=trish;attrs=neutral flip
+T|356|345|SAY|who=Stella;id=chapter_x6_4f3e536b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1015
+T|357|347|SHOW|tag=stella;attrs=neutral flip
+T|358|348|SAY|who=Anon;id=chapter_x6_bd7ddf47;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1021
+T|359|350|SHOW|tag=anon;attrs=happy flip
+T|360|350|SAY|who=;id=chapter_x6_28a7311b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1027
+T|361|352|SHOW|tag=anon;attrs=neutral flip
+T|362|353|SHOW|tag=chondra;attrs=happy flip
+T|363|353|SHOW|tag=fang;attrs=psurprised flip
+T|364|353|SHOW|tag=reed;attrs=shocked flip
+T|365|353|SHOW|tag=riley;attrs=smirk flip
+T|366|353|SHOW|tag=rosa;attrs=neutral flip
+T|367|353|SHOW|tag=stella;attrs=happy flip
+T|368|353|SHOW|tag=tali;attrs=happy flip
+T|369|353|SHOW|tag=tana;attrs=cheer flip
+T|370|353|SHOW|tag=trevor;attrs=awe flip
+T|371|353|SHOW|tag=trish;attrs=surprised flip
+T|372|353|PLAY|music=audio/ost/bayside_revamp.ogg
+T|373|354|SAY|who=Trish;id=chapter_x6_6d5bb2b7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1033
+T|374|356|SHOW|tag=fang;attrs=pshocked flip
+T|375|356|SAY|who=Fang;id=chapter_x6_e09eb1d7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1039
+T|376|358|SAY|who=Reed;id=chapter_x6_afb29d39;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1045
+T|377|361|SAY|who=;id=chapter_x6_9a81f5d3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1051
+T|378|363|SHOW|tag=anon;attrs=grin
+T|379|363|SAY|who=Anon;id=chapter_x6_5386d2a0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1057
+T|380|365|SAY|who=Anon;id=chapter_x6_8eea2901;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1063
+T|381|367|SHOW|tag=fang;attrs=pvhappy flip
+T|382|368|HIDE|tag=fang
+T|383|369|HIDE|tag=reed
+T|384|370|SAY|who=;id=chapter_x6_8e5beef2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1069
+T|385|372|SAY|who=;id=chapter_x6_3f23bed0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1075
+T|386|374|SAY|who=Tana;id=chapter_x6_6b21f4c6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1081
+T|387|376|SHOW|tag=trish;attrs=very happy
+T|388|376|SAY|who=Trish;id=chapter_x6_ce66cfdb;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1087
+T|389|379|HIDE|tag=trish
+T|390|380|SAY|who=;id=chapter_x6_c26a74ff;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1093
+T|391|383|SCENE
+T|392|383|SHOW|tag=black;attrs=
+T|393|384|SAY|who=;id=chapter_x6_7c0b0477;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1099
+T|394|386|SAY|who=;id=chapter_x6_d8d21c77;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1105
+T|395|388|SAY|who=Anon;id=chapter_x6_96d06e0f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1111
+T|396|389|SAY|who=Tana;id=chapter_x6_e3efda0d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1117
+T|397|390|SAY|who=;id=chapter_x6_90a86f3f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1123
+T|398|392|STOP|music=audio/ost/bayside_revamp.ogg
+T|399|392|SAY|who=Trish;id=chapter_x6_37ee4bf8;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1129
+T|400|394|SAY|who=Trish;id=chapter_x6_58c32498;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1135
+T|401|396|SAY|who=Trish;id=chapter_x6_0e53cb0e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1141
+T|402|398|SAY|who=;id=chapter_x6_0af67969;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1147
+T|403|399|SAY|who=;id=chapter_x6_37ccd412;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1153
+T|404|401|PLAY|music=audio/ost/fuck you I like these weirdos.ogg
+T|405|402|SCENE
+T|406|402|SHOW|tag=trailerconcert;attrs=
+T|407|403|SAY|who=Fang;id=chapter_x6_56749388;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1159
+T|408|405|SAY|who=Fang;id=chapter_x6_2a1ff88d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1165
+T|409|406|SAY|who=Fang;id=chapter_x6_8603417f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1171
+T|410|408|SAY|who=;id=chapter_x6_a780fcf7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1177
+T|411|410|SAY|who=Fang;id=chapter_x6_70506b9a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1183
+T|412|411|SAY|who=Fang;id=chapter_x6_eb3ca528;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1189
+T|413|412|SAY|who=Fang;id=chapter_x6_9a4fe648;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1195
+T|414|413|SAY|who=Fang;id=chapter_x6_f069c30c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1201
+T|415|415|SAY|who=;id=chapter_x6_f5bdf5cd;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1207
+T|416|416|SAY|who=;id=chapter_x6_df46c8c5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1213
+T|417|418|SAY|who=;id=chapter_x6_6deaa860;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1219
+T|418|419|SAY|who=Fang;id=chapter_x6_2655305f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1225
+T|419|420|SAY|who=Fang;id=chapter_x6_4ad663d0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1231
+T|420|421|SAY|who=Fang;id=chapter_x6_b328c04c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1237
+T|421|422|SAY|who=Fang;id=chapter_x6_467bb90b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1243
+T|422|424|SAY|who=;id=chapter_x6_2a9c21dc;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1249
+T|423|426|SAY|who=Fang;id=chapter_x6_52117725;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1255
+T|424|427|SAY|who=Fang;id=chapter_x6_1f26e5a7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1261
+T|425|428|SAY|who=Fang;id=chapter_x6_8f08bb90;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1267
+T|426|429|SAY|who=Fang;id=chapter_x6_68a99c14;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1273
+T|427|430|SAY|who=Fang;id=chapter_x6_9475f229;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1279
+T|428|432|SAY|who=;id=chapter_x6_8f75d7ea;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1285
+T|429|434|SAY|who=;id=chapter_x6_5724d5ec;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1291
+T|430|436|SAY|who=;id=chapter_x6_f6fdac01;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1297
+T|431|437|SAY|who=;id=chapter_x6_69a5b201;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1303
+T|432|439|SAY|who=;id=chapter_x6_50f2d9d2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1309
+T|433|441|SAY|who=;id=chapter_x6_f8c9abbf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1315
+T|434|443|SAY|who=Fang;id=chapter_x6_0ae5a537;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1321
+T|435|444|SAY|who=Fang;id=chapter_x6_a6b135ae;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1327
+T|436|445|SAY|who=Fang;id=chapter_x6_2512b6af;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1333
+T|437|446|SAY|who=Fang;id=chapter_x6_497da98e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1339
+T|438|447|STOP|music=audio/ost/fuck you I like these weirdos.ogg
+T|439|447|SAY|who=Fang;id=chapter_x6_35358649;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1345
+T|440|449|SAY|who=;id=chapter_x6_7d5d8053;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1351
+T|441|451|SAY|who=;id=chapter_x6_aca1b3ee;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1357
+T|442|453|SAY|who=Trish;id=chapter_x6_198c86ec;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1363
+T|443|454|SAY|who=Trish;id=chapter_x6_c991eed6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1369
+T|444|456|SAY|who=Fang;id=chapter_x6_56b24260;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1375
+T|445|457|SAY|who=Trish;id=chapter_x6_f3a603b6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1381
+T|446|458|SAY|who=Trish;id=chapter_x6_b5e65781;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1387
+T|447|459|SAY|who=Trish;id=chapter_x6_bcee21eb;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1393
+T|448|460|SAY|who=Reed;id=chapter_x6_7f3d5a14;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1399
+T|449|462|SAY|who=Trish;id=chapter_x6_c730efc4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1405
+T|450|464|SAY|who=Trish;id=chapter_x6_a09254db;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1411
+T|451|466|SCENE
+T|452|466|SHOW|tag=black;attrs=
+T|453|467|SAY|who=;id=chapter_x6_c3739b85;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1417
+T|454|470|PLAY|music=audio/ost/appreciating the atmosphere.ogg
+T|455|470|SAY|who=;id=chapter_x6_0712a08d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1423
+T|456|472|SCENE
+T|457|472|SHOW|tag=anon;attrs=neutral flip
+T|458|472|SHOW|tag=fang;attrs=phappy flip
+T|459|472|SHOW|tag=reed;attrs=neutral
+T|460|472|SHOW|tag=trish;attrs=neutral
+T|461|472|SHOW|tag=trishhome;attrs=
+T|462|473|SAY|who=Reed;id=chapter_x6_7e04faa6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1429
+T|463|475|SAY|who=Anon;id=chapter_x6_edb51d13;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1435
+T|464|476|SAY|who=Fang;id=chapter_x6_c25573cf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1441
+T|465|478|SHOW|tag=trish;attrs=explanatory
+T|466|478|SAY|who=Trish;id=chapter_x6_954c5e61;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1447
+T|467|480|SHOW|tag=trish;attrs=neutral
+T|468|480|SAY|who=Fang;id=chapter_x6_64d11baf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1453
+T|469|482|SAY|who=Anon;id=chapter_x6_7d7e845c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1459
+T|470|483|SAY|who=;id=chapter_x6_080272c2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1465
+T|471|484|SAY|who=Anon;id=chapter_x6_7d93bf91;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1471
+T|472|485|SHOW|tag=trish;attrs=explanatory
+T|473|485|SAY|who=Trish;id=chapter_x6_5782dffa;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1477
+T|474|487|SHOW|tag=trish;attrs=neutral
+T|475|487|SAY|who=;id=chapter_x6_90e7f28e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1483
+T|476|490|SAY|who=;id=chapter_x6_3632afa4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1489
+T|477|491|SAY|who=;id=chapter_x6_590f1cad;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1495
+T|478|493|SHOW|tag=anon;attrs=shrug flip
+T|479|493|SAY|who=Anon;id=chapter_x6_b936b63c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1501
+T|480|495|SHOW|tag=anon;attrs=neutral flip
+T|481|495|SHOW|tag=trish;attrs=surprised
+T|482|495|SAY|who=;id=chapter_x6_7e10f6ce;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1507
+T|483|498|SAY|who=Anon;id=chapter_x6_c0aef5a6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1513
+T|484|499|SAY|who=Anon;id=chapter_x6_af27fa2e;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1519
+T|485|500|SHOW|tag=trish;attrs=neutral
+T|486|500|SAY|who=Trish;id=chapter_x6_8acaad73;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1525
+T|487|502|SAY|who=Trish;id=chapter_x6_6b16a356;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1531
+T|488|504|SAY|who=;id=chapter_x6_7606e5f6;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1537
+T|489|505|SAY|who=;id=chapter_x6_382067c1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1543
+T|490|507|SAY|who=;id=chapter_x6_a9cd3357;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1549
+T|491|509|SAY|who=Anon;id=chapter_x6_434d94e4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1555
+T|492|510|SAY|who=Anon;id=chapter_x6_f6b3871a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1561
+T|493|511|SHOW|tag=trish;attrs=considering
+T|494|511|SAY|who=;id=chapter_x6_1f3a2447;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1567
+T|495|513|SAY|who=Trish;id=chapter_x6_9ac6fbcf;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1573
+T|496|514|SAY|who=Anon;id=chapter_x6_d749a0af;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1579
+T|497|515|SHOW|tag=trish;attrs=smile
+T|498|515|SAY|who=;id=chapter_x6_bdcdbec7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1585
+T|499|518|SAY|who=Naser;id=chapter_x6_e90848a7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1591
+T|500|519|SAY|who=;id=chapter_x6_99edf8ac;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1597
+T|501|521|SHOW|tag=naser;attrs=happy
+T|502|522|SAY|who=Naser;id=chapter_x6_9f61f4e0;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1603
+T|503|524|SAY|who=;id=chapter_x6_3309394f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1609
+T|504|526|SAY|who=;id=chapter_x6_6055ea2c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1615
+T|505|529|SHOW|tag=chondra;attrs=neutral flip
+T|506|529|SHOW|tag=riley;attrs=neutral
+T|507|529|SHOW|tag=rosa;attrs=neutral flip
+T|508|529|SHOW|tag=stella;attrs=neutral
+T|509|529|SHOW|tag=tali;attrs=neutral flip
+T|510|530|SAY|who=;id=chapter_x6_eadd7aa2;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1621
+T|511|533|SAY|who=;id=chapter_x6_82a162d7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1627
+T|512|535|SAY|who=;id=chapter_x6_14538c24;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1633
+T|513|537|SHOW|tag=rosa;attrs=considering flip
+T|514|537|SAY|who=Rosa;id=chapter_x6_0673e88c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1639
+T|515|540|SAY|who=Anon;id=chapter_x6_381d3937;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1645
+T|516|542|SAY|who=;id=chapter_x6_24266be3;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1651
+T|517|545|SAY|who=Fang;id=chapter_x6_4f6025a7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1657
+T|518|547|SAY|who=Anon;id=chapter_x6_936c6697;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1663
+T|519|549|SAY|who=;id=chapter_x6_63d0358f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1669
+T|520|551|SAY|who=Anon;id=chapter_x6_d067aa7a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1675
+T|521|553|SHOW|tag=rosa;attrs=neutral flip
+T|522|553|SAY|who=;id=chapter_x6_3174ea30;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1681
+T|523|556|SAY|who=;id=chapter_x6_9b9f5b2b;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1687
+T|524|557|SAY|who=;id=chapter_x6_97ab65df;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1693
+T|525|559|SAY|who=;id=chapter_x6_31559073;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1699
+T|526|560|SAY|who=;id=chapter_x6_3e980f7f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1705
+T|527|561|SHOW|tag=reed;attrs=explanatory
+T|528|561|SAY|who=Reed;id=chapter_x6_f9026cf4;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1711
+T|529|563|SHOW|tag=reed;attrs=neutral
+T|530|563|SAY|who=Trish;id=chapter_x6_c88ac642;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1717
+T|531|565|SHOW|tag=riley;attrs=smirk
+T|532|565|SAY|who=Riley;id=chapter_x6_2e6b8da7;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1723
+T|533|567|SAY|who=Trish;id=chapter_x6_72a14802;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1729
+T|534|569|SHOW|tag=trish;attrs=happy
+T|535|569|SAY|who=Trish;id=chapter_x6_0843d83a;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1735
+T|536|571|SAY|who=Trish;id=chapter_x6_c1a55a01;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1741
+T|537|573|SHOW|tag=rosa;attrs=happy
+T|538|573|SAY|who=;id=chapter_x6_4483e65d;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1747
+T|539|575|SHOW|tag=anon;attrs=neutral
+T|540|575|SAY|who=Rosa;id=chapter_x6_743a2af5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1753
+T|541|577|SAY|who=Rosa;id=chapter_x6_0ac7df5c;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1759
+T|542|578|SHOW|tag=anon;attrs=fear
+T|543|578|SHOW|tag=chondra;attrs=happy flip
+T|544|578|SHOW|tag=fang;attrs=nonxmas pendant shocked
+T|545|578|SHOW|tag=tali;attrs=happy flip
+T|546|578|SHOW|tag=trish;attrs=surprised
+T|547|579|SAY|who=;id=chapter_x6_25a1c340;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1765
+T|548|581|SAY|who=;id=chapter_x6_139ad968;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1771
+T|549|582|SHOW|tag=naser;attrs=shocked flip
+T|550|582|SHOW|tag=reed;attrs=shocked flip
+T|551|582|SHOW|tag=stella;attrs=happy
+T|552|582|SHOW|tag=trish;attrs=shock
+T|553|582|SAY|who=Naser;id=chapter_x6_65b58067;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1777
+T|554|584|SAY|who=;id=chapter_x6_a7ba528f;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1783
+T|555|585|SAY|who=Rosa;id=chapter_x6_77706e93;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1789
+T|556|586|SAY|who=Stella;id=chapter_x6_73783362;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1795
+T|557|588|SAY|who=Trish;id=chapter_x6_818d3fc5;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1801
+T|558|589|STOP|music=audio/ost/appreciating the atmosphere.ogg
+T|559|590|SCENE
+T|560|590|SHOW|tag=black;attrs=
+T|561|591|SAY|who=;id=chapter_x6_f1638dc1_1;loc=game/tl/es/script/x6-passion-of-the-trigga.rpy:1807
+T|562|593|LABEL|name=_kit_capture_end

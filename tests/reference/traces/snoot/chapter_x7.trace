@@ -45,340 +45,513 @@ T|44|51|SAY|who=Fang;id=chapter_x7_60e0039b;loc=game/tl/es/script/x7-naomi-tribu
 T|45|53|SAY|who=Anon;id=chapter_x7_55facc70;loc=game/tl/es/script/x7-naomi-tribulations.rpy:157
 T|46|54|SAY|who=Fang;id=chapter_x7_ec5383ae;loc=game/tl/es/script/x7-naomi-tribulations.rpy:163
 T|47|55|SAY|who=Anon;id=chapter_x7_8507308a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:169
-T|48|56|SAY|who=;id=chapter_x7_f9e47df0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:175
-T|49|58|SAY|who=;id=chapter_x7_4e73629a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:181
-T|50|60|SAY|who=Anon;id=chapter_x7_d545a297;loc=game/tl/es/script/x7-naomi-tribulations.rpy:187
-T|51|61|SAY|who=Fang;id=chapter_x7_39126cb3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:193
-T|52|62|SAY|who=Anon;id=chapter_x7_2593b906;loc=game/tl/es/script/x7-naomi-tribulations.rpy:199
-T|53|63|SAY|who=Fang;id=chapter_x7_ba6c663b;loc=game/tl/es/script/x7-naomi-tribulations.rpy:205
-T|54|64|SAY|who=Anon;id=chapter_x7_ad659dc3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:211
-T|55|65|SAY|who=Fang;id=chapter_x7_f4fb822b;loc=game/tl/es/script/x7-naomi-tribulations.rpy:217
-T|56|67|SAY|who=Anon;id=chapter_x7_b5909de5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:223
-T|57|69|SAY|who=Anon;id=chapter_x7_599e8fa1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:229
-T|58|72|SAY|who=;id=chapter_x7_e76e5299;loc=game/tl/es/script/x7-naomi-tribulations.rpy:235
-T|59|74|SAY|who=Fang;id=chapter_x7_034671f6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:241
-T|60|76|SAY|who=;id=chapter_x7_5b2f1964;loc=game/tl/es/script/x7-naomi-tribulations.rpy:247
-T|61|79|SAY|who=Fang;id=chapter_x7_add02565;loc=game/tl/es/script/x7-naomi-tribulations.rpy:253
-T|62|82|SHOW|tag=fangdad;attrs=neutral flip
-T|63|83|SAY|who=Papá de Fang;id=chapter_x7_48f58c6f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:259
-T|64|85|SAY|who=;id=chapter_x7_bcf9c97a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:265
-T|65|87|SAY|who=Anon;id=chapter_x7_e3e4ca4c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:271
-T|66|89|SAY|who=;id=chapter_x7_29d136d6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:277
-T|67|92|SAY|who=Fang;id=chapter_x7_378dbb9a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:283
-T|68|94|SAY|who=Anon;id=chapter_x7_25c82e61;loc=game/tl/es/script/x7-naomi-tribulations.rpy:289
-T|69|95|SAY|who=Anon;id=chapter_x7_e4e942b8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:295
-T|70|96|SAY|who=Anon;id=chapter_x7_0747e9dc;loc=game/tl/es/script/x7-naomi-tribulations.rpy:301
-T|71|98|SAY|who=Anon;id=chapter_x7_8a5618ba;loc=game/tl/es/script/x7-naomi-tribulations.rpy:307
-T|72|100|SAY|who=Anon;id=chapter_x7_0291434f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:313
-T|73|102|SAY|who=;id=chapter_x7_505d35a3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:319
-T|74|104|SAY|who=;id=chapter_x7_e0742b8f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:325
-T|75|106|SAY|who=;id=chapter_x7_ae17ef33;loc=game/tl/es/script/x7-naomi-tribulations.rpy:331
-T|76|108|HIDE|tag=fangphonevideocall
-T|77|109|SAY|who=;id=chapter_x7_93ed389a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:337
-T|78|112|SAY|who=;id=chapter_x7_4a2c3ac5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:343
-T|79|114|SAY|who=;id=chapter_x7_f1638dc1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:349
-T|80|116|SCENE
-T|81|116|SHOW|tag=black;attrs=
-T|82|117|SCENE
-T|83|117|SHOW|tag=fang;attrs=pneutral flip
-T|84|117|SHOW|tag=home;attrs=fang day alt
-T|85|118|PLAY|music=audio/OST/to_swagger.ogg
-T|86|118|SAY|who=;id=chapter_x7_e3d9c3dd;loc=game/tl/es/script/x7-naomi-tribulations.rpy:355
-T|87|120|SAY|who=;id=chapter_x7_ab5eca19;loc=game/tl/es/script/x7-naomi-tribulations.rpy:361
-T|88|122|SAY|who=;id=chapter_x7_4b726957;loc=game/tl/es/script/x7-naomi-tribulations.rpy:367
-T|89|123|SAY|who=;id=chapter_x7_abe2c785;loc=game/tl/es/script/x7-naomi-tribulations.rpy:373
-T|90|125|SAY|who=;id=chapter_x7_ce41da63;loc=game/tl/es/script/x7-naomi-tribulations.rpy:379
-T|91|127|SAY|who=;id=chapter_x7_d5f794cb;loc=game/tl/es/script/x7-naomi-tribulations.rpy:385
-T|92|128|SAY|who=;id=chapter_x7_a06813a8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:391
-T|93|130|SAY|who=;id=chapter_x7_6483e1f0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:397
-T|94|132|SAY|who=;id=chapter_x7_9bf21ac8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:403
-T|95|133|SAY|who=;id=chapter_x7_ccc0b6d8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:409
-T|96|134|SAY|who=;id=chapter_x7_08b9976e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:415
-T|97|136|SHOW|tag=fangmom;attrs=neutral
-T|98|137|SAY|who=Mamá de Fang;id=chapter_x7_20e982c2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:421
-T|99|139|SAY|who=;id=chapter_x7_1b0ebbd7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:427
-T|100|141|SAY|who=;id=chapter_x7_1442d676;loc=game/tl/es/script/x7-naomi-tribulations.rpy:433
-T|101|143|HIDE|tag=fangmom
-T|102|143|SHOW|tag=dimmer_darker;attrs=
-T|103|144|SHOW|tag=chadshark;attrs=flip
-T|104|144|SHOW|tag=stella;attrs=happy flip
-T|105|145|SAY|who=;id=chapter_x7_b60ceae0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:439
-T|106|148|SAY|who=;id=chapter_x7_5448c783;loc=game/tl/es/script/x7-naomi-tribulations.rpy:445
-T|107|150|SAY|who=;id=chapter_x7_e98cb933;loc=game/tl/es/script/x7-naomi-tribulations.rpy:451
-T|108|152|HIDE|tag=chadshark
-T|109|152|HIDE|tag=stella
-T|110|152|SAY|who=;id=chapter_x7_b3dc907c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:457
-T|111|155|SHOW|tag=trish;attrs=shock flip
-T|112|158|SAY|who=Trish;id=chapter_x7_028d95d4;loc=game/tl/es/script/x7-naomi-tribulations.rpy:463
-T|113|160|SAY|who=Fang;id=chapter_x7_b5323be9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:469
-T|114|162|SAY|who=Fang;id=chapter_x7_4f40b88c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:475
-T|115|164|SHOW|tag=fangdad;attrs=neutral flip
-T|116|164|SAY|who=Papá de Fang;id=chapter_x7_556a484a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:481
-T|117|167|SAY|who=Fang y Trish;id=chapter_x7_c9ca6a88;loc=game/tl/es/script/x7-naomi-tribulations.rpy:487
-T|118|169|SAY|who=;id=chapter_x7_4c196e3f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:493
-T|119|171|SAY|who=Fang;id=chapter_x7_3363e0f0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:499
-T|120|172|SAY|who=Papá de Fang;id=chapter_x7_03ff0809;loc=game/tl/es/script/x7-naomi-tribulations.rpy:505
-T|121|174|SAY|who=Mamá de Fang;id=chapter_x7_d2ea82f0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:511
-T|122|177|HIDE|tag=fangdad
-T|123|177|SAY|who=;id=chapter_x7_741dce9a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:517
-T|124|179|SAY|who=Fang;id=chapter_x7_04b27fe7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:523
-T|125|181|SAY|who=Trish;id=chapter_x7_5b0eb2e3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:529
-T|126|183|SAY|who=Fang;id=chapter_x7_8760151c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:535
-T|127|186|SAY|who=Trish;id=chapter_x7_e96e05e6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:541
-T|128|187|SAY|who=Fang;id=chapter_x7_117d0fd2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:547
-T|129|188|SAY|who=Fang;id=chapter_x7_0e7a6216;loc=game/tl/es/script/x7-naomi-tribulations.rpy:553
-T|130|189|SAY|who=;id=chapter_x7_380b4589;loc=game/tl/es/script/x7-naomi-tribulations.rpy:559
-T|131|192|SAY|who=Trish;id=chapter_x7_a68c8d17;loc=game/tl/es/script/x7-naomi-tribulations.rpy:565
-T|132|193|SAY|who=Fang;id=chapter_x7_5b4057b5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:571
-T|133|195|SAY|who=Trish;id=chapter_x7_852c5a6f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:577
-T|134|197|SAY|who=Moe;id=chapter_x7_165719c8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:583
-T|135|198|SAY|who=Fang;id=chapter_x7_f1ade405;loc=game/tl/es/script/x7-naomi-tribulations.rpy:589
-T|136|201|HIDE|tag=fang
-T|137|201|HIDE|tag=trish
-T|138|202|SAY|who=;id=chapter_x7_a6718a3e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:595
-T|139|204|SAY|who=;id=chapter_x7_9b3738e0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:601
-T|140|206|SAY|who=;id=chapter_x7_234cc338;loc=game/tl/es/script/x7-naomi-tribulations.rpy:607
-T|141|208|SHOW|tag=naomi;attrs=neutral flip
-T|142|208|SHOW|tag=naser;attrs=neutral flip
-T|143|211|SAY|who=Naser;id=chapter_x7_a9c2e4f2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:613
-T|144|213|SHOW|tag=white;attrs=
-T|145|216|HIDE|tag=dimmer_darker
-T|146|216|SAY|who=;id=chapter_x7_b1edc851;loc=game/tl/es/script/x7-naomi-tribulations.rpy:619
-T|147|218|SAY|who=Naser;id=chapter_x7_f3cd71ff;loc=game/tl/es/script/x7-naomi-tribulations.rpy:625
-T|148|219|SHOW|tag=chadshark;attrs=
-T|149|219|SHOW|tag=fang;attrs=nonxmas pendant happy
-T|150|219|SHOW|tag=fangdad;attrs=happy
-T|151|219|SHOW|tag=fangmom;attrs=neutral
-T|152|219|SHOW|tag=moe;attrs=neutral
-T|153|219|SHOW|tag=stella;attrs=happy
-T|154|219|SHOW|tag=trish;attrs=happy
-T|155|220|SAY|who=Todos;id=chapter_x7_7e5e1ac7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:631
-T|156|221|PLAY|music=audio/OST/Those Other Two Weirdos.ogg
-T|157|222|SAY|who=Fang;id=chapter_x7_93a4996a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:637
-T|158|224|SAY|who=Naser y Naomi;id=chapter_x7_86623409;loc=game/tl/es/script/x7-naomi-tribulations.rpy:643
-T|159|226|SAY|who=Mamá de Fang;id=chapter_x7_549c5405;loc=game/tl/es/script/x7-naomi-tribulations.rpy:649
-T|160|230|HIDE|tag=white
-T|161|231|SAY|who=;id=chapter_x7_e855b4fb;loc=game/tl/es/script/x7-naomi-tribulations.rpy:655
-T|162|234|SAY|who=Papá de Fang;id=chapter_x7_48debc4e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:661
-T|163|235|SAY|who=Mamá de Fang;id=chapter_x7_0b72d472;loc=game/tl/es/script/x7-naomi-tribulations.rpy:667
-T|164|238|SAY|who=;id=chapter_x7_f6a40a5c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:673
-T|165|240|SAY|who=Naser;id=chapter_x7_06706745;loc=game/tl/es/script/x7-naomi-tribulations.rpy:679
-T|166|242|SAY|who=Mamá de Fang;id=chapter_x7_afeab27e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:685
-T|167|244|SAY|who=;id=chapter_x7_9b8704eb;loc=game/tl/es/script/x7-naomi-tribulations.rpy:691
-T|168|245|SAY|who=Naser;id=chapter_x7_128f7dcf;loc=game/tl/es/script/x7-naomi-tribulations.rpy:697
-T|169|248|SAY|who=Chet;id=chapter_x7_f9fbeb11;loc=game/tl/es/script/x7-naomi-tribulations.rpy:703
-T|170|249|SAY|who=;id=chapter_x7_692a7a50;loc=game/tl/es/script/x7-naomi-tribulations.rpy:709
-T|171|251|SAY|who=Naomi;id=chapter_x7_3469c194;loc=game/tl/es/script/x7-naomi-tribulations.rpy:715
-T|172|253|SAY|who=;id=chapter_x7_2463d816;loc=game/tl/es/script/x7-naomi-tribulations.rpy:721
-T|173|256|SCENE
-T|174|256|SHOW|tag=black;attrs=
-T|175|257|SCENE
-T|176|257|SHOW|tag=fang;attrs=nonxmas pendant neutral
-T|177|257|SHOW|tag=home;attrs=fang day alt
-T|178|257|SHOW|tag=trish;attrs=neutral
-T|179|257|SAY|who=;id=chapter_x7_293783a7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:727
-T|180|258|PLAY|music=audio/OST/west_coast_kicking.ogg
-T|181|259|SAY|who=;id=chapter_x7_6ee7613d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:733
-T|182|260|SAY|who=;id=chapter_x7_7a357a94;loc=game/tl/es/script/x7-naomi-tribulations.rpy:739
-T|183|262|SAY|who=;id=chapter_x7_1d0aa0de;loc=game/tl/es/script/x7-naomi-tribulations.rpy:745
-T|184|265|SAY|who=;id=chapter_x7_7ece093e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:751
-T|185|267|SAY|who=Trish;id=chapter_x7_4bc5481c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:757
-T|186|268|SAY|who=Fang;id=chapter_x7_e5def6e9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:763
-T|187|270|SAY|who=Trish;id=chapter_x7_17356bf0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:769
-T|188|272|SAY|who=Fang;id=chapter_x7_a088a442;loc=game/tl/es/script/x7-naomi-tribulations.rpy:775
-T|189|275|SAY|who=Trish;id=chapter_x7_e15ce1ed;loc=game/tl/es/script/x7-naomi-tribulations.rpy:781
-T|190|276|SAY|who=Fang;id=chapter_x7_5b69a489;loc=game/tl/es/script/x7-naomi-tribulations.rpy:787
-T|191|277|SAY|who=Trish;id=chapter_x7_26cc1612;loc=game/tl/es/script/x7-naomi-tribulations.rpy:793
-T|192|279|SAY|who=;id=chapter_x7_2adae790;loc=game/tl/es/script/x7-naomi-tribulations.rpy:799
-T|193|281|SAY|who=Fang;id=chapter_x7_94444945;loc=game/tl/es/script/x7-naomi-tribulations.rpy:805
-T|194|282|SAY|who=Trish;id=chapter_x7_b5948a9f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:811
-T|195|285|SAY|who=;id=chapter_x7_9ec638b6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:817
-T|196|286|SHOW|tag=fangdad;attrs=neutral flip
-T|197|288|SHOW|tag=dimmer_lighter;attrs=
-T|198|289|SAY|who=;id=chapter_x7_795ab211;loc=game/tl/es/script/x7-naomi-tribulations.rpy:823
-T|199|291|SAY|who=Fang;id=chapter_x7_566165d5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:829
-T|200|293|SAY|who=;id=chapter_x7_096c9f38;loc=game/tl/es/script/x7-naomi-tribulations.rpy:835
-T|201|296|SHOW|tag=fangmom;attrs=unimpressed flip
-T|202|299|HIDE|tag=fangdad
-T|203|299|HIDE|tag=fangmom
-T|204|300|SAY|who=;id=chapter_x7_0b8eac52;loc=game/tl/es/script/x7-naomi-tribulations.rpy:841
-T|205|302|SAY|who=Trish;id=chapter_x7_f20dc133;loc=game/tl/es/script/x7-naomi-tribulations.rpy:847
-T|206|304|SAY|who=Fang;id=chapter_x7_96f53571;loc=game/tl/es/script/x7-naomi-tribulations.rpy:853
-T|207|307|SAY|who=;id=chapter_x7_36438833;loc=game/tl/es/script/x7-naomi-tribulations.rpy:859
-T|208|310|SAY|who=;id=chapter_x7_5efed09e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:865
-T|209|312|SAY|who=;id=chapter_x7_cc76e0a5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:871
-T|210|314|SAY|who=Trish;id=chapter_x7_3697d684;loc=game/tl/es/script/x7-naomi-tribulations.rpy:877
-T|211|315|SAY|who=;id=chapter_x7_00ea3b67;loc=game/tl/es/script/x7-naomi-tribulations.rpy:883
-T|212|317|SAY|who=;id=chapter_x7_94004a03;loc=game/tl/es/script/x7-naomi-tribulations.rpy:889
-T|213|318|SAY|who=;id=chapter_x7_bdc6073a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:895
-T|214|319|SAY|who=Trish;id=chapter_x7_629c371d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:901
-T|215|321|SAY|who=Fang;id=chapter_x7_deed07f3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:907
-T|216|323|SAY|who=Trish;id=chapter_x7_88fd44e9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:913
-T|217|325|SAY|who=;id=chapter_x7_34b3f6f2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:919
-T|218|327|SAY|who=Fang;id=chapter_x7_1cf71f3d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:925
-T|219|328|SAY|who=Fang;id=chapter_x7_985cc0e9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:931
-T|220|331|SAY|who=Trish;id=chapter_x7_85ccb6e5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:937
-T|221|332|SAY|who=Fang;id=chapter_x7_ec5383ae_1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:943
-T|222|336|SAY|who=;id=chapter_x7_dbaf5813;loc=game/tl/es/script/x7-naomi-tribulations.rpy:949
-T|223|339|SAY|who=;id=chapter_x7_735724c0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:955
-T|224|340|SAY|who=Fang;id=chapter_x7_c6eb4e26;loc=game/tl/es/script/x7-naomi-tribulations.rpy:961
-T|225|348|SAY|who=;id=chapter_x7_1e77bad6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:967
-T|226|351|SAY|who=Fang;id=chapter_x7_7371e915;loc=game/tl/es/script/x7-naomi-tribulations.rpy:973
-T|227|353|SAY|who=;id=chapter_x7_9ed6b131;loc=game/tl/es/script/x7-naomi-tribulations.rpy:979
-T|228|355|SAY|who=Trish;id=chapter_x7_8bd8a41b;loc=game/tl/es/script/x7-naomi-tribulations.rpy:985
-T|229|357|SAY|who=Fang;id=chapter_x7_39a04dd9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:991
-T|230|359|SAY|who=Fang;id=chapter_x7_8a99184f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:997
-T|231|361|SAY|who=Fang;id=chapter_x7_948386fd;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1003
-T|232|362|SAY|who=Fang;id=chapter_x7_25f4c725;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1009
-T|233|364|SHOW|tag=naomi;attrs=happy
-T|234|364|SHOW|tag=naser;attrs=happy flip
-T|235|365|SAY|who=;id=chapter_x7_395a0d6e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1015
-T|236|367|SAY|who=;id=chapter_x7_05957c79;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1021
-T|237|369|SAY|who=;id=chapter_x7_93e7df4c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1027
-T|238|371|SAY|who=;id=chapter_x7_65423597;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1033
-T|239|373|SAY|who=;id=chapter_x7_572694d1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1039
-T|240|374|SAY|who=;id=chapter_x7_16e936a2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1045
-T|241|377|SAY|who=;id=chapter_x7_4d375ab8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1051
-T|242|379|SAY|who=;id=chapter_x7_8208728c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1057
-T|243|381|SAY|who=(???);id=chapter_x7_0122d1e4;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1063
-T|244|382|SAY|who=;id=chapter_x7_041b510d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1069
-T|245|385|SHOW|tag=chadshark;attrs=
-T|246|386|SAY|who=;id=chapter_x7_4f350c0c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1075
-T|247|388|SAY|who=;id=chapter_x7_594406dc;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1081
-T|248|390|SAY|who=Chet;id=chapter_x7_5b5e7c65;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1087
-T|249|391|SAY|who=Chet;id=chapter_x7_62965665;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1093
-T|250|393|SAY|who=;id=chapter_x7_fb98aca8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1099
-T|251|394|SAY|who=;id=chapter_x7_a012da6c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1105
-T|252|397|HIDE|tag=chadshark
-T|253|398|SAY|who=Fang;id=chapter_x7_8dbcf3f9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1111
-T|254|401|SAY|who=Trish;id=chapter_x7_b3d8588e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1117
-T|255|403|SAY|who=Fang;id=chapter_x7_9f5198db;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1123
-T|256|404|SAY|who=;id=chapter_x7_375e27d7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1129
-T|257|407|SAY|who=Trish;id=chapter_x7_b9e29f13;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1135
-T|258|408|SAY|who=Trish;id=chapter_x7_f55f352c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1141
-T|259|409|SAY|who=Trish;id=chapter_x7_1d877948;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1147
-T|260|412|SAY|who=Fang;id=chapter_x7_40219b2d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1153
-T|261|413|SAY|who=Fang;id=chapter_x7_d29efcea;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1159
-T|262|418|HIDE|tag=fang
-T|263|418|SAY|who=;id=chapter_x7_62b4298c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1165
-T|264|421|SCENE
-T|265|421|SHOW|tag=black;attrs=
-T|266|422|SCENE
-T|267|422|SHOW|tag=fang;attrs=nonxmas pendant considering
-T|268|422|SHOW|tag=fangroom;attrs=future
-T|269|423|SAY|who=;id=chapter_x7_6bc1b4a2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1171
-T|270|424|PLAY|music=audio/OST/The Top of the Social Ladder.ogg
-T|271|425|SAY|who=Fang;id=chapter_x7_01f62a90;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1177
-T|272|428|SAY|who=Fang;id=chapter_x7_8298c6da;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1183
-T|273|431|SAY|who=;id=chapter_x7_5e317de2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1189
-T|274|433|SAY|who=;id=chapter_x7_cb2b37d7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1195
-T|275|435|SAY|who=;id=chapter_x7_45ea5e45;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1201
-T|276|437|SAY|who=Fang;id=chapter_x7_a72402ba;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1207
-T|277|438|SAY|who=;id=chapter_x7_ed0476d2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1213
-T|278|439|SAY|who=;id=chapter_x7_7dfa77b2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1219
-T|279|441|SHOW|tag=naomi;attrs=neutral flip
-T|280|442|SAY|who=;id=chapter_x7_e8ca14d9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1225
-T|281|444|SAY|who=;id=chapter_x7_90ab98e8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1231
-T|282|446|SAY|who=;id=chapter_x7_bdadb3d7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1237
-T|283|448|SAY|who=Fang;id=chapter_x7_2047dcab;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1243
-T|284|451|SAY|who=;id=chapter_x7_1aaf6424;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1249
-T|285|453|SAY|who=Fang;id=chapter_x7_17a7cefa;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1255
-T|286|456|SAY|who=Naomi;id=chapter_x7_2118ef42;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1261
-T|287|460|SAY|who=;id=chapter_x7_7724066d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1267
-T|288|462|SAY|who=;id=chapter_x7_a04fc48f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1273
-T|289|463|SAY|who=;id=chapter_x7_963e2a14;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1279
-T|290|466|SAY|who=;id=chapter_x7_58cf2a4f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1285
-T|291|468|SCENE
-T|292|468|SHOW|tag=black;attrs=
-T|293|469|SCENE
-T|294|469|SHOW|tag=chadshark;attrs=flip
-T|295|469|SHOW|tag=fangdad;attrs=happy
-T|296|469|SHOW|tag=fangmom;attrs=neutral
-T|297|469|SHOW|tag=home;attrs=fang day alt
-T|298|469|SHOW|tag=moe;attrs=neutral flip
-T|299|469|SHOW|tag=naomi;attrs=explanatory flip
-T|300|469|SHOW|tag=naser;attrs=neutral flip
-T|301|469|SHOW|tag=stella;attrs=explanatory flip
-T|302|469|SHOW|tag=trish;attrs=happy
-T|303|470|SHOW|tag=fang;attrs=nonxmas pendant happy
-T|304|472|SAY|who=;id=chapter_x7_ce0c7cbe;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1291
-T|305|475|SAY|who=Fang;id=chapter_x7_03249e7f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1297
-T|306|476|SAY|who=Trish;id=chapter_x7_df4782ba;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1303
-T|307|477|SAY|who=Fang;id=chapter_x7_9d51cccc;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1309
-T|308|478|SAY|who=Trish;id=chapter_x7_c96ed075;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1315
-T|309|481|SAY|who=;id=chapter_x7_c07a9d1a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1321
-T|310|482|SAY|who=;id=chapter_x7_630f932f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1327
-T|311|484|SAY|who=;id=chapter_x7_6cb298dc;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1333
-T|312|486|SAY|who=;id=chapter_x7_b5afc47d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1339
-T|313|487|PLAY|music=audio/OST/The.ogg
-T|314|489|SAY|who=;id=chapter_x7_0bfec3d5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1345
-T|315|490|SAY|who=;id=chapter_x7_95fe677d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1351
-T|316|492|SAY|who=;id=chapter_x7_ef99c98d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1357
-T|317|493|SAY|who=;id=chapter_x7_dff477e6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1363
-T|318|495|SAY|who=;id=chapter_x7_7c2016fa;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1369
-T|319|497|SAY|who=;id=chapter_x7_ed10d2ac;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1375
-T|320|499|SAY|who=;id=chapter_x7_14bcb2a2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1381
-T|321|501|SAY|who=;id=chapter_x7_13b79e37;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1387
-T|322|503|SAY|who=;id=chapter_x7_6196c3e6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1393
-T|323|505|SAY|who=;id=chapter_x7_c890acf5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1399
-T|324|507|SAY|who=;id=chapter_x7_65423597_1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1405
-T|325|509|SAY|who=Fang;id=chapter_x7_46460455;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1411
-T|326|511|SAY|who=Fang;id=chapter_x7_2d98a027;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1417
-T|327|516|SAY|who=;id=chapter_x7_bf270638;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1423
-T|328|519|SAY|who=Trish;id=chapter_x7_3b242b8d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1429
-T|329|520|SAY|who=Fang;id=chapter_x7_d74240a5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1435
-T|330|521|SAY|who=Fang;id=chapter_x7_b3025ca1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1441
-T|331|523|SAY|who=;id=chapter_x7_a7153c58;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1447
-T|332|524|PLAY|music=audio/OST/middle_of_nowhere.ogg
-T|333|525|SAY|who=;id=chapter_x7_9ccde839;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1453
-T|334|526|SAY|who=;id=chapter_x7_4fe0ec03;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1459
-T|335|527|HIDE|tag=chadshark
-T|336|527|HIDE|tag=fangdad
-T|337|527|HIDE|tag=fangmom
-T|338|527|HIDE|tag=naomi
-T|339|527|HIDE|tag=naser
-T|340|527|HIDE|tag=stella
-T|341|528|SHOW|tag=chadshark;attrs=
-T|342|528|SHOW|tag=naomi;attrs=neutral flip
-T|343|528|SHOW|tag=naser;attrs=tablehit
-T|344|528|SHOW|tag=stella;attrs=neutral
-T|345|529|SAY|who=;id=chapter_x7_4ffefce1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1465
-T|346|531|SAY|who=;id=chapter_x7_05d78fb5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1471
-T|347|532|SAY|who=Stella;id=chapter_x7_1485a892;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1477
-T|348|534|SAY|who=(???);id=chapter_x7_b0718b16;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1483
-T|349|535|SAY|who=(???);id=chapter_x7_e439441b;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1489
-T|350|536|SAY|who=Stella;id=chapter_x7_431a5932;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1495
-T|351|537|SAY|who=Chet;id=chapter_x7_9ad5c5ab;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1501
-T|352|540|SAY|who=;id=chapter_x7_7d570d1d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1507
-T|353|541|SHOW|tag=sodacan;attrs=
-T|354|545|HIDE|tag=stella
-T|355|545|SHOW|tag=dimmer_darker;attrs=
-T|356|545|SHOW|tag=stella_hack;attrs=
-T|357|546|SAY|who=;id=chapter_x7_c8b30d94;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1513
-T|358|550|HIDE|tag=stella_hack
-T|359|550|SHOW|tag=stella;attrs=sad
-T|360|551|SHOW|tag=fangdad;attrs=happy
-T|361|551|SHOW|tag=fangmom;attrs=neutral flip
-T|362|551|SAY|who=;id=chapter_x7_d0c4a5aa;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1519
-T|363|554|SAY|who=;id=chapter_x7_bc52bd6c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1525
-T|364|557|SAY|who=;id=chapter_x7_cbd460f5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1531
-T|365|558|SAY|who=;id=chapter_x7_f054f1c7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1537
-T|366|560|SAY|who=;id=chapter_x7_20492c57;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1543
-T|367|567|SAY|who=;id=chapter_x7_f98e6895;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1549
-T|368|570|SAY|who=;id=chapter_x7_e6d6d413;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1555
-T|369|571|HIDE|tag=chadshark
-T|370|571|HIDE|tag=fangdad
-T|371|571|HIDE|tag=fangmom
-T|372|571|HIDE|tag=naomi
-T|373|571|HIDE|tag=naser
-T|374|571|HIDE|tag=stella
-T|375|572|SAY|who=Trish;id=chapter_x7_33bb787d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1561
-T|376|574|SAY|who=Fang;id=chapter_x7_3e1f2f9c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1567
-T|377|575|SAY|who=Trish;id=chapter_x7_88fb679e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1573
-T|378|577|SAY|who=;id=chapter_x7_b00e3a87;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1579
-T|379|580|SAY|who=;id=chapter_x7_3c18bd38;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1585
-T|380|583|SAY|who=;id=chapter_x7_e4def665;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1591
-T|381|584|SAY|who=;id=chapter_x7_107de147;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1597
-T|382|587|SCENE
-T|383|587|SHOW|tag=black;attrs=
-T|384|587|LABEL|name=_kit_capture_end
+T|48|56|SHOW|tag=fangphonevideocall;attrs=anongrin
+T|49|56|SAY|who=;id=chapter_x7_f9e47df0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:175
+T|50|58|SAY|who=;id=chapter_x7_4e73629a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:181
+T|51|60|SAY|who=Anon;id=chapter_x7_d545a297;loc=game/tl/es/script/x7-naomi-tribulations.rpy:187
+T|52|61|SAY|who=Fang;id=chapter_x7_39126cb3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:193
+T|53|62|SAY|who=Anon;id=chapter_x7_2593b906;loc=game/tl/es/script/x7-naomi-tribulations.rpy:199
+T|54|63|SAY|who=Fang;id=chapter_x7_ba6c663b;loc=game/tl/es/script/x7-naomi-tribulations.rpy:205
+T|55|64|SAY|who=Anon;id=chapter_x7_ad659dc3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:211
+T|56|65|SAY|who=Fang;id=chapter_x7_f4fb822b;loc=game/tl/es/script/x7-naomi-tribulations.rpy:217
+T|57|67|SHOW|tag=fangphonevideocall;attrs=anonconcerned
+T|58|67|SAY|who=Anon;id=chapter_x7_b5909de5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:223
+T|59|69|SHOW|tag=fangphonevideocall;attrs=anonneutral
+T|60|69|SAY|who=Anon;id=chapter_x7_599e8fa1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:229
+T|61|72|SAY|who=;id=chapter_x7_e76e5299;loc=game/tl/es/script/x7-naomi-tribulations.rpy:235
+T|62|74|SAY|who=Fang;id=chapter_x7_034671f6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:241
+T|63|75|SHOW|tag=fangphonevideocall;attrs=anonneutralalt1
+T|64|76|SAY|who=;id=chapter_x7_5b2f1964;loc=game/tl/es/script/x7-naomi-tribulations.rpy:247
+T|65|79|SHOW|tag=fangphonevideocall;attrs=anonneutral
+T|66|79|SAY|who=Fang;id=chapter_x7_add02565;loc=game/tl/es/script/x7-naomi-tribulations.rpy:253
+T|67|82|SHOW|tag=fangdad;attrs=neutral flip
+T|68|83|SAY|who=Papá de Fang;id=chapter_x7_48f58c6f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:259
+T|69|85|SAY|who=;id=chapter_x7_bcf9c97a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:265
+T|70|87|SAY|who=Anon;id=chapter_x7_e3e4ca4c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:271
+T|71|89|SAY|who=;id=chapter_x7_29d136d6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:277
+T|72|92|SAY|who=Fang;id=chapter_x7_378dbb9a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:283
+T|73|94|SAY|who=Anon;id=chapter_x7_25c82e61;loc=game/tl/es/script/x7-naomi-tribulations.rpy:289
+T|74|95|SAY|who=Anon;id=chapter_x7_e4e942b8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:295
+T|75|96|SAY|who=Anon;id=chapter_x7_0747e9dc;loc=game/tl/es/script/x7-naomi-tribulations.rpy:301
+T|76|98|SAY|who=Anon;id=chapter_x7_8a5618ba;loc=game/tl/es/script/x7-naomi-tribulations.rpy:307
+T|77|100|SAY|who=Anon;id=chapter_x7_0291434f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:313
+T|78|101|SHOW|tag=fangphonevideocall;attrs=call_ended_bg call_ended
+T|79|102|SAY|who=;id=chapter_x7_505d35a3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:319
+T|80|104|SAY|who=;id=chapter_x7_e0742b8f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:325
+T|81|106|SAY|who=;id=chapter_x7_ae17ef33;loc=game/tl/es/script/x7-naomi-tribulations.rpy:331
+T|82|108|HIDE|tag=fangphonevideocall
+T|83|109|SAY|who=;id=chapter_x7_93ed389a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:337
+T|84|112|SAY|who=;id=chapter_x7_4a2c3ac5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:343
+T|85|114|STOP|music=audio/OST/west_coast_kicking.ogg
+T|86|114|SAY|who=;id=chapter_x7_f1638dc1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:349
+T|87|116|SCENE
+T|88|116|SHOW|tag=black;attrs=
+T|89|117|SCENE
+T|90|117|SHOW|tag=fang;attrs=pneutral flip
+T|91|117|SHOW|tag=home;attrs=fang day alt
+T|92|117|PLAY|music=audio/OST/to_swagger.ogg
+T|93|118|SAY|who=;id=chapter_x7_e3d9c3dd;loc=game/tl/es/script/x7-naomi-tribulations.rpy:355
+T|94|120|SAY|who=;id=chapter_x7_ab5eca19;loc=game/tl/es/script/x7-naomi-tribulations.rpy:361
+T|95|122|SAY|who=;id=chapter_x7_4b726957;loc=game/tl/es/script/x7-naomi-tribulations.rpy:367
+T|96|123|SAY|who=;id=chapter_x7_abe2c785;loc=game/tl/es/script/x7-naomi-tribulations.rpy:373
+T|97|125|SHOW|tag=fang;attrs=psad flip
+T|98|125|SAY|who=;id=chapter_x7_ce41da63;loc=game/tl/es/script/x7-naomi-tribulations.rpy:379
+T|99|127|SAY|who=;id=chapter_x7_d5f794cb;loc=game/tl/es/script/x7-naomi-tribulations.rpy:385
+T|100|128|SHOW|tag=fang;attrs=pneutral flip
+T|101|128|SAY|who=;id=chapter_x7_a06813a8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:391
+T|102|130|SAY|who=;id=chapter_x7_6483e1f0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:397
+T|103|132|SAY|who=;id=chapter_x7_9bf21ac8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:403
+T|104|133|SAY|who=;id=chapter_x7_ccc0b6d8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:409
+T|105|134|SAY|who=;id=chapter_x7_08b9976e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:415
+T|106|136|SHOW|tag=fangmom;attrs=neutral
+T|107|137|SAY|who=Mamá de Fang;id=chapter_x7_20e982c2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:421
+T|108|139|SHOW|tag=fang;attrs=psurprised flip
+T|109|139|SAY|who=;id=chapter_x7_1b0ebbd7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:427
+T|110|141|SAY|who=;id=chapter_x7_1442d676;loc=game/tl/es/script/x7-naomi-tribulations.rpy:433
+T|111|142|SHOW|tag=fang;attrs=pneutral flip
+T|112|143|HIDE|tag=fangmom
+T|113|143|SHOW|tag=dimmer_darker;attrs=
+T|114|144|SHOW|tag=chadshark;attrs=flip
+T|115|144|SHOW|tag=stella;attrs=happy flip
+T|116|145|SAY|who=;id=chapter_x7_b60ceae0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:439
+T|117|148|SAY|who=;id=chapter_x7_5448c783;loc=game/tl/es/script/x7-naomi-tribulations.rpy:445
+T|118|150|SAY|who=;id=chapter_x7_e98cb933;loc=game/tl/es/script/x7-naomi-tribulations.rpy:451
+T|119|152|HIDE|tag=chadshark
+T|120|152|HIDE|tag=stella
+T|121|152|SAY|who=;id=chapter_x7_b3dc907c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:457
+T|122|155|SHOW|tag=trish;attrs=shock flip
+T|123|156|SHOW|tag=fang;attrs=psurprised flip
+T|124|157|SHOW|tag=trish;attrs=surprised
+T|125|158|SHOW|tag=trish;attrs=happy
+T|126|158|SAY|who=Trish;id=chapter_x7_028d95d4;loc=game/tl/es/script/x7-naomi-tribulations.rpy:463
+T|127|160|SHOW|tag=fang;attrs=phappy flip
+T|128|160|SAY|who=Fang;id=chapter_x7_b5323be9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:469
+T|129|162|SAY|who=Fang;id=chapter_x7_4f40b88c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:475
+T|130|164|SHOW|tag=fangdad;attrs=neutral flip
+T|131|164|SAY|who=Papá de Fang;id=chapter_x7_556a484a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:481
+T|132|166|SHOW|tag=fang;attrs=nonxmas pendant surprised
+T|133|166|SHOW|tag=trish;attrs=surprised
+T|134|167|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|135|167|SHOW|tag=trish;attrs=happy
+T|136|167|SAY|who=Fang y Trish;id=chapter_x7_c9ca6a88;loc=game/tl/es/script/x7-naomi-tribulations.rpy:487
+T|137|169|SAY|who=;id=chapter_x7_4c196e3f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:493
+T|138|171|SAY|who=Fang;id=chapter_x7_3363e0f0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:499
+T|139|172|SAY|who=Papá de Fang;id=chapter_x7_03ff0809;loc=game/tl/es/script/x7-naomi-tribulations.rpy:505
+T|140|174|SAY|who=Mamá de Fang;id=chapter_x7_d2ea82f0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:511
+T|141|175|SHOW|tag=fangdad;attrs=unimpressed flip
+T|142|177|HIDE|tag=fangdad
+T|143|177|SAY|who=;id=chapter_x7_741dce9a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:517
+T|144|179|SHOW|tag=fang;attrs=pneutral flip
+T|145|179|SHOW|tag=trish;attrs=neutral
+T|146|179|SAY|who=Fang;id=chapter_x7_04b27fe7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:523
+T|147|181|SHOW|tag=trish;attrs=explanatory
+T|148|181|SAY|who=Trish;id=chapter_x7_5b0eb2e3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:529
+T|149|183|SHOW|tag=trish;attrs=neutral
+T|150|183|SAY|who=Fang;id=chapter_x7_8760151c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:535
+T|151|186|SAY|who=Trish;id=chapter_x7_e96e05e6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:541
+T|152|187|SAY|who=Fang;id=chapter_x7_117d0fd2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:547
+T|153|188|SAY|who=Fang;id=chapter_x7_0e7a6216;loc=game/tl/es/script/x7-naomi-tribulations.rpy:553
+T|154|189|SHOW|tag=trish;attrs=considering
+T|155|189|SAY|who=;id=chapter_x7_380b4589;loc=game/tl/es/script/x7-naomi-tribulations.rpy:559
+T|156|192|SAY|who=Trish;id=chapter_x7_a68c8d17;loc=game/tl/es/script/x7-naomi-tribulations.rpy:565
+T|157|193|SHOW|tag=fang;attrs=nonxmas pendant unimpressed
+T|158|193|SAY|who=Fang;id=chapter_x7_5b4057b5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:571
+T|159|195|SHOW|tag=trish;attrs=explanatory
+T|160|195|SAY|who=Trish;id=chapter_x7_852c5a6f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:577
+T|161|197|SAY|who=Moe;id=chapter_x7_165719c8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:583
+T|162|198|SHOW|tag=fang;attrs=nonxmas pendant surprised
+T|163|198|SHOW|tag=trish;attrs=surprised
+T|164|198|SAY|who=Fang;id=chapter_x7_f1ade405;loc=game/tl/es/script/x7-naomi-tribulations.rpy:589
+T|165|201|HIDE|tag=fang
+T|166|201|HIDE|tag=trish
+T|167|201|STOP|music=audio/OST/to_swagger.ogg
+T|168|202|SAY|who=;id=chapter_x7_a6718a3e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:595
+T|169|204|SAY|who=;id=chapter_x7_9b3738e0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:601
+T|170|206|SAY|who=;id=chapter_x7_234cc338;loc=game/tl/es/script/x7-naomi-tribulations.rpy:607
+T|171|208|SHOW|tag=naomi;attrs=neutral flip
+T|172|208|SHOW|tag=naser;attrs=neutral flip
+T|173|209|SHOW|tag=naser;attrs=considering flip
+T|174|210|SHOW|tag=naser;attrs=neutral flip
+T|175|211|SAY|who=Naser;id=chapter_x7_a9c2e4f2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:613
+T|176|213|SHOW|tag=white;attrs=
+T|177|214|SHOW|tag=naser;attrs=shocked flip
+T|178|215|SHOW|tag=naser;attrs=annoyed flip
+T|179|216|HIDE|tag=dimmer_darker
+T|180|216|SAY|who=;id=chapter_x7_b1edc851;loc=game/tl/es/script/x7-naomi-tribulations.rpy:619
+T|181|218|SAY|who=Naser;id=chapter_x7_f3cd71ff;loc=game/tl/es/script/x7-naomi-tribulations.rpy:625
+T|182|219|SHOW|tag=chadshark;attrs=
+T|183|219|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|184|219|SHOW|tag=fangdad;attrs=happy
+T|185|219|SHOW|tag=fangmom;attrs=neutral
+T|186|219|SHOW|tag=moe;attrs=neutral
+T|187|219|SHOW|tag=stella;attrs=happy
+T|188|219|SHOW|tag=trish;attrs=happy
+T|189|219|PLAY|music=audio/OST/Those Other Two Weirdos.ogg
+T|190|220|SAY|who=Todos;id=chapter_x7_7e5e1ac7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:631
+T|191|222|SHOW|tag=fang;attrs=nonxmas pendant very happy
+T|192|222|SAY|who=Fang;id=chapter_x7_93a4996a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:637
+T|193|224|SHOW|tag=fangdad;attrs=unimpressed
+T|194|224|SHOW|tag=naomi;attrs=shocked flip
+T|195|224|SHOW|tag=naser;attrs=surprised flip
+T|196|224|SHOW|tag=stella;attrs=shock
+T|197|224|SHOW|tag=trish;attrs=surprised
+T|198|224|SAY|who=Naser y Naomi;id=chapter_x7_86623409;loc=game/tl/es/script/x7-naomi-tribulations.rpy:643
+T|199|226|SAY|who=Mamá de Fang;id=chapter_x7_549c5405;loc=game/tl/es/script/x7-naomi-tribulations.rpy:649
+T|200|230|HIDE|tag=white
+T|201|230|SHOW|tag=fang;attrs=pear cover
+T|202|231|SHOW|tag=fangmom;attrs=unimpressed
+T|203|231|SHOW|tag=trish;attrs=unimpressed
+T|204|231|SAY|who=;id=chapter_x7_e855b4fb;loc=game/tl/es/script/x7-naomi-tribulations.rpy:655
+T|205|234|SAY|who=Papá de Fang;id=chapter_x7_48debc4e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:661
+T|206|235|SHOW|tag=fangmom;attrs=neutral
+T|207|235|SAY|who=Mamá de Fang;id=chapter_x7_0b72d472;loc=game/tl/es/script/x7-naomi-tribulations.rpy:667
+T|208|238|SHOW|tag=fang;attrs=nonxmas pendant unimpressed
+T|209|238|SHOW|tag=fangdad;attrs=neutral
+T|210|238|SHOW|tag=naomi;attrs=neutral flip
+T|211|238|SHOW|tag=naser;attrs=considering flip
+T|212|238|SHOW|tag=stella;attrs=neutral
+T|213|238|SHOW|tag=trish;attrs=considering
+T|214|238|SAY|who=;id=chapter_x7_f6a40a5c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:673
+T|215|240|SHOW|tag=naser;attrs=neutral flip
+T|216|240|SAY|who=Naser;id=chapter_x7_06706745;loc=game/tl/es/script/x7-naomi-tribulations.rpy:679
+T|217|242|SAY|who=Mamá de Fang;id=chapter_x7_afeab27e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:685
+T|218|244|SAY|who=;id=chapter_x7_9b8704eb;loc=game/tl/es/script/x7-naomi-tribulations.rpy:691
+T|219|245|SHOW|tag=naser;attrs=annoyed flip
+T|220|245|SAY|who=Naser;id=chapter_x7_128f7dcf;loc=game/tl/es/script/x7-naomi-tribulations.rpy:697
+T|221|248|SAY|who=Chet;id=chapter_x7_f9fbeb11;loc=game/tl/es/script/x7-naomi-tribulations.rpy:703
+T|222|249|SHOW|tag=naser;attrs=neutral flip
+T|223|249|SAY|who=;id=chapter_x7_692a7a50;loc=game/tl/es/script/x7-naomi-tribulations.rpy:709
+T|224|251|SHOW|tag=naomi;attrs=happy flip
+T|225|251|SAY|who=Naomi;id=chapter_x7_3469c194;loc=game/tl/es/script/x7-naomi-tribulations.rpy:715
+T|226|253|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|227|253|SHOW|tag=fangdad;attrs=happy
+T|228|253|SHOW|tag=naser;attrs=happy flip
+T|229|253|SHOW|tag=stella;attrs=happy
+T|230|253|SHOW|tag=trish;attrs=smile
+T|231|253|SAY|who=;id=chapter_x7_2463d816;loc=game/tl/es/script/x7-naomi-tribulations.rpy:721
+T|232|256|SCENE
+T|233|256|SHOW|tag=black;attrs=
+T|234|256|STOP|music=audio/OST/Those Other Two Weirdos.ogg
+T|235|257|SCENE
+T|236|257|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|237|257|SHOW|tag=home;attrs=fang day alt
+T|238|257|SHOW|tag=trish;attrs=neutral
+T|239|257|PLAY|music=audio/OST/west_coast_kicking.ogg
+T|240|257|SAY|who=;id=chapter_x7_293783a7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:727
+T|241|259|SAY|who=;id=chapter_x7_6ee7613d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:733
+T|242|260|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|243|260|SAY|who=;id=chapter_x7_7a357a94;loc=game/tl/es/script/x7-naomi-tribulations.rpy:739
+T|244|262|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|245|262|SAY|who=;id=chapter_x7_1d0aa0de;loc=game/tl/es/script/x7-naomi-tribulations.rpy:745
+T|246|265|SAY|who=;id=chapter_x7_7ece093e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:751
+T|247|267|SAY|who=Trish;id=chapter_x7_4bc5481c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:757
+T|248|268|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|249|268|SAY|who=Fang;id=chapter_x7_e5def6e9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:763
+T|250|270|SAY|who=Trish;id=chapter_x7_17356bf0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:769
+T|251|272|SHOW|tag=fang;attrs=pneutral flip
+T|252|272|SAY|who=Fang;id=chapter_x7_a088a442;loc=game/tl/es/script/x7-naomi-tribulations.rpy:775
+T|253|275|SAY|who=Trish;id=chapter_x7_e15ce1ed;loc=game/tl/es/script/x7-naomi-tribulations.rpy:781
+T|254|276|SAY|who=Fang;id=chapter_x7_5b69a489;loc=game/tl/es/script/x7-naomi-tribulations.rpy:787
+T|255|277|SHOW|tag=trish;attrs=unimpressed
+T|256|277|SAY|who=Trish;id=chapter_x7_26cc1612;loc=game/tl/es/script/x7-naomi-tribulations.rpy:793
+T|257|279|SAY|who=;id=chapter_x7_2adae790;loc=game/tl/es/script/x7-naomi-tribulations.rpy:799
+T|258|281|SAY|who=Fang;id=chapter_x7_94444945;loc=game/tl/es/script/x7-naomi-tribulations.rpy:805
+T|259|282|SHOW|tag=trish;attrs=indignant
+T|260|282|SAY|who=Trish;id=chapter_x7_b5948a9f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:811
+T|261|285|SAY|who=;id=chapter_x7_9ec638b6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:817
+T|262|286|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|263|286|SHOW|tag=fangdad;attrs=neutral flip
+T|264|286|STOP|music=audio/OST/west_coast_kicking.ogg
+T|265|287|SHOW|tag=trish;attrs=unimpressed
+T|266|288|SHOW|tag=dimmer_lighter;attrs=
+T|267|289|SAY|who=;id=chapter_x7_795ab211;loc=game/tl/es/script/x7-naomi-tribulations.rpy:823
+T|268|291|SHOW|tag=fang;attrs=nonxmas pendant angry
+T|269|291|SAY|who=Fang;id=chapter_x7_566165d5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:829
+T|270|293|SAY|who=;id=chapter_x7_096c9f38;loc=game/tl/es/script/x7-naomi-tribulations.rpy:835
+T|271|296|SHOW|tag=fang;attrs=nonxmas pendant unimpressed
+T|272|296|SHOW|tag=fangmom;attrs=unimpressed flip
+T|273|296|SHOW|tag=trish;attrs=considering
+T|274|296|PLAY|music=audio/OST/west_coast_kicking.ogg
+T|275|297|SHOW|tag=fangdad;attrs=unimpressed flip
+T|276|299|HIDE|tag=fangdad
+T|277|299|HIDE|tag=fangmom
+T|278|300|SAY|who=;id=chapter_x7_0b8eac52;loc=game/tl/es/script/x7-naomi-tribulations.rpy:841
+T|279|302|SHOW|tag=trish;attrs=explanatory
+T|280|302|SAY|who=Trish;id=chapter_x7_f20dc133;loc=game/tl/es/script/x7-naomi-tribulations.rpy:847
+T|281|304|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|282|304|SHOW|tag=trish;attrs=neutral
+T|283|304|SAY|who=Fang;id=chapter_x7_96f53571;loc=game/tl/es/script/x7-naomi-tribulations.rpy:853
+T|284|306|SHOW|tag=trish;attrs=surprised
+T|285|307|SHOW|tag=trish;attrs=happy
+T|286|307|SAY|who=;id=chapter_x7_36438833;loc=game/tl/es/script/x7-naomi-tribulations.rpy:859
+T|287|309|SHOW|tag=trish;attrs=neutral
+T|288|310|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|289|310|SAY|who=;id=chapter_x7_5efed09e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:865
+T|290|312|SAY|who=;id=chapter_x7_cc76e0a5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:871
+T|291|314|SAY|who=Trish;id=chapter_x7_3697d684;loc=game/tl/es/script/x7-naomi-tribulations.rpy:877
+T|292|315|SAY|who=;id=chapter_x7_00ea3b67;loc=game/tl/es/script/x7-naomi-tribulations.rpy:883
+T|293|317|SAY|who=;id=chapter_x7_94004a03;loc=game/tl/es/script/x7-naomi-tribulations.rpy:889
+T|294|318|SAY|who=;id=chapter_x7_bdc6073a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:895
+T|295|319|SHOW|tag=trish;attrs=explanatory
+T|296|319|SAY|who=Trish;id=chapter_x7_629c371d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:901
+T|297|321|SHOW|tag=fang;attrs=phappy flip
+T|298|321|SHOW|tag=trish;attrs=neutral
+T|299|321|SAY|who=Fang;id=chapter_x7_deed07f3;loc=game/tl/es/script/x7-naomi-tribulations.rpy:907
+T|300|323|SHOW|tag=trish;attrs=smile
+T|301|323|SAY|who=Trish;id=chapter_x7_88fd44e9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:913
+T|302|325|SHOW|tag=fang;attrs=pangry flip
+T|303|325|SAY|who=;id=chapter_x7_34b3f6f2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:919
+T|304|327|SAY|who=Fang;id=chapter_x7_1cf71f3d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:925
+T|305|328|SHOW|tag=fang;attrs=punimpressed flip
+T|306|328|SAY|who=Fang;id=chapter_x7_985cc0e9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:931
+T|307|331|SAY|who=Trish;id=chapter_x7_85ccb6e5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:937
+T|308|332|SAY|who=Fang;id=chapter_x7_ec5383ae_1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:943
+T|309|334|SHOW|tag=trish;attrs=considering
+T|310|335|SHOW|tag=trish;attrs=sad notears
+T|311|336|SAY|who=;id=chapter_x7_dbaf5813;loc=game/tl/es/script/x7-naomi-tribulations.rpy:949
+T|312|339|SAY|who=;id=chapter_x7_735724c0;loc=game/tl/es/script/x7-naomi-tribulations.rpy:955
+T|313|340|SHOW|tag=fang;attrs=pconsidering flip
+T|314|340|SAY|who=Fang;id=chapter_x7_c6eb4e26;loc=game/tl/es/script/x7-naomi-tribulations.rpy:961
+T|315|343|SHOW|tag=fang;attrs=pneutral flip
+T|316|343|SHOW|tag=trish;attrs=surprised
+T|317|344|SHOW|tag=trish;attrs=angry
+T|318|348|SAY|who=;id=chapter_x7_1e77bad6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:967
+T|319|351|SAY|who=Fang;id=chapter_x7_7371e915;loc=game/tl/es/script/x7-naomi-tribulations.rpy:973
+T|320|353|SHOW|tag=trish;attrs=annoyed
+T|321|353|SAY|who=;id=chapter_x7_9ed6b131;loc=game/tl/es/script/x7-naomi-tribulations.rpy:979
+T|322|355|SHOW|tag=trish;attrs=explanatory
+T|323|355|SAY|who=Trish;id=chapter_x7_8bd8a41b;loc=game/tl/es/script/x7-naomi-tribulations.rpy:985
+T|324|357|SHOW|tag=fang;attrs=punimpressed flip
+T|325|357|SHOW|tag=trish;attrs=neutral
+T|326|357|SAY|who=Fang;id=chapter_x7_39a04dd9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:991
+T|327|359|SAY|who=Fang;id=chapter_x7_8a99184f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:997
+T|328|361|SAY|who=Fang;id=chapter_x7_948386fd;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1003
+T|329|362|SHOW|tag=fang;attrs=pconsidering flip
+T|330|362|SAY|who=Fang;id=chapter_x7_25f4c725;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1009
+T|331|364|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|332|364|SHOW|tag=naomi;attrs=happy
+T|333|364|SHOW|tag=naser;attrs=happy flip
+T|334|365|SAY|who=;id=chapter_x7_395a0d6e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1015
+T|335|367|SAY|who=;id=chapter_x7_05957c79;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1021
+T|336|369|SAY|who=;id=chapter_x7_93e7df4c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1027
+T|337|371|SAY|who=;id=chapter_x7_65423597;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1033
+T|338|373|SAY|who=;id=chapter_x7_572694d1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1039
+T|339|374|SAY|who=;id=chapter_x7_16e936a2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1045
+T|340|376|SHOW|tag=naomi;attrs=neutral
+T|341|376|SHOW|tag=naser;attrs=considering flip
+T|342|377|SHOW|tag=naser;attrs=explanatory
+T|343|377|SAY|who=;id=chapter_x7_4d375ab8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1051
+T|344|379|SAY|who=;id=chapter_x7_8208728c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1057
+T|345|381|SAY|who=(???);id=chapter_x7_0122d1e4;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1063
+T|346|382|SHOW|tag=fang;attrs=nonxmas pendant surprised
+T|347|382|SAY|who=;id=chapter_x7_041b510d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1069
+T|348|385|SHOW|tag=chadshark;attrs=
+T|349|385|SHOW|tag=fang;attrs=pneutral flip
+T|350|385|SHOW|tag=trish;attrs=surprised flip
+T|351|386|SAY|who=;id=chapter_x7_4f350c0c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1075
+T|352|388|SAY|who=;id=chapter_x7_594406dc;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1081
+T|353|390|SAY|who=Chet;id=chapter_x7_5b5e7c65;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1087
+T|354|391|SAY|who=Chet;id=chapter_x7_62965665;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1093
+T|355|393|SAY|who=;id=chapter_x7_fb98aca8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1099
+T|356|394|SHOW|tag=trish;attrs=considering flip
+T|357|394|SAY|who=;id=chapter_x7_a012da6c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1105
+T|358|397|HIDE|tag=chadshark
+T|359|397|SHOW|tag=fang;attrs=phappy flip
+T|360|397|SHOW|tag=trish;attrs=neutral flip
+T|361|398|SAY|who=Fang;id=chapter_x7_8dbcf3f9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1111
+T|362|401|SAY|who=Trish;id=chapter_x7_b3d8588e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1117
+T|363|403|SAY|who=Fang;id=chapter_x7_9f5198db;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1123
+T|364|404|SHOW|tag=trish;attrs=smug flip
+T|365|404|SAY|who=;id=chapter_x7_375e27d7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1129
+T|366|407|SAY|who=Trish;id=chapter_x7_b9e29f13;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1135
+T|367|408|SAY|who=Trish;id=chapter_x7_f55f352c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1141
+T|368|409|SHOW|tag=trish;attrs=smile
+T|369|409|SAY|who=Trish;id=chapter_x7_1d877948;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1147
+T|370|412|SAY|who=Fang;id=chapter_x7_40219b2d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1153
+T|371|413|SAY|who=Fang;id=chapter_x7_d29efcea;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1159
+T|372|418|HIDE|tag=fang
+T|373|418|SAY|who=;id=chapter_x7_62b4298c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1165
+T|374|421|SCENE
+T|375|421|SHOW|tag=black;attrs=
+T|376|421|STOP|music=audio/OST/west_coast_kicking.ogg
+T|377|422|SCENE
+T|378|422|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|379|422|SHOW|tag=fangroom;attrs=future
+T|380|422|PLAY|music=audio/OST/The Top of the Social Ladder.ogg
+T|381|423|SAY|who=;id=chapter_x7_6bc1b4a2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1171
+T|382|425|SAY|who=Fang;id=chapter_x7_01f62a90;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1177
+T|383|427|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|384|428|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|385|428|SAY|who=Fang;id=chapter_x7_8298c6da;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1183
+T|386|431|SAY|who=;id=chapter_x7_5e317de2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1189
+T|387|433|SAY|who=;id=chapter_x7_cb2b37d7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1195
+T|388|435|SAY|who=;id=chapter_x7_45ea5e45;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1201
+T|389|437|SAY|who=Fang;id=chapter_x7_a72402ba;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1207
+T|390|438|SAY|who=;id=chapter_x7_ed0476d2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1213
+T|391|439|SAY|who=;id=chapter_x7_7dfa77b2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1219
+T|392|441|SHOW|tag=fang;attrs=phappy flip
+T|393|441|SHOW|tag=naomi;attrs=neutral flip
+T|394|442|SHOW|tag=fang;attrs=pshocked flip
+T|395|442|SAY|who=;id=chapter_x7_e8ca14d9;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1225
+T|396|444|SHOW|tag=fang;attrs=pangry flip
+T|397|444|SAY|who=;id=chapter_x7_90ab98e8;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1231
+T|398|446|SAY|who=;id=chapter_x7_bdadb3d7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1237
+T|399|448|SAY|who=Fang;id=chapter_x7_2047dcab;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1243
+T|400|451|SAY|who=;id=chapter_x7_1aaf6424;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1249
+T|401|453|SAY|who=Fang;id=chapter_x7_17a7cefa;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1255
+T|402|456|SAY|who=Naomi;id=chapter_x7_2118ef42;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1261
+T|403|459|SHOW|tag=naomi;attrs=unimpressed
+T|404|460|SAY|who=;id=chapter_x7_7724066d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1267
+T|405|462|SAY|who=;id=chapter_x7_a04fc48f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1273
+T|406|463|SHOW|tag=fang;attrs=punimpressed flip
+T|407|463|SAY|who=;id=chapter_x7_963e2a14;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1279
+T|408|466|SAY|who=;id=chapter_x7_58cf2a4f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1285
+T|409|468|SCENE
+T|410|468|SHOW|tag=black;attrs=
+T|411|468|STOP|music=audio/OST/The Top of the Social Ladder.ogg
+T|412|469|SCENE
+T|413|469|SHOW|tag=chadshark;attrs=flip
+T|414|469|SHOW|tag=fangdad;attrs=happy
+T|415|469|SHOW|tag=fangmom;attrs=neutral
+T|416|469|SHOW|tag=home;attrs=fang day alt
+T|417|469|SHOW|tag=moe;attrs=neutral flip
+T|418|469|SHOW|tag=naomi;attrs=explanatory flip
+T|419|469|SHOW|tag=naser;attrs=neutral flip
+T|420|469|SHOW|tag=stella;attrs=explanatory flip
+T|421|469|SHOW|tag=trish;attrs=happy
+T|422|470|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|423|471|SHOW|tag=trish;attrs=surprised flip
+T|424|472|SHOW|tag=fangdad;attrs=neutral flip
+T|425|472|SHOW|tag=fangmom;attrs=neutral flip
+T|426|472|SHOW|tag=naomi;attrs=unimpressed flip
+T|427|472|SHOW|tag=stella;attrs=neutral flip
+T|428|472|SHOW|tag=trish;attrs=smile flip
+T|429|472|SAY|who=;id=chapter_x7_ce0c7cbe;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1291
+T|430|475|SAY|who=Fang;id=chapter_x7_03249e7f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1297
+T|431|476|SAY|who=Trish;id=chapter_x7_df4782ba;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1303
+T|432|477|SAY|who=Fang;id=chapter_x7_9d51cccc;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1309
+T|433|478|SHOW|tag=trish;attrs=considering flip
+T|434|478|SAY|who=Trish;id=chapter_x7_c96ed075;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1315
+T|435|481|SAY|who=;id=chapter_x7_c07a9d1a;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1321
+T|436|482|SHOW|tag=trish;attrs=smile flip
+T|437|482|SAY|who=;id=chapter_x7_630f932f;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1327
+T|438|484|SAY|who=;id=chapter_x7_6cb298dc;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1333
+T|439|486|PLAY|music=audio/OST/The.ogg
+T|440|486|SAY|who=;id=chapter_x7_b5afc47d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1339
+T|441|489|SAY|who=;id=chapter_x7_0bfec3d5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1345
+T|442|490|SAY|who=;id=chapter_x7_95fe677d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1351
+T|443|492|SAY|who=;id=chapter_x7_ef99c98d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1357
+T|444|493|SHOW|tag=naser;attrs=happy flip
+T|445|493|SHOW|tag=stella;attrs=happy flip
+T|446|493|SHOW|tag=trish;attrs=happy flip
+T|447|493|SAY|who=;id=chapter_x7_dff477e6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1363
+T|448|495|SHOW|tag=fangdad;attrs=happy flip
+T|449|495|SAY|who=;id=chapter_x7_7c2016fa;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1369
+T|450|497|SHOW|tag=naomi;attrs=sad flip
+T|451|497|SAY|who=;id=chapter_x7_ed10d2ac;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1375
+T|452|499|SAY|who=;id=chapter_x7_14bcb2a2;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1381
+T|453|501|SAY|who=;id=chapter_x7_13b79e37;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1387
+T|454|503|SAY|who=;id=chapter_x7_6196c3e6;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1393
+T|455|505|SHOW|tag=fang;attrs=very happy
+T|456|505|SHOW|tag=stella;attrs=neutral flip
+T|457|505|SHOW|tag=trish;attrs=smile flip
+T|458|505|STOP|music=audio/OST/The.ogg
+T|459|505|SAY|who=;id=chapter_x7_c890acf5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1399
+T|460|507|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|461|507|SAY|who=;id=chapter_x7_65423597_1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1405
+T|462|509|SHOW|tag=fang;attrs=nonxmas pendant flip off happy
+T|463|509|SAY|who=Fang;id=chapter_x7_46460455;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1411
+T|464|511|SAY|who=Fang;id=chapter_x7_2d98a027;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1417
+T|465|513|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|466|513|SHOW|tag=fangmom;attrs=neutral
+T|467|513|SHOW|tag=naomi;attrs=neutral
+T|468|513|SHOW|tag=stella;attrs=neutral
+T|469|514|SHOW|tag=naser;attrs=neutral flip
+T|470|515|SHOW|tag=chadshark;attrs=
+T|471|515|SHOW|tag=fangdad;attrs=happy
+T|472|515|SHOW|tag=naser;attrs=considering flip
+T|473|516|SHOW|tag=fangdad;attrs=happy flip
+T|474|516|SHOW|tag=stella;attrs=happy
+T|475|516|SAY|who=;id=chapter_x7_bf270638;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1423
+T|476|519|SAY|who=Trish;id=chapter_x7_3b242b8d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1429
+T|477|520|SAY|who=Fang;id=chapter_x7_d74240a5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1435
+T|478|521|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|479|521|SAY|who=Fang;id=chapter_x7_b3025ca1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1441
+T|480|523|SHOW|tag=fang;attrs=nonxmas pendant happy
+T|481|523|SHOW|tag=trish;attrs=happy flip
+T|482|523|PLAY|music=audio/OST/middle_of_nowhere.ogg
+T|483|523|SAY|who=;id=chapter_x7_a7153c58;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1447
+T|484|525|SAY|who=;id=chapter_x7_9ccde839;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1453
+T|485|526|SAY|who=;id=chapter_x7_4fe0ec03;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1459
+T|486|527|HIDE|tag=chadshark
+T|487|527|HIDE|tag=fangdad
+T|488|527|HIDE|tag=fangmom
+T|489|527|HIDE|tag=naomi
+T|490|527|HIDE|tag=naser
+T|491|527|HIDE|tag=stella
+T|492|528|SHOW|tag=chadshark;attrs=
+T|493|528|SHOW|tag=naomi;attrs=neutral flip
+T|494|528|SHOW|tag=naser;attrs=tablehit
+T|495|528|SHOW|tag=stella;attrs=neutral
+T|496|529|SAY|who=;id=chapter_x7_4ffefce1;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1465
+T|497|531|SAY|who=;id=chapter_x7_05d78fb5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1471
+T|498|532|SHOW|tag=stella;attrs=explanatory
+T|499|532|SAY|who=Stella;id=chapter_x7_1485a892;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1477
+T|500|534|SAY|who=(???);id=chapter_x7_b0718b16;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1483
+T|501|535|SAY|who=(???);id=chapter_x7_e439441b;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1489
+T|502|536|SAY|who=Stella;id=chapter_x7_431a5932;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1495
+T|503|537|SHOW|tag=stella;attrs=neutral
+T|504|537|SAY|who=Chet;id=chapter_x7_9ad5c5ab;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1501
+T|505|540|SAY|who=;id=chapter_x7_7d570d1d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1507
+T|506|541|SHOW|tag=naomi;attrs=considering flip
+T|507|541|SHOW|tag=sodacan;attrs=
+T|508|544|SHOW|tag=naomi;attrs=angry
+T|509|545|HIDE|tag=stella
+T|510|545|SHOW|tag=dimmer_darker;attrs=
+T|511|545|SHOW|tag=naomi;attrs=shocked flip
+T|512|545|SHOW|tag=stella_hack;attrs=
+T|513|546|SAY|who=;id=chapter_x7_c8b30d94;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1513
+T|514|550|HIDE|tag=stella_hack
+T|515|550|SHOW|tag=naomi;attrs=happy flip
+T|516|550|SHOW|tag=naser;attrs=brooding flip
+T|517|550|SHOW|tag=stella;attrs=sad
+T|518|551|SHOW|tag=fangdad;attrs=happy
+T|519|551|SHOW|tag=fangmom;attrs=neutral flip
+T|520|551|SAY|who=;id=chapter_x7_d0c4a5aa;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1519
+T|521|554|SAY|who=;id=chapter_x7_bc52bd6c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1525
+T|522|557|SAY|who=;id=chapter_x7_cbd460f5;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1531
+T|523|558|SAY|who=;id=chapter_x7_f054f1c7;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1537
+T|524|560|SHOW|tag=naomi;attrs=neutral flip
+T|525|560|SAY|who=;id=chapter_x7_20492c57;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1543
+T|526|563|SHOW|tag=naomi;attrs=considering flip
+T|527|564|SHOW|tag=naser;attrs=considering flip
+T|528|565|SHOW|tag=naser;attrs=neutral flip
+T|529|566|SHOW|tag=naser;attrs=explanatory flip
+T|530|567|SHOW|tag=fangdad;attrs=happy flip
+T|531|567|SHOW|tag=naomi;attrs=sad flip
+T|532|567|SHOW|tag=stella;attrs=explanatory
+T|533|567|SAY|who=;id=chapter_x7_f98e6895;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1549
+T|534|570|SAY|who=;id=chapter_x7_e6d6d413;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1555
+T|535|571|HIDE|tag=chadshark
+T|536|571|HIDE|tag=fangdad
+T|537|571|HIDE|tag=fangmom
+T|538|571|HIDE|tag=naomi
+T|539|571|HIDE|tag=naser
+T|540|571|HIDE|tag=stella
+T|541|571|SHOW|tag=fang;attrs=nonxmas pendant neutral
+T|542|571|SHOW|tag=trish;attrs=indignant flip
+T|543|572|SAY|who=Trish;id=chapter_x7_33bb787d;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1561
+T|544|574|SAY|who=Fang;id=chapter_x7_3e1f2f9c;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1567
+T|545|575|SHOW|tag=trish;attrs=explanatory flip
+T|546|575|SAY|who=Trish;id=chapter_x7_88fb679e;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1573
+T|547|577|SHOW|tag=trish;attrs=neutral flip
+T|548|577|SAY|who=;id=chapter_x7_b00e3a87;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1579
+T|549|580|SHOW|tag=trish;attrs=smile
+T|550|580|SAY|who=;id=chapter_x7_3c18bd38;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1585
+T|551|583|SAY|who=;id=chapter_x7_e4def665;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1591
+T|552|584|SHOW|tag=fang;attrs=nonxmas pendant considering
+T|553|584|SAY|who=;id=chapter_x7_107de147;loc=game/tl/es/script/x7-naomi-tribulations.rpy:1597
+T|554|587|SCENE
+T|555|587|SHOW|tag=black;attrs=
+T|556|587|STOP|music=audio/OST/middle_of_nowhere.ogg
+T|557|587|LABEL|name=_kit_capture_end

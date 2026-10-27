@@ -54,3 +54,13 @@ pendientes hasta que el compilador los exponga.
   `who` y `loc`. Se anota como pendiente para cuando el compilador exponga esos ids.
 - La autoselección de opciones para recorrer rutas de forma determinista se delega a `kit_capture.rpy`
   (`SNOOT_CHOICES`); este hook solo registra lo que ocurre.
+
+## Grabacion de trazas de referencia (T-302)
+
+`python -m tools.renpy_trace.record [--route <nombre>]` prepara una copia del juego en `build/renpy/snoot/juego` (con `kit_capture.rpy` y `trace_hook.rpy`), corre Snoot sobre cada ruta elegida y deja la traza en `tests/reference/traces/snoot/<ruta>.trace`. Sin `--route` corre las 14 rutas de `reporte/rutas.json`.
+
+```
+E:/Dev/renpy-console-project/.venv/Scripts/python.exe -m tools.renpy_trace.record --route chapter_x1
+```
+
+Las capturas de pantalla se quedan en `build/renpy/snoot/captura/` (no se suben).

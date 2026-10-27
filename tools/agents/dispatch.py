@@ -145,6 +145,8 @@ def alias_problems(name: str, source: str) -> list[str]:
 def quality_problems(wt: Path, base: str, allowed: list[str] | None = None) -> list[str]:
     """Lo que la revisión rechazaría siempre: archivos fuera de los permitidos, errores de ruff, código muerto
     (vulture), falta de salto de línea final y pruebas rotas. Solo mira lo que la rama cambió respecto de `base`."""
+    # Contra el punto donde nació la rama: lo que main avanzó mientras tanto no es del agente
+    base = git("merge-base", base, "HEAD", cwd=wt, check=False).stdout.strip() or base
     touched = git("diff", "--name-only", base, cwd=wt, check=False).stdout.split()
     touched += git("ls-files", "--others", "--exclude-standard", cwd=wt, check=False).stdout.split()
     touched = list(dict.fromkeys(touched))

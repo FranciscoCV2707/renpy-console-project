@@ -1,9 +1,11 @@
 # STATUS — renpy-console-project
 
-## Fecha: 2026-10-26
+## Fecha: 2026-10-27
 
 ## Fase actual
-Fases 4-7 en paralelo (D20): PC, PSP y PS2 juegan rutas completas; Vita, 3DS, Wii, Xbox, Switch y PS4 compilan; demakes de GBA y GB en marcha. G1, G2 y G3 cumplidas.
+Fases 4-7 en paralelo (D20). `chapter_x2` PASS contra Ren'Py en PS1, PC, PSP, PS2, Vita, Wii y PS4. 3DS y PS3 corren
+el juego pero aún sin veredicto; DS arranca título y diálogo; GBA muestra un CG. G1, G2 y G3 cumplidas; G5 en medición
+(T-620).
 
 ## Hecho
 - [x] Repo con git; rutas a `E:\snoot` en este repo y en los hermanos.
@@ -35,13 +37,21 @@ Fases 4-7 en paralelo (D20): PC, PSP y PS2 juegan rutas completas; Vita, 3DS, Wi
   capturas idénticas (contador final ±2 en los 3 escenarios largos, como el motor original).
 - [ ] Fase 4 (D20, D21, D22): backend SDL en PC con los datos del disco de PS1: título, texto, audio XA/SPU; humo
   propio (`snoot-smoke-pc`). Falta: oír el audio contra los OGG originales.
-- [ ] Fase 5: PSP hecha (T-501: chapter_x2 PASS en PPSSPP en 8 s). PS2 (T-502: compila; se cuelga al arrancar en
-  PCSX2; segunda ronda con Kilo).
-- [ ] Fase 6: Vita fusionada (T-601). 3DS, Wii, Xbox clásica y Switch compilan (T-602..T-605) y entran con T-407
-  (`sdl_target.h`, en curso). PS4 compila (T-606, `snoot.pkg`) y entra después de T-407. Adaptador de Vita3K
-  (T-608) en curso. Perfiles de recursos de las cinco (T-506).
-- [ ] Fase 7: GBA cabe en 32 MB (T-701) y su empaquetador está hecho (T-702, 24,8 MB); GB/GBC cabe en 8 MB (T-703);
-  empaquetador de GB/GBC en curso (T-704).
+- [ ] Fase 5: PSP y PS2 con `chapter_x2` PASS (PPSSPP, PCSX2). Las 14 rutas en medición (T-620, G5).
+- [ ] Fase 6 (todas con `sdl_target.h`, T-407):
+  - Vita: renderer GXM de SDL2 sin `libshacccg.suprx` (T-612), `chapter_x2` PASS. Falta: la captura interna sale
+    negra (lectura del framebuffer con GXM).
+  - Wii: `chapter_x2` PASS en Dolphin (T-611, T-617: teclado de libwiikeyboard sin iniciar, `res_get` con 180 KB en
+    el stack, traza por USB Gecko).
+  - PS4: `chapter_x2` PASS en shadPS4 (T-614, T-616, T-618: dlmalloc propio con `MMAP_CLEARS=0`, traza `[stdin]`,
+    Makefile con dependencias de headers y objetos por modo).
+  - 3DS: el juego corre en Azahar (T-610); falta la traza por `svcOutputDebugString` y la pantalla negra (T-619).
+  - PS3: SDL2 desde la fuente del port de ps3dev con audio funcional (T-615); en RPCS3 el renderer OpenGL truena y
+    con el Null el juego espera el flip (T-621).
+  - Xbox clásica y Switch compilan; esperan MCPX/BIOS y claves del usuario.
+- [ ] Fase 7: GBA muestra un CG y texto en mGBA (T-705; LZ77 arreglado: banderas de GBATEK y distancia ≥ 2 para VRAM).
+  DS: empaquetador (T-707, 107 MB de 512) y backend con el núcleo compartido (T-708: título, menú y diálogo); falta
+  la escena arriba y la traza por la SD de melonDS (T-709). GB/GBC: presupuesto y empaquetador hechos.
 - [x] Licencias y `CREDITS.md` (T-901), guía para jugadores `docs/instalar.md` (T-902), factibilidad del nivel R
   (T-R01, D23: Xbox One/Series, PS4 y PS3 entran; PS5 y Xbox 360 fuera por ahora).
 - Emuladores en `E:\snoot` (ver `CLAUDE.md`); faltan MCPX y BIOS de Xbox y claves de Switch (del usuario).
@@ -66,6 +76,10 @@ Fases 4-7 en paralelo (D20): PC, PSP y PS2 juegan rutas completas; Vita, 3DS, Wi
 - Xbox One/Series al final (Visual Studio con UWP, más de 10 GB, y modo desarrollador: con permiso del usuario).
 - El repo mezcla CRLF (lo copiado de `ps1-base`) y LF. Propuesta: `.gitattributes` con `eol=lf` y renormalizar.
 - Agentes que lanzan PCSX-Redux para probar opciones dejan procesos colgados: revisar `tasklist` al terminar.
+  `dispatch.py` ya mata el árbol de procesos del agente al vencer el tiempo.
+- PS3 se dibuja a 320×240 sin escalar (el renderer de SDL_PSL1GHT es software); volver a ×3 con renderer acelerado.
+- Beam falló dos veces en las tareas con emulador (T-705, T-610, T-611): esas van a Vibe, Kilo o Antigravity.
+- Revisar que los agentes midan las capturas: T-705 y T-708 reportaron imágenes que no coincidían con lo que se ve.
 
 ## Avisos
 - `psxavenc.exe` termina con 0xC0000139 al convertir audio: rompe 1 prueba de wani-ps1

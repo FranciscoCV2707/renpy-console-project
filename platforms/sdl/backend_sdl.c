@@ -16,7 +16,14 @@ static FILE *open_file(const char *n)
 {
 	const char *root = getenv("VN_DATA_DIR");
 	char p[600];
-	snprintf(p, sizeof(p), "%s/%s", root && *root ? root : ".", n);
+	snprintf(p, sizeof(p), "%s/%s",
+	         root && *root ? root :
+#ifdef __3DS__
+	                       "sdmc:/3ds/snoot/data",
+#else
+	                       ".",
+#endif
+	         n);
 	return fopen(p, "rb");
 }
 static int file_size(const char *n)

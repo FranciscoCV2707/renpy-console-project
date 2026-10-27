@@ -73,8 +73,13 @@ void video_init(void)
 		if (headless_surface)
 			renderer = SDL_CreateSoftwareRenderer(headless_surface);
 	} else {
+#ifdef __3DS__
+		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 400, 240,
+		                          SDL_WINDOW_SHOWN);
+#else
 		window = SDL_CreateWindow("Snoot Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 720,
 		                          SDL_WINDOW_SHOWN);
+#endif
 		if (window)
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 		if (!renderer && window)

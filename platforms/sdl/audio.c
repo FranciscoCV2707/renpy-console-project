@@ -240,7 +240,14 @@ int audio_init(void)
 		if (cd_find("\\MUSIC.XA", &lba, &size) == 0) {
 			char path[600];
 			const char *root = getenv("VN_DATA_DIR");
-			snprintf(path, sizeof(path), "%s/MUSIC.XA", root && *root ? root : ".");
+			snprintf(path, sizeof(path), "%s/MUSIC.XA",
+			         root && *root ? root :
+#ifdef __3DS__
+			                       "sdmc:/3ds/snoot/data"
+#else
+			                       "."
+#endif
+			);
 			music_file = fopen(path, "rb");
 		}
 	}

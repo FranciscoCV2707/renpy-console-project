@@ -13,6 +13,10 @@ int cd_init(void)
 	const char *p = getenv("VN_DATA_DIR");
 	if (p && *p)
 		snprintf(root, sizeof(root), "%s", p);
+#ifdef __3DS__
+	else
+		snprintf(root, sizeof(root), "sdmc:/3ds/snoot/data");
+#endif
 	return 1;
 }
 static void make_path(const char *path)

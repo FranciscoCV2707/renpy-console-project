@@ -27,6 +27,9 @@ INCLUDES = -I/src/engine/core -I/src/engine/platform -I/src/engine/app \
 
 CFLAGS = $(MACHDEP) -std=c99 -Wall -Wextra -Wno-unused-parameter -pedantic -O2 \
          -D__PSL1GHT__ $(INCLUDES)
+ifeq ($(VN_TRACE),1)
+CFLAGS += -DVN_TRACE
+endif
 LDFLAGS = $(MACHDEP) -Wl,-q
 LIBS = -L$(BUILDDIR)/sdl2/lib -lSDL2 -lm -lgcm_sys -lrsx -lsysutil -lio -laudio \
        -lrt -llv2 $(LIBPSL1GHT_LIB)
